@@ -6,80 +6,53 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Starting database seed...')
 
-  // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10)
-  const admin = await prisma.user.create({
-    data: {
-      email: 'admin@missioncontrol.local',
-      name: 'System Admin',
-      password: adminPassword,
-      role: 'ADMIN',
-      status: 'ONLINE',
-    },
-  })
-  console.log('✅ Created admin user:', admin.email)
+  const password = await bcrypt.hash('password123', 10)
 
-  // Create manager user
-  const managerPassword = await bcrypt.hash('manager123', 10)
-  const manager = await prisma.user.create({
-    data: {
-      email: 'manager@missioncontrol.local',
-      name: 'Project Manager',
-      password: managerPassword,
-      role: 'MANAGER',
-      status: 'ONLINE',
-    },
-  })
-  console.log('✅ Created manager user:', manager.email)
+  // --- ROSTER ---
+  // Raz, Baro, Noona, Obey
+  // Baro subs: Bob, Lin, SOBA, Haji
+  // Noona subs: Jen
 
-  // Create agent users
-  const agentPassword = await bcrypt.hash('agent123', 10)
-  const agents = await Promise.all([
-    prisma.user.create({
-      data: {
-        email: 'noona@missioncontrol.local',
-        name: 'Noona',
-        password: agentPassword,
-        role: 'AGENT',
-        status: 'ONLINE',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: 'jen@missioncontrol.local',
-        name: 'Jen',
-        password: agentPassword,
-        role: 'AGENT',
-        status: 'AWAY',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: 'baro@missioncontrol.local',
-        name: 'Baro',
-        password: agentPassword,
-        role: 'AGENT',
-        status: 'OFFLINE',
-      },
-    }),
-  ])
-  console.log('✅ Created', agents.length, 'agent users')
+  const usersData = [
+    { name: 'Raz', email: 'raz@missioncontrol.local', role: 'ADMIN', status: 'ONLINE' },
+    { name: 'Baro', email: 'baro@missioncontrol.local', role: 'MANAGER', status: 'ONLINE' },
+    { name: 'Noona', email: 'noona@missioncontrol.local', role: 'AGENT', status: 'ONLINE' },
+    { name: 'Obey', email: 'obey@missioncontrol.local', role: 'AGENT', status: 'ONLINE' },
+    // Baro's subagents
+    { name: 'Bob', email: 'bob@missioncontrol.local', role: 'AGENT', status: 'ONLINE' },
+    { name: 'Lin', email: 'lin@missioncontrol.local', role: 'AGENT', status: 'ONLINE' },
+    { name: 'SOBA', email: 'soba@missioncontrol.local', role: 'AGENT', status: 'ONLINE' },
+    { name: 'Haji', email: 'haji@missioncontrol.local', role: 'AGENT', status: 'ONLINE' },
+    // Noona's subagent
+    { name: 'Jen', email: 'jen@missioncontrol.local', role: 'AGENT', status: 'ONLINE' },
+  ]
 
-  // Create sample projects
+  const users = await Promise.all(
+    usersData.map(u => prisma.user.upsert({
+      where: { email: u.email },
+      update: { name: u.name, role: u.role, status: u.status },
+      create: { ...u, password }
+    }))
+  )
+  console.log('✅ Created users roster:', users.length)
+
+  const [raz, baro, noona, obey, bob, lin, soba, haji, jen] = users
+
+  // --- PROJECTS ---
   const projects = await Promise.all([
     prisma.project.create({
       data: {
-        name: 'Mission Control V2.0',
-        description: 'Next-generation dashboard with real-time collaboration',
+        name: 'Mission Control V2',
+        description: 'The central nervous system for agent orchestration and memory management.',
         status: 'ACTIVE',
         priority: 'HIGH',
-        progress: 25,
-        ownerId: admin.id,
+        progress: 60,
+        ownerId: raz.id,
         members: {
           create: [
-            { userId: manager.id, role: 'LEAD' },
-            { userId: agents[0].id, role: 'MEMBER' },
-            { userId: agents[1].id, role: 'MEMBER' },
+            { userId: baro.id, role: 'LEAD' },
+            { userId: noona.id, role: 'MEMBER' },
+            { userId: jen.id, role: 'MEMBER' },
           ],
         },
       },
@@ -87,14 +60,15 @@ async function main() {
     prisma.project.create({
       data: {
         name: 'Workspace Explorer',
-        description: 'File navigation and workspace management tool',
-        status: 'PLANNING',
+        description: 'Advanced file navigation and semantic mapping for the agent workspace.',
+        status: 'ACTIVE',
         priority: 'MEDIUM',
-        progress: 10,
-        ownerId: manager.id,
+        progress: 30,
+        ownerId: baro.id,
         members: {
           create: [
-            { userId: agents[0].id, role: 'MEMBER' },
+            { userId: noona.id, role: 'MEMBER' },
+            { userId: bob.id, role: 'MEMBER' },
           ],
         },
       },
@@ -102,213 +76,124 @@ async function main() {
     prisma.project.create({
       data: {
         name: 'Memories Browser',
-        description: 'Agent memory visualization and search',
-        status: 'COMPLETED',
+        description: 'Visualization and querying interface for long-term agent memory.',
+        status: 'PLANNING',
         priority: 'HIGH',
-        progress: 100,
-        ownerId: agents[2].id,
+        progress: 10,
+        ownerId: noona.id,
         members: {
           create: [
-            { userId: admin.id, role: 'MEMBER' },
-            { userId: agents[0].id, role: 'MEMBER' },
+            { userId: raz.id, role: 'MEMBER' },
+            { userId: jen.id, role: 'MEMBER' },
           ],
         },
       },
     }),
   ])
-  console.log('✅ Created', projects.length, 'projects')
+  console.log('✅ Created projects:', projects.length)
 
-  // Create sample tasks
+  // --- TASKS ---
   const tasks = await Promise.all([
     prisma.task.create({
       data: {
-        title: 'Set up database schema',
-        description: 'Create Prisma schema and initial migrations',
+        title: 'Refine Seed Data',
+        description: 'Update seed.ts to reflect current team roster and MC-V2 reality.',
         status: 'DONE',
         priority: 'HIGH',
         projectId: projects[0].id,
-        assigneeId: agents[0].id,
-        creatorId: admin.id,
-        estimatedHours: 4,
-        actualHours: 3,
+        assigneeId: jen.id,
+        creatorId: noona.id,
+        estimatedHours: 2,
+        actualHours: 1,
       },
     }),
     prisma.task.create({
       data: {
-        title: 'Implement authentication API',
-        description: 'JWT-based auth with login/register endpoints',
-        status: 'DONE',
-        priority: 'HIGH',
-        projectId: projects[0].id,
-        assigneeId: agents[0].id,
-        creatorId: admin.id,
-        estimatedHours: 6,
-        actualHours: 5,
-      },
-    }),
-    prisma.task.create({
-      data: {
-        title: 'Create dashboard UI components',
-        description: 'Build reusable components for the dashboard',
+        title: 'Architecture Review',
+        description: 'Finalize the integration pattern for the Memories Browser.',
         status: 'IN_PROGRESS',
         priority: 'HIGH',
-        projectId: projects[0].id,
-        assigneeId: agents[1].id,
-        creatorId: manager.id,
-        estimatedHours: 8,
+        projectId: projects[2].id,
+        assigneeId: noona.id,
+        creatorId: baro.id,
+        estimatedHours: 4,
       },
     }),
     prisma.task.create({
       data: {
-        title: 'Set up WebSocket server',
-        description: 'Implement Socket.io for real-time updates',
-        status: 'TODO',
-        priority: 'MEDIUM',
-        projectId: projects[0].id,
-        assigneeId: agents[0].id,
-        creatorId: manager.id,
-        estimatedHours: 6,
-      },
-    }),
-    prisma.task.create({
-      data: {
-        title: 'Design file tree component',
-        description: 'Create hierarchical file browser UI',
+        title: 'Workspace Indexing',
+        description: 'Implement the initial file system crawler for the Explorer.',
         status: 'TODO',
         priority: 'MEDIUM',
         projectId: projects[1].id,
-        assigneeId: agents[0].id,
-        creatorId: manager.id,
-        estimatedHours: 4,
+        assigneeId: bob.id,
+        creatorId: baro.id,
+        estimatedHours: 8,
       },
     }),
   ])
-  console.log('✅ Created', tasks.length, 'tasks')
+  console.log('✅ Created tasks:', tasks.length)
 
-  // Create sample activities
+  // --- ACTIVITIES ---
   const activities = await Promise.all([
     prisma.activity.create({
       data: {
         type: 'PROJECT_CREATED',
         metadata: JSON.stringify({ projectId: projects[0].id, projectName: projects[0].name }),
-        userId: admin.id,
+        userId: raz.id,
       },
     }),
     prisma.activity.create({
       data: {
         type: 'TASK_COMPLETED',
         metadata: JSON.stringify({ taskId: tasks[0].id, taskTitle: tasks[0].title }),
-        userId: agents[0].id,
-      },
-    }),
-    prisma.activity.create({
-      data: {
-        type: 'USER_JOINED',
-        metadata: JSON.stringify({ userId: agents[1].id, userName: agents[1].name }),
-        userId: agents[1].id,
+        userId: jen.id,
       },
     }),
   ])
-  console.log('✅ Created', activities.length, 'activities')
+  console.log('✅ Created activities:', activities.length)
 
-  // Create sample memories
+  // --- MEMORIES ---
   const memories = await Promise.all([
     prisma.memory.create({
       data: {
-        title: 'V2.0 Architecture Decision',
-        content: 'Decided to use React 18 + TypeScript + Vite for frontend, Node.js + Express + Socket.io for backend, and SQLite for development database. This stack provides type safety, real-time capabilities, and easy deployment.',
+        title: 'MC-V2 Delegation Model',
+        content: 'Noona acts as Tech Lead, managing architecture and review. Jen handles primary implementation. Baro directs creative and strategy.',
         category: 'decision',
-        tags: JSON.stringify(['architecture', 'v2.0', 'tech-stack']),
+        tags: JSON.stringify(['architecture', 'delegation', 'team']),
         source: 'conversation',
         importance: 5,
-        userId: admin.id,
+        userId: noona.id,
       },
     }),
     prisma.memory.create({
       data: {
-        title: 'Team Member Onboarding - Noona',
-        content: 'Noona joined as tech lead. Responsible for architecture decisions, code reviews, and mentoring junior developers. Strong skills in React, TypeScript, and system design.',
+        title: 'Canonical Team Roster',
+        content: 'Team: Raz (Boss), Baro (Creative Lead), Noona (Tech Lead), Obey. Sub-agents: Bob, Lin, SOBA, Haji (Baro); Jen (Noona).',
         category: 'milestone',
-        tags: JSON.stringify(['team', 'onboarding', 'noona']),
+        tags: JSON.stringify(['team', 'roster']),
         source: 'system',
-        importance: 4,
-        userId: admin.id,
+        importance: 5,
+        userId: raz.id,
       },
     }),
     prisma.memory.create({
       data: {
-        title: 'Database Schema Design Notes',
-        content: 'Key models: User (auth, profile), Project (with members), Task (assignable), Message (project chat), Activity (audit log), Notification (user alerts), Memory (this feature). Using Prisma for type-safe ORM.',
-        category: 'file',
-        tags: JSON.stringify(['database', 'schema', 'prisma']),
-        source: 'file',
-        importance: 4,
-        userId: agents[0].id,
-      },
-    }),
-    prisma.memory.create({
-      data: {
-        title: 'WebSocket Implementation Pattern',
-        content: 'Use room-based subscriptions: project rooms for project updates, task rooms for task-specific events, user rooms for personal notifications. Improves scalability and reduces broadcast overhead.',
-        category: 'conversation',
-        tags: JSON.stringify(['websocket', 'real-time', 'architecture']),
-        source: 'conversation',
-        importance: 4,
-        userId: agents[0].id,
-      },
-    }),
-    prisma.memory.create({
-      data: {
-        title: 'V1.4 Migration Strategy',
-        content: 'Migration script created to transfer data from JSON files to database. Includes dry-run mode for testing. All V1.4 data (team, projects, tasks, activities) can be migrated with ID mapping preserved.',
-        category: 'milestone',
-        tags: JSON.stringify(['migration', 'v1.4', 'data']),
-        source: 'system',
-        importance: 3,
-        userId: manager.id,
-      },
-    }),
-    prisma.memory.create({
-      data: {
-        title: 'UI Component Library Decisions',
-        content: 'Using Tailwind CSS with custom design tokens. Created shared UI components: Button, Badge, Avatar, Toast. Following consistent color scheme: primary (indigo), success (green), warning (amber), error (rose).',
+        title: 'Execution Protocol: MVP First',
+        content: 'Bias to action. Ship working versions first, then iterate. GitHub commits are the primary proof of work.',
         category: 'decision',
-        tags: JSON.stringify(['ui', 'tailwind', 'components']),
+        tags: JSON.stringify(['workflow', 'execution', 'mvp']),
         source: 'conversation',
-        importance: 3,
-        userId: agents[1].id,
-      },
-    }),
-    prisma.memory.create({
-      data: {
-        title: 'React Query Best Practices',
-        content: 'Use staleTime: 30s for most queries, refetchInterval: 60s for real-time data. Always invalidate related queries on mutations. Use enabled option to conditionally fetch.',
-        category: 'general',
-        tags: JSON.stringify(['react-query', 'frontend', 'patterns']),
-        source: 'file',
-        importance: 3,
-        userId: agents[0].id,
-      },
-    }),
-    prisma.memory.create({
-      data: {
-        title: 'Team Velocity Metrics',
-        content: 'Current sprint velocity: 15 story points. Average task completion time: 3.2 days. Bottleneck identified in code review process. Recommendation: implement pair programming for complex features.',
-        category: 'system',
-        tags: JSON.stringify(['metrics', 'velocity', 'sprint']),
-        source: 'system',
         importance: 4,
-        userId: manager.id,
+        userId: noona.id,
       },
     }),
   ])
-  console.log('✅ Created', memories.length, 'memories')
+  console.log('✅ Created memories:', memories.length)
 
   console.log('\n🎉 Database seed completed successfully!')
-  console.log('\n📋 Sample login credentials:')
-  console.log('  Admin:    admin@missioncontrol.local / admin123')
-  console.log('  Manager:  manager@missioncontrol.local / manager123')
-  console.log('  Agents:   [name]@missioncontrol.local / agent123')
+  console.log('\n📋 Credentials:')
+  console.log('  All Users: [email] / password123')
 }
 
 main()
