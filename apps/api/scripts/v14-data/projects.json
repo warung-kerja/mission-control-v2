@@ -1,0 +1,75 @@
+{
+  "projects": [
+    {
+      "id": "proj-001",
+      "name": "Mission Control V2.0",
+      "description": "Next-generation dashboard with real-time collaboration, WebSocket integration, and modern React frontend",
+      "status": "ACTIVE",
+      "priority": "HIGH",
+      "progress": 75,
+      "startDate": "2026-03-22T00:00:00Z",
+      "endDate": "2026-04-30T00:00:00Z",
+      "ownerId": "raz-001",
+      "memberIds": ["baro-001", "noona-001", "jen-001"],
+      "createdAt": "2026-03-22T00:00:00Z",
+      "updatedAt": "2026-03-23T10:00:00Z"
+    },
+    {
+      "id": "proj-002",
+      "name": "Workspace Explorer",
+      "description": "File navigation and workspace management tool with tree view and search capabilities",
+      "status": "PLANNING",
+      "priority": "MEDIUM",
+      "progress": 10,
+      "startDate": "2026-04-01T00:00:00Z",
+      "endDate": "2026-05-15T00:00:00Z",
+      "ownerId": "baro-001",
+      "memberIds": ["noona-001", "jen-001"],
+      "createdAt": "2026-03-20T00:00:00Z",
+      "updatedAt": "2026-03-22T00:00:00Z"
+    },
+    {
+      "id": "proj-003",
+      "name": "Memories Browser",
+      "description": "Agent memory visualization and search interface with timeline and filtering",
+      "status": "COMPLETED",
+      "priority": "HIGH",
+      "progress": 100,
+      "startDate": "2026-03-01T00:00:00Z",
+      "endDate": "2026-03-20T00:00:00Z",
+      "ownerId": "noona-001",
+      "memberIds": ["raz-001", "baro-001", "jen-001"],
+      "createdAt": "2026-03-01T00:00:00Z",
+      "updatedAt": "2026-03-20T00:00:00Z"
+    },
+    {
+      "id": "proj-004",
+      "name": "Data Pipeline Automation",
+      "description": "Automated data processing pipeline for calendar, tasks, and workspace indexing",
+      "status": "ACTIVE",
+      "priority": "MEDIUM",
+      "progress": 45,
+      "startDate": "2026-03-10T00:00:00Z",
+      "endDate": "2026-04-15T00:00:00Z",
+      "ownerId": "alex-001",
+      "memberIds": ["noona-001"],
+      "createdAt": "2026-03-10T00:00:00Z",
+      "updatedAt": "2026-03-22T00:00:00Z"
+    },
+    {
+      "id": "proj-005",
+      "name": "Team Analytics Dashboard",
+      "description": "Productivity metrics, workload distribution, and team performance analytics",
+      "status": "ON_HOLD",
+      "priority": "LOW",
+      "progress": 20,
+      "startDate": "2026-03-15T00:00:00Z",
+      "endDate": "2026-04-30T00:00:00Z",
+      "ownerId": "baro-001",
+      "memberIds": ["raz-001", "alex-001"],
+      "createdAt": "2026-03-15T00:00:00Z",
+      "updatedAt": "2026-03-18T00:00:00Z"
+    }
+  ],
+  "lastUpdated": "2026-03-23T10:00:00Z"
+}

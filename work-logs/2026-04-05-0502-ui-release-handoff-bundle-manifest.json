@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-04-04T19:02:39Z",
+  "readinessStatus": "NOT_READY",
+  "blockingChecks": 3,
+  "artifacts": {
+    "latestReadinessJson": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-readiness.json",
+      "sha256": "11572fdf01081c5613258e663107d6472838ff75ca56adfa2d276d8b0e26c438"
+    },
+    "latestReadinessReportJson": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-readiness-report.json",
+      "sha256": "11572fdf01081c5613258e663107d6472838ff75ca56adfa2d276d8b0e26c438"
+    },
+    "latestReadinessReportMarkdown": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-readiness-report.md",
+      "sha256": "ad5a2561cb8aded68f247804821eec9de8586690791313b400da6a9dd38bd0bf"
+    },
+    "latestHandoffMarkdown": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-handoff.md",
+      "sha256": "e6743dae65e6ffe20602a4eca969933673ecefc15bcc0cd7e864c264063b9bff"
+    },
+    "latestOnePassScript": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-one-pass.sh",
+      "sha256": "102b07430b020c41d8ad5e058bdc32d21849ee0bada4f67ec0bfbfadaf7d983c"
+    },
+    "latestOperatorBrief": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-operator-brief.md",
+      "sha256": "955b158a7a24d803c6e2fceaebc84ccdc84165c5c743944c1f15341b0fb032a8"
+    },
+    "latestBundleManifest": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-handoff-bundle-manifest.json",
+      "note": "Self-referential manifest path entry (checksum validated externally by verifier input path)"
+    }
+  }
+}

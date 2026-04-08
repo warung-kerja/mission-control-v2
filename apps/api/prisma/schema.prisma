@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("AGENT")
+  avatar    String?
+  status    String   @default("OFFLINE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  ownedProjects Project[]
+  tasks         Task[]    @relation("AssignedTasks")
+  createdTasks  Task[]    @relation("CreatedTasks")
+  projectMembers ProjectMember[]
+  messages      Message[]
+  activities    Activity[]
+  notifications Notification[]
+  memories      Memory[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("PLANNING")
+  priority    String   @default("MEDIUM")
+  progress    Int      @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+  
+  tasks   Task[]
+  members ProjectMember[]
+  messages Message[]
+
+  @@map("projects")
+}
+
+model ProjectMember {
+  id      String @id @default(uuid())
+  role    String @default("MEMBER")
+  joinedAt DateTime @default(now())
+
+  // Relations
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@map("project_members")
+}
+
+model Task {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  status        String   @default("TODO")
+  priority      String   @default("MEDIUM")
+  dueDate       DateTime?
+  estimatedHours Int?
+  actualHours   Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  assigneeId String?
+  assignee   User?   @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  
+  creatorId String
+  creator   User    @relation("CreatedTasks", fields: [creatorId], references: [id])
+
+  @@map("tasks")
+}
+
+model Message {
+  id      String   @id @default(uuid())
+  content String
+  createdAt DateTime @default(now())
+
+  // Relations
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id])
+  
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  type      String
+  metadata  String?  // JSON as string for SQLite
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@map("activities")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  metadata  String?  // JSON as string for SQLite
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Memory {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  category    String   @default("general")
+  tags        String?  // JSON array as string for SQLite
+  source      String?  // e.g., "conversation", "file", "system"
+  sourceId    String?  // reference to source entity
+  importance  Int      @default(1) // 1-5 scale
+  archived    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("memories")
+}

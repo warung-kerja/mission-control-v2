@@ -1,0 +1,156 @@
+{
+  "activities": [
+    {
+      "id": "act-001",
+      "type": "PROJECT_CREATED",
+      "userId": "raz-001",
+      "metadata": {
+        "projectId": "proj-001",
+        "projectName": "Mission Control V2.0"
+      },
+      "createdAt": "2026-03-22T08:00:00Z"
+    },
+    {
+      "id": "act-002",
+      "type": "PROJECT_CREATED",
+      "userId": "baro-001",
+      "metadata": {
+        "projectId": "proj-002",
+        "projectName": "Workspace Explorer"
+      },
+      "createdAt": "2026-03-20T10:00:00Z"
+    },
+    {
+      "id": "act-003",
+      "type": "PROJECT_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "projectId": "proj-003",
+        "projectName": "Memories Browser"
+      },
+      "createdAt": "2026-03-20T18:00:00Z"
+    },
+    {
+      "id": "act-004",
+      "type": "TASK_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "taskId": "task-001",
+        "taskTitle": "Set up monorepo structure with Turborepo"
+      },
+      "createdAt": "2026-03-22T12:00:00Z"
+    },
+    {
+      "id": "act-005",
+      "type": "TASK_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "taskId": "task-002",
+        "taskTitle": "Create Prisma schema with all models"
+      },
+      "createdAt": "2026-03-22T18:00:00Z"
+    },
+    {
+      "id": "act-006",
+      "type": "TASK_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "taskId": "task-003",
+        "taskTitle": "Implement JWT authentication"
+      },
+      "createdAt": "2026-03-22T20:00:00Z"
+    },
+    {
+      "id": "act-007",
+      "type": "USER_JOINED",
+      "userId": "jen-001",
+      "metadata": {
+        "userId": "jen-001",
+        "userName": "Jen"
+      },
+      "createdAt": "2026-02-15T09:00:00Z"
+    },
+    {
+      "id": "act-008",
+      "type": "TASK_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "taskId": "task-004",
+        "taskTitle": "Build Projects CRUD API"
+      },
+      "createdAt": "2026-03-23T02:00:00Z"
+    },
+    {
+      "id": "act-009",
+      "type": "TASK_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "taskId": "task-005",
+        "taskTitle": "Build Tasks CRUD API"
+      },
+      "createdAt": "2026-03-23T06:00:00Z"
+    },
+    {
+      "id": "act-010",
+      "type": "TASK_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "taskId": "task-006",
+        "taskTitle": "Implement WebSocket service"
+      },
+      "createdAt": "2026-03-23T08:00:00Z"
+    },
+    {
+      "id": "act-011",
+      "type": "TASK_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "taskId": "task-007",
+        "taskTitle": "Create notification system"
+      },
+      "createdAt": "2026-03-23T10:00:00Z"
+    },
+    {
+      "id": "act-012",
+      "type": "TASK_COMPLETED",
+      "userId": "noona-001",
+      "metadata": {
+        "taskId": "task-008",
+        "taskTitle": "Build team analytics API"
+      },
+      "createdAt": "2026-03-23T10:30:00Z"
+    },
+    {
+      "id": "act-013",
+      "type": "PROJECT_UPDATED",
+      "userId": "baro-001",
+      "metadata": {
+        "projectId": "proj-005",
+        "projectName": "Team Analytics Dashboard",
+        "changes": ["status", "progress"]
+      },
+      "createdAt": "2026-03-18T16:00:00Z"
+    },
+    {
+      "id": "act-014",
+      "type": "TASK_COMPLETED",
+      "userId": "jen-001",
+      "metadata": {
+        "taskId": "task-012",
+        "taskTitle": "Build memories timeline view"
+      },
+      "createdAt": "2026-03-15T18:00:00Z"
+    },
+    {
+      "id": "act-015",
+      "type": "TASK_COMPLETED",
+      "userId": "alex-001",
+      "metadata": {
+        "taskId": "task-013",
+        "taskTitle": "Set up Python data bridge"
+      },
+      "createdAt": "2026-03-20T18:00:00Z"
+    }
+  ],
+  "lastUpdated": "2026-03-23T14:00:00Z"
+}

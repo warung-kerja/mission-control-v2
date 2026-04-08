@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-04-04T11:02:59Z",
+  "readinessStatus": "NOT_READY",
+  "blockingChecks": 3,
+  "artifacts": {
+    "latestReadinessJson": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-readiness.json",
+      "sha256": "c66175cd3c5963de20dd48b6d63860b143d524afceea7a48169d2b69e527479f"
+    },
+    "latestReadinessReportJson": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-readiness-report.json",
+      "sha256": "c66175cd3c5963de20dd48b6d63860b143d524afceea7a48169d2b69e527479f"
+    },
+    "latestReadinessReportMarkdown": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-readiness-report.md",
+      "sha256": "fc4de348205ff1c36580a569681eb3dc7ea0eec524986ae1339350ad2c0b89d9"
+    },
+    "latestHandoffMarkdown": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-handoff.md",
+      "sha256": "a3f5bebd278e2ee7b5d1a2f497a33a4fe6e990312a61fa697b3ad6518d67bf3c"
+    },
+    "latestOnePassScript": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-one-pass.sh",
+      "sha256": "40efc2e5b9b5f82f2532511a099790a1798a25717424f89ccb66743f392a1cce"
+    },
+    "latestOperatorBrief": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-operator-brief.md",
+      "sha256": "4565b0a3a510655ceffe48428f7ebc80b02415c8becd2ca0b9d895aeb44b3b76"
+    },
+    "latestBundleManifest": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-handoff-bundle-manifest.json",
+      "sha256": "fa479d92c1af5acde745e0f59564da200454a49671cecabd33d90d85eaa1dd48"
+    }
+  }
+}

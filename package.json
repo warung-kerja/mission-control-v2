@@ -1,0 +1,33 @@
+{
+  "name": "mission-control-v2",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Mission Control Dashboard V2.0 - Production-ready modular architecture",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check",
+    "predeploy:check": "node ./scripts/predeploy-checks.mjs",
+    "clean": "turbo run clean",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "prettier": "^3.0.0",
+    "turbo": "^1.13.0",
+    "typescript": "^5.3.0",
+    "husky": "^8.0.0"
+  },
+  "packageManager": "npm@10.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

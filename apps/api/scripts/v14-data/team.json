@@ -1,0 +1,55 @@
+{
+  "members": [
+    {
+      "id": "raz-001",
+      "name": "Raz",
+      "role": "ADMIN",
+      "email": "raz@warungkerja.local",
+      "avatar": "https://ui-avatars.com/api/?name=Raz&background=6366f1&color=fff",
+      "status": "ONLINE",
+      "joinedAt": "2024-01-15T00:00:00Z",
+      "skills": ["Management", "Strategy", "Design"]
+    },
+    {
+      "id": "baro-001",
+      "name": "Baro",
+      "role": "MANAGER",
+      "email": "baro@warungkerja.local",
+      "avatar": "https://ui-avatars.com/api/?name=Baro&background=8b5cf6&color=fff",
+      "status": "ONLINE",
+      "joinedAt": "2024-01-20T00:00:00Z",
+      "skills": ["Creative Direction", "UX Design", "Project Management"]
+    },
+    {
+      "id": "noona-001",
+      "name": "Noona",
+      "role": "AGENT",
+      "email": "noona@warungkerja.local",
+      "avatar": "https://ui-avatars.com/api/?name=Noona&background=ec4899&color=fff",
+      "status": "ONLINE",
+      "joinedAt": "2024-02-01T00:00:00Z",
+      "skills": ["Full Stack", "React", "Node.js", "TypeScript"]
+    },
+    {
+      "id": "jen-001",
+      "name": "Jen",
+      "role": "AGENT",
+      "email": "jen@warungkerja.local",
+      "avatar": "https://ui-avatars.com/api/?name=Jen&background=10b981&color=fff",
+      "status": "AWAY",
+      "joinedAt": "2024-02-15T00:00:00Z",
+      "skills": ["Frontend", "UI Components", "CSS", "Testing"]
+    },
+    {
+      "id": "alex-001",
+      "name": "Alex",
+      "role": "AGENT",
+      "email": "alex@warungkerja.local",
+      "avatar": "https://ui-avatars.com/api/?name=Alex&background=f59e0b&color=fff",
+      "status": "OFFLINE",
+      "joinedAt": "2024-03-01T00:00:00Z",
+      "skills": ["Backend", "Python", "DevOps", "Database"]
+    }
+  ],
+  "lastUpdated": "2026-03-23T02:00:00Z"
+}

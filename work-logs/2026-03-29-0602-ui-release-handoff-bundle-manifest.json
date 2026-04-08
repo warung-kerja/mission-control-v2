@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-03-28T19:02:15Z",
+  "readinessStatus": "NOT_READY",
+  "blockingChecks": 3,
+  "artifacts": {
+    "latestReadinessJson": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-readiness.json",
+      "sha256": "6a758bea62d68eef22349701b4b8f507257d3aa28654f50774652d8237fae0a7"
+    },
+    "latestReadinessReportJson": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-readiness-report.json",
+      "sha256": "6a758bea62d68eef22349701b4b8f507257d3aa28654f50774652d8237fae0a7"
+    },
+    "latestHandoffMarkdown": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-handoff.md",
+      "sha256": "1db881e37666cd4105acd31e5c35adadec856a428e03e716f043d9d40c43829a"
+    },
+    "latestOnePassScript": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-one-pass.sh",
+      "sha256": "4f112a9459fca8734df4db16c8d071ffe200d76cf759588c6968e8c1a47f81b8"
+    },
+    "latestOperatorBrief": {
+      "path": "/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-operator-brief.md",
+      "sha256": "bebbb069ce0335232e97a80e528898814fccde28f968e1d4ed10e8ff48d8e01c"
+    }
+  }
+}

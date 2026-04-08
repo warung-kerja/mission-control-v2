@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-04-05T00:02:32+1100",
+  "status": "NOT_READY",
+  "blockingChecks": 3,
+  "checks": {
+    "interactiveTerminal": false,
+    "libnspr4": false,
+    "playwrightPackage": true,
+    "playwrightRuntimeLaunch": false
+  },
+  "paths": {
+    "markdownReport": "2026-04-05-0002-ui-release-readiness-report.md",
+    "jsonReport": "2026-04-05-0002-ui-release-readiness-report.json",
+    "latestMarkdownReport": "latest-ui-release-readiness-report.md",
+    "latestJsonReport": "latest-ui-release-readiness-report.json",
+    "latestReadinessSnapshot": "latest-ui-release-readiness.json"
+  }
+}
