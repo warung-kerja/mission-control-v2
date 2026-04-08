@@ -1,0 +1,40 @@
+{
+  "projects": [
+    {
+      "id": "mission-control-v2",
+      "name": "Mission Control V2",
+      "owner": "Noona",
+      "team": ["Raz", "Baro", "Noona", "Jen"],
+      "status": "in-progress",
+      "priority": "high",
+      "currentPhase": "Stabilisation, truth-alignment, deployment readiness",
+      "nextStep": "Implement canonical data adapters for team and projects",
+      "updatedAt": "2026-04-09T01:25:00+10:00"
+    },
+    {
+      "id": "workspace-explorer",
+      "name": "Workspace Explorer",
+      "owner": "Noona",
+      "team": ["Baro", "Noona"],
+      "status": "active",
+      "priority": "medium",
+      "currentPhase": "Integrated with Mission Control, polish as needed",
+      "nextStep": "Keep aligned with V2 data model and file navigation needs",
+      "updatedAt": "2026-04-09T01:25:00+10:00"
+    },
+    {
+      "id": "memories-browser",
+      "name": "Memories Browser",
+      "owner": "Noona",
+      "team": ["Baro", "Noona"],
+      "status": "active",
+      "priority": "medium",
+      "currentPhase": "Functional, needs stronger canonical data alignment",
+      "nextStep": "Align memory-derived views with production truth sources",
+      "updatedAt": "2026-04-09T01:25:00+10:00"
+    }
+  ],
+  "lastUpdated": "2026-04-09T01:25:00+10:00",
+  "version": 1,
+  "note": "Bootstrap registry kept inside repo until final external canonical registry location is implemented."
+}

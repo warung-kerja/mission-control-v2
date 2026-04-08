@@ -23,6 +23,9 @@ Purpose:
 Recommended new primary source:
 - `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json`
 
+Temporary bootstrap inside repo:
+- `docs/projects.registry.bootstrap.json`
+
 Purpose:
 - project name
 - owner
