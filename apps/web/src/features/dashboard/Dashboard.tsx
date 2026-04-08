@@ -98,7 +98,7 @@ export const Dashboard: FC = () => {
       <div>
         <h2 className="text-2xl font-bold text-mission-text">Dashboard</h2>
         <p className="text-mission-muted">
-          Welcome back, {user?.name || 'there'}. Here's what's happening today.
+          Welcome back{user?.name ? `, ${user.name}` : ''}. Here's what's happening today.
         </p>
       </div>
 
