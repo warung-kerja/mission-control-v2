@@ -16,6 +16,7 @@ import teamRoutes from './routes/team.js'
 import calendarRoutes from './routes/calendar.js'
 import messageRoutes from './routes/messages.js'
 import memoryRoutes from './routes/memories.js'
+import systemRoutes from './routes/system.js'
 import { initializeWebSocket } from './services/websocket.js'
 
 dotenv.config()
@@ -63,6 +64,7 @@ app.use('/api/team', teamRoutes)
 app.use('/api/calendar', calendarRoutes)
 app.use('/api/messages', messageRoutes)
 app.use('/api/memories', memoryRoutes)
+app.use('/api/system', systemRoutes)
 
 // Dashboard routes
 app.get('/api/dashboard/stats', async (_req, res) => {
