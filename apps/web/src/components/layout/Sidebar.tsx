@@ -78,8 +78,8 @@ export const Sidebar: FC<SidebarProps> = ({ mobile, onClose }) => {
             N
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-mission-text truncate">{user?.name || 'Noona'}</p>
-            <p className="text-xs text-mission-muted">{user?.role || 'Tech Lead'}</p>
+            <p className="text-sm font-medium text-mission-text truncate">{user?.name || 'Mission Control User'}</p>
+            <p className="text-xs text-mission-muted">{user?.role || 'Team Member'}</p>
           </div>
           <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
         </div>
