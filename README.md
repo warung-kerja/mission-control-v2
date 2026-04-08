@@ -1,6 +1,28 @@
 # Mission Control V2.0
 
-Production-ready modular architecture for the Mission Control Dashboard.
+Canonical active codebase for Mission Control.
+
+This is the only Mission Control repo that should be used for ongoing development.
+The older V1 static dashboard is now legacy/reference only.
+
+## Status
+- Active repo: yes
+- Legacy V1 repo: `../mission-control`
+- GitHub: `https://github.com/warung-kerja/mission-control-v2`
+
+## Local path
+`D:\Warung Kerja 1.0\03_Active_Projects\Mission Control\mission-control-v2`
+
+## Quick start
+1. Install dependencies:
+   - `npm install`
+2. Start the app locally:
+   - `npm run dev`
+3. If the API needs database access, confirm `apps/api/.env` is configured correctly.
+
+## Notes
+- This repo was extracted from an older nested Noona workspace copy and made standalone on 2026-04-08.
+- `node_modules/` and generated test outputs are intentionally excluded from git.
 
 ## Overview
 
