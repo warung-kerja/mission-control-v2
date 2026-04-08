@@ -69,6 +69,10 @@ Mission Control V2 should:
 4. Update frontend to consume normalized API models only
 5. Reduce seed data usage to local dev bootstrap only
 
+## Current implementation progress
+- Added in-repo bootstrap project registry: `docs/projects.registry.bootstrap.json`
+- Added API-side canonical source path helper: `apps/api/src/lib/canonicalSources.ts`
+
 ## Production-ready principle
 Seed data should help local setup only.
 It should not be the long-term source of truth for the dashboard.
