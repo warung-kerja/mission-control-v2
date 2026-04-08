@@ -1,5 +1,6 @@
 import { FC } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useAuthStore } from '../../stores/authStore'
 import {
   LayoutDashboard,
   FolderKanban,
@@ -31,6 +32,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: FC<SidebarProps> = ({ mobile, onClose }) => {
+  const { user } = useAuthStore()
+
   return (
     <aside className={`${mobile ? 'w-72' : 'w-64'} bg-mission-card border-r border-mission-border flex flex-col h-full`}>
       <div className="p-6 border-b border-mission-border flex items-center justify-between">
@@ -75,8 +78,8 @@ export const Sidebar: FC<SidebarProps> = ({ mobile, onClose }) => {
             N
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-mission-text truncate">Noona</p>
-            <p className="text-xs text-mission-muted">Tech Lead</p>
+            <p className="text-sm font-medium text-mission-text truncate">{user?.name || 'Noona'}</p>
+            <p className="text-xs text-mission-muted">{user?.role || 'Tech Lead'}</p>
           </div>
           <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
         </div>
