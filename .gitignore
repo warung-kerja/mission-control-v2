@@ -48,3 +48,6 @@ prisma/migrations/
 # Misc
 *.local
 .cache/
+
+# Mission Control Logs/Evidence
+work-logs/

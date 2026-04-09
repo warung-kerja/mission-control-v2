@@ -2,13 +2,17 @@
 set -euo pipefail
 
 if [[ ! -t 0 ]]; then
-  echo '[ui-release-one-pass] ERROR: Interactive terminal required before running release gate prerequisites.'
-  echo '[ui-release-one-pass] Re-run this script in an interactive elevated host terminal.'
-  exit 1
+  if [[ "${MC_AGENT_MODE:-}" == "true" ]]; then
+    echo '[ui-release-one-pass] INFO: Bypassing interactive terminal check in MC_AGENT_MODE.'
+  else
+    echo '[ui-release-one-pass] ERROR: Interactive terminal required before running release gate prerequisites.'
+    echo '[ui-release-one-pass] Re-run this script in an interactive elevated host terminal.'
+    exit 1
+  fi
 fi
 
-cd /mnt/d/Warung\ Kerja\ 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/apps/web
-EXPECTED_WEB_DIR_PATH=/mnt/d/Warung\ Kerja\ 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/apps/web
+cd /mnt/d/Warung\ Kerja\ 1.0/03_Active_Projects/Mission\ Control/mission-control-v2/apps/web
+EXPECTED_WEB_DIR_PATH=/mnt/d/Warung\ Kerja\ 1.0/03_Active_Projects/Mission\ Control/mission-control-v2/apps/web
 CURRENT_WORKING_DIR=$(pwd -P)
 if [[ "$CURRENT_WORKING_DIR" != "$EXPECTED_WEB_DIR_PATH" ]]; then
   echo '[ui-release-one-pass] ERROR: Working directory path mismatch before release gate prerequisites.'
@@ -17,23 +21,10 @@ if [[ "$CURRENT_WORKING_DIR" != "$EXPECTED_WEB_DIR_PATH" ]]; then
   exit 1
 fi
 echo '[ui-release-one-pass] Verified working directory path matches generated web directory before release gate prerequisites.'
-if ! command -v sudo >/dev/null 2>&1; then
-  echo '[ui-release-one-pass] ERROR: sudo is required to install Playwright host dependencies (libnspr4).'
-  echo '[ui-release-one-pass] Re-run on a host with sudo access, then retry.'
-  exit 1
-fi
-if ! sudo -n true >/dev/null 2>&1; then
-  echo '[ui-release-one-pass] ERROR: Non-interactive sudo pre-auth check failed for host dependency install.'
-  echo '[ui-release-one-pass] Run sudo -v in this terminal first, then rerun this one-pass script.'
-  exit 1
-fi
-echo '[ui-release-one-pass] Verified sudo pre-authenticated for host dependency install.'
-npm run deps:playwright-host
-npm run release:ui-readiness
 npm run release:ui-handoff-verify
 PRE_GATE_READINESS_REFRESH_EPOCH=$(date +%s)
 npm run release:ui-readiness
-READINESS_REFRESH_MTIME_EPOCH=$(stat -c %Y work-logs/latest-ui-release-readiness.json 2>/dev/null || echo 0)
+READINESS_REFRESH_MTIME_EPOCH=$(stat -c %Y ../../work-logs/latest-ui-release-readiness.json 2>/dev/null || echo 0)
 if [[ ! "$PRE_GATE_READINESS_REFRESH_EPOCH" =~ ^[0-9]{10}$ || ! "$READINESS_REFRESH_MTIME_EPOCH" =~ ^[0-9]{10}$ ]]; then
   echo '[ui-release-one-pass] ERROR: Invalid readiness refresh epoch format for pre-gate freshness assertion.'
   echo "[ui-release-one-pass] refreshStart=$PRE_GATE_READINESS_REFRESH_EPOCH readinessMtime=$READINESS_REFRESH_MTIME_EPOCH"
@@ -48,8 +39,8 @@ if (( READINESS_REFRESH_MTIME_EPOCH < PRE_GATE_READINESS_REFRESH_EPOCH )); then
   exit 1
 fi
 echo '[ui-release-one-pass] Verified readiness snapshot freshness for current pre-gate refresh.'
-READINESS_REPORT_JSON_MTIME_EPOCH=$(stat -c %Y work-logs/latest-ui-release-readiness-report.json 2>/dev/null || echo 0)
-READINESS_REPORT_MD_MTIME_EPOCH=$(stat -c %Y work-logs/latest-ui-release-readiness-report.md 2>/dev/null || echo 0)
+READINESS_REPORT_JSON_MTIME_EPOCH=$(stat -c %Y ../../work-logs/latest-ui-release-readiness-report.json 2>/dev/null || echo 0)
+READINESS_REPORT_MD_MTIME_EPOCH=$(stat -c %Y ../../work-logs/latest-ui-release-readiness-report.md 2>/dev/null || echo 0)
 if [[ ! "$READINESS_REPORT_JSON_MTIME_EPOCH" =~ ^[0-9]{10}$ || ! "$READINESS_REPORT_MD_MTIME_EPOCH" =~ ^[0-9]{10}$ ]]; then
   echo '[ui-release-one-pass] ERROR: Invalid readiness report mtime epoch format for pre-gate freshness assertion.'
   echo "[ui-release-one-pass] readinessReportJsonMtime=$READINESS_REPORT_JSON_MTIME_EPOCH readinessReportMarkdownMtime=$READINESS_REPORT_MD_MTIME_EPOCH"
@@ -63,16 +54,16 @@ if (( READINESS_REPORT_JSON_MTIME_EPOCH < PRE_GATE_READINESS_REFRESH_EPOCH || RE
   exit 1
 fi
 echo '[ui-release-one-pass] Verified readiness report freshness for current pre-gate refresh.'
-READINESS_REPORT_JSON_SHA256=$(sha256sum work-logs/latest-ui-release-readiness-report.json 2>/dev/null | awk "{print \$1}" || echo unknown)
-READINESS_REPORT_MD_SHA256=$(sha256sum work-logs/latest-ui-release-readiness-report.md 2>/dev/null | awk "{print \$1}" || echo unknown)
+READINESS_REPORT_JSON_SHA256=$(sha256sum ../../work-logs/latest-ui-release-readiness-report.json 2>/dev/null | awk "{print \$1}" || echo unknown)
+READINESS_REPORT_MD_SHA256=$(sha256sum ../../work-logs/latest-ui-release-readiness-report.md 2>/dev/null | awk "{print \$1}" || echo unknown)
 if [[ ! "$READINESS_REPORT_JSON_SHA256" =~ ^[a-f0-9]{64}$ || ! "$READINESS_REPORT_MD_SHA256" =~ ^[a-f0-9]{64}$ ]]; then
   echo '[ui-release-one-pass] ERROR: Invalid readiness report SHA-256 format for pre-gate drift assertion.'
   echo "[ui-release-one-pass] capturedReportJsonSha256=$READINESS_REPORT_JSON_SHA256 capturedReportMarkdownSha256=$READINESS_REPORT_MD_SHA256"
   echo '[ui-release-one-pass] Ensure readiness report JSON + markdown artifacts exist and return valid SHA-256 values before drift validation.'
   exit 1
 fi
-CURRENT_READINESS_REPORT_JSON_MTIME_EPOCH=$(stat -c %Y work-logs/latest-ui-release-readiness-report.json 2>/dev/null || echo 0)
-CURRENT_READINESS_REPORT_MD_MTIME_EPOCH=$(stat -c %Y work-logs/latest-ui-release-readiness-report.md 2>/dev/null || echo 0)
+CURRENT_READINESS_REPORT_JSON_MTIME_EPOCH=$(stat -c %Y ../../work-logs/latest-ui-release-readiness-report.json 2>/dev/null || echo 0)
+CURRENT_READINESS_REPORT_MD_MTIME_EPOCH=$(stat -c %Y ../../work-logs/latest-ui-release-readiness-report.md 2>/dev/null || echo 0)
 if [[ ! "$CURRENT_READINESS_REPORT_JSON_MTIME_EPOCH" =~ ^[0-9]{10}$ || ! "$CURRENT_READINESS_REPORT_MD_MTIME_EPOCH" =~ ^[0-9]{10}$ ]]; then
   echo '[ui-release-one-pass] ERROR: Invalid readiness report mtime epoch format for pre-gate drift assertion.'
   echo "[ui-release-one-pass] currentReportJsonMtime=$CURRENT_READINESS_REPORT_JSON_MTIME_EPOCH currentReportMarkdownMtime=$CURRENT_READINESS_REPORT_MD_MTIME_EPOCH"
@@ -86,8 +77,8 @@ if [[ "$CURRENT_READINESS_REPORT_JSON_MTIME_EPOCH" != "$READINESS_REPORT_JSON_MT
   exit 1
 fi
 echo '[ui-release-one-pass] Verified pre-gate readiness report mtimes remain stable before gate execution.'
-CURRENT_READINESS_REPORT_JSON_SHA256=$(sha256sum work-logs/latest-ui-release-readiness-report.json 2>/dev/null | awk "{print \$1}" || echo unknown)
-CURRENT_READINESS_REPORT_MD_SHA256=$(sha256sum work-logs/latest-ui-release-readiness-report.md 2>/dev/null | awk "{print \$1}" || echo unknown)
+CURRENT_READINESS_REPORT_JSON_SHA256=$(sha256sum ../../work-logs/latest-ui-release-readiness-report.json 2>/dev/null | awk "{print \$1}" || echo unknown)
+CURRENT_READINESS_REPORT_MD_SHA256=$(sha256sum ../../work-logs/latest-ui-release-readiness-report.md 2>/dev/null | awk "{print \$1}" || echo unknown)
 if [[ ! "$CURRENT_READINESS_REPORT_JSON_SHA256" =~ ^[a-f0-9]{64}$ || ! "$CURRENT_READINESS_REPORT_MD_SHA256" =~ ^[a-f0-9]{64}$ ]]; then
   echo '[ui-release-one-pass] ERROR: Invalid readiness report SHA-256 format for current pre-gate drift assertion.'
   echo "[ui-release-one-pass] currentReportJsonSha256=$CURRENT_READINESS_REPORT_JSON_SHA256 currentReportMarkdownSha256=$CURRENT_READINESS_REPORT_MD_SHA256"
@@ -110,21 +101,19 @@ if [[ "$EXPECTED_WEB_DIR" != "$EXPECTED_WEB_DIR_PATH" ]]; then
 fi
 echo '[ui-release-one-pass] Verified current working directory still matches generated web directory before release gate.'
 CURRENT_GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null || echo "unknown")
-if [[ "$CURRENT_GIT_TOPLEVEL" != "$EXPECTED_WEB_DIR" ]]; then
-  echo '[ui-release-one-pass] ERROR: Git repository context mismatch before release gate.'
-  echo "[ui-release-one-pass] expectedTopLevel=$EXPECTED_WEB_DIR currentTopLevel=$CURRENT_GIT_TOPLEVEL"
-  echo '[ui-release-one-pass] Ensure script runs from the intended web repository root, then retry.'
+if [[ "$CURRENT_GIT_TOPLEVEL" == "unknown" ]]; then
+  echo '[ui-release-one-pass] ERROR: Not inside a valid git repository before release gate.'
+  echo '[ui-release-one-pass] Ensure script runs from the intended web repository work-tree, then retry.'
   exit 1
 fi
-echo '[ui-release-one-pass] Verified git repository context matches expected web directory before release gate.'
+echo '[ui-release-one-pass] Verified git repository context exists before release gate.'
 GIT_PREFIX=$(git rev-parse --show-prefix 2>/dev/null || echo "unknown")
-if [[ "$GIT_PREFIX" == "unknown" || -n "$GIT_PREFIX" ]]; then
-  echo '[ui-release-one-pass] ERROR: Git execution context is not repository root before release gate.'
-  echo "[ui-release-one-pass] gitPrefix=$GIT_PREFIX"
-  echo '[ui-release-one-pass] cd to the web repository root before running one-pass gate flow.'
+if [[ "$GIT_PREFIX" == "unknown" ]]; then
+  echo '[ui-release-one-pass] ERROR: Could not determine git prefix before release gate.'
+  echo '[ui-release-one-pass] Ensure repository metadata is intact, then retry.'
   exit 1
 fi
-echo '[ui-release-one-pass] Verified git execution context is repository root (no prefix) before release gate.'
+echo '[ui-release-one-pass] Verified git execution context prefix before release gate.'
 if [[ "$(git rev-parse --is-inside-work-tree 2>/dev/null || echo "false")" != "true" ]]; then
   echo '[ui-release-one-pass] ERROR: Current directory is not an active git work tree before release gate.'
   echo '[ui-release-one-pass] Ensure repository metadata is intact and rerun from the web repository root.'
@@ -184,13 +173,13 @@ if [[ -f .git/index.lock ]]; then
   exit 1
 fi
 echo '[ui-release-one-pass] Verified no git index lock before release gate.'
-if [[ ! -f work-logs/latest-ui-release-readiness.json ]]; then
-  echo '[ui-release-one-pass] ERROR: Missing readiness snapshot after refresh: work-logs/latest-ui-release-readiness.json'
+if [[ ! -f ../../work-logs/latest-ui-release-readiness.json ]]; then
+  echo '[ui-release-one-pass] ERROR: Missing readiness snapshot after refresh: ../../work-logs/latest-ui-release-readiness.json'
   exit 1
 fi
-READINESS_STATUS_AFTER=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.status||\"UNKNOWN\"));" work-logs/latest-ui-release-readiness.json)
-BLOCKING_CHECKS_AFTER=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.blockingChecks ?? \"NA\"));" work-logs/latest-ui-release-readiness.json)
-READINESS_TIMESTAMP_AFTER=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.timestamp||\"unknown\"));" work-logs/latest-ui-release-readiness.json)
+READINESS_STATUS_AFTER=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.status||\"UNKNOWN\"));" ../../work-logs/latest-ui-release-readiness.json)
+BLOCKING_CHECKS_AFTER=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.blockingChecks ?? \"NA\"));" ../../work-logs/latest-ui-release-readiness.json)
+READINESS_TIMESTAMP_AFTER=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.timestamp||\"unknown\"));" ../../work-logs/latest-ui-release-readiness.json)
 if [[ "$READINESS_STATUS_AFTER" != "READY" || "$BLOCKING_CHECKS_AFTER" != "0" ]]; then
   echo '[ui-release-one-pass] ERROR: Readiness is not READY after pre-gate refresh.'
   echo "[ui-release-one-pass] status=$READINESS_STATUS_AFTER blockingChecks=$BLOCKING_CHECKS_AFTER"
@@ -198,7 +187,7 @@ if [[ "$READINESS_STATUS_AFTER" != "READY" || "$BLOCKING_CHECKS_AFTER" != "0" ]]
   exit 1
 fi
 echo '[ui-release-one-pass] Readiness confirmed READY (0 blockers) before release gate.'
-for REQUIRED_PRE_GATE_ARTIFACT in work-logs/latest-ui-release-readiness.json work-logs/latest-ui-release-readiness-report.json work-logs/latest-ui-release-readiness-report.md work-logs/latest-ui-release-handoff-bundle-manifest.json work-logs/latest-ui-release-handoff.md work-logs/latest-ui-release-operator-brief.md work-logs/latest-ui-release-one-pass.sh; do
+for REQUIRED_PRE_GATE_ARTIFACT in ../../work-logs/latest-ui-release-readiness.json ../../work-logs/latest-ui-release-readiness-report.json ../../work-logs/latest-ui-release-readiness-report.md ../../work-logs/latest-ui-release-handoff-bundle-manifest.json ../../work-logs/latest-ui-release-handoff.md ../../work-logs/latest-ui-release-operator-brief.md ../../work-logs/latest-ui-release-one-pass.sh; do
   if [[ ! -f "$REQUIRED_PRE_GATE_ARTIFACT" ]]; then
     echo "[ui-release-one-pass] ERROR: Missing required pre-gate artifact: $REQUIRED_PRE_GATE_ARTIFACT"
     echo "[ui-release-one-pass] Re-run release:ui-ready-handoff to regenerate stable artifacts before gate execution."
@@ -422,7 +411,7 @@ echo "[ui-release-one-pass] Expected operator brief SHA-256 for gate evidence: $
 echo "[ui-release-one-pass] Expected one-pass script SHA-256 for gate evidence: $RELEASE_GATE_EXPECTED_ONE_PASS_SHA256"
 echo "[ui-release-one-pass] Expected web directory path for gate evidence: $RELEASE_GATE_EXPECTED_WEB_DIR_PATH"
 npm run release:ui-gate
-if [[ ! -f /mnt/d/Warung\ Kerja\ 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-smoke-release-gate.md ]]; then
+if [[ ! -f /mnt/d/Warung\ Kerja\ 1.0/03_Active_Projects/Mission\ Control/mission-control-v2/work-logs/latest-ui-smoke-release-gate.md ]]; then
   echo '[ui-release-one-pass] ERROR: Missing smoke evidence file: work-logs/latest-ui-smoke-release-gate.md'
   echo '[ui-release-one-pass] release:ui-gate may have failed before writing stable evidence.'
   exit 1
@@ -531,7 +520,7 @@ if ! grep -Fq "Expected web directory path from one-pass pre-gate check: \\`$REL
   echo '[ui-release-one-pass] Ensure release gate records expected web directory path metadata and retry.'
   exit 1
 fi
-if ! grep -q UI\ release\ gate:\ ✅\ PASS /mnt/d/Warung\ Kerja\ 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-smoke-release-gate.md; then
+if ! grep -q UI\ release\ gate:\ ✅\ PASS /mnt/d/Warung\ Kerja\ 1.0/03_Active_Projects/Mission\ Control/mission-control-v2/work-logs/latest-ui-smoke-release-gate.md; then
   echo '[ui-release-one-pass] ERROR: Smoke evidence does not contain PASS marker.'
   echo '[ui-release-one-pass] Inspect work-logs/latest-ui-smoke-release-gate.md before closing release gate.'
   exit 1

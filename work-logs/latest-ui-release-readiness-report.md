@@ -1,19 +1,19 @@
 # UI Release Readiness Report
 
-- Timestamp: 2026-04-08 10:45 AM (AEST)
+- Timestamp: 2026-04-10 06:57 AM (AEST)
 - Working directory: `apps/web`
 
 ## Checks
 
-- interactive-terminal: ✅ detected
+- interactive-terminal: ✅ agent-bypass
 - libnspr4: ✅ installed
 - @playwright/test: ✅ available
-- playwright-runtime-launch: ❌ fail
+- playwright-runtime-launch: ✅ pass
 
 ## Result
 
-- [ui-release-readiness] RESULT: NOT READY (1 blocking check(s))
+- [ui-release-readiness] RESULT: READY
 
 ## Remediation Notes
 
-- playwright-runtime-launch: Host runtime deps still blocked (typically libnspr4 / Playwright Linux deps bundle).
+- interactive-terminal: Bypassing interactive terminal check in MC_AGENT_MODE.

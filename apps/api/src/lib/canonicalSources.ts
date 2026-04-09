@@ -1,5 +1,5 @@
 import fs from 'fs'
-import path from 'path'
+
 
 // ---------------------------------------------------------------------------
 // Canonical source paths
@@ -8,14 +8,12 @@ import path from 'path'
 export const CANONICAL_TEAM_ROSTER_PATH =
   '/mnt/d/Warung Kerja 1.0/06_Agents/_Shared_Memory/AGENTS_ROSTER.md'
 
-export const BOOTSTRAP_PROJECT_REGISTRY_PATH = path.resolve(
-  process.cwd(),
-  '../../docs/projects.registry.bootstrap.json',
-)
+export const CANONICAL_PROJECT_REGISTRY_PATH =
+  '/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json'
 
 export const canonicalSourcePaths = {
   teamRoster: CANONICAL_TEAM_ROSTER_PATH,
-  projectRegistryBootstrap: BOOTSTRAP_PROJECT_REGISTRY_PATH,
+  projectRegistry: CANONICAL_PROJECT_REGISTRY_PATH,
 }
 
 // ---------------------------------------------------------------------------
@@ -24,9 +22,9 @@ export const canonicalSourcePaths = {
 
 export const canonicalSourceStatus = () => ({
   teamRosterExists: fs.existsSync(CANONICAL_TEAM_ROSTER_PATH),
-  projectRegistryBootstrapExists: fs.existsSync(BOOTSTRAP_PROJECT_REGISTRY_PATH),
+  projectRegistryExists: fs.existsSync(CANONICAL_PROJECT_REGISTRY_PATH),
   teamRosterPath: CANONICAL_TEAM_ROSTER_PATH,
-  projectRegistryBootstrapPath: BOOTSTRAP_PROJECT_REGISTRY_PATH,
+  projectRegistryPath: CANONICAL_PROJECT_REGISTRY_PATH,
 })
 
 // ---------------------------------------------------------------------------
@@ -147,7 +145,7 @@ export function readCanonicalTeam(): {
 }
 
 // ---------------------------------------------------------------------------
-// Read canonical projects (bootstrap)
+// Read canonical projects
 // ---------------------------------------------------------------------------
 
 export function readCanonicalProjects(): {
@@ -157,7 +155,7 @@ export function readCanonicalProjects(): {
   error?: string
   source: string
 } {
-  const source = BOOTSTRAP_PROJECT_REGISTRY_PATH
+  const source = CANONICAL_PROJECT_REGISTRY_PATH
   try {
     if (!fs.existsSync(source)) {
       return { ok: false, data: [], error: 'Project registry file not found', source }

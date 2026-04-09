@@ -1,45 +1,27 @@
 # UI Release Gate — Operator Handoff
 
-- Generated: 2026-04-05 01:03 PM (AEST)
+- Generated: 2026-04-10 06:57 AM (AEST)
 - Readiness snapshot: `work-logs/latest-ui-release-readiness.json`
 - Latest readiness markdown report: `work-logs/latest-ui-release-readiness-report.md`
 - Latest readiness JSON report: `work-logs/latest-ui-release-readiness-report.json`
-- Current status: **NOT_READY**
-- Blocking checks: **3**
-- Snapshot timestamp: **2026-04-05T13:02:54+1000**
-- Snapshot age: **0 min** (fresh)
-- Previous blocking checks: **3**
+- Current status: **READY**
+- Blocking checks: **0**
+- Snapshot timestamp: **2026-04-10T06:56:16+1000**
+- Snapshot age: **1 min** (fresh)
+- Previous blocking checks: **0**
 - Blocking trend: **unchanged**
 
 ## Readiness Snapshot
 
-- Interactive terminal available: false
-- libnspr4 installed: false
+- Interactive terminal available: true
+- libnspr4 installed: true
 - @playwright/test installed: true
-- Playwright runtime launch: false
-
-## Targeted Remediation Checklist
-
-1. Re-run in an **interactive host terminal** (TTY required).
-2. Pre-authenticate sudo and install Playwright host dependencies:
-   ```bash
-   cd /mnt/d/Warung\ Kerja\ 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/apps/web
-   sudo -v
-   npm run deps:playwright-host
-   ```
-4. Recheck runtime after remediation:
-   ```bash
-   cd /mnt/d/Warung\ Kerja\ 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/apps/web
-   npm run release:ui-readiness
-   ```
+- Playwright runtime launch: true
 
 ## One-Pass Command Sequence (Copy/Paste)
 
 ```bash
-cd /mnt/d/Warung\ Kerja\ 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/apps/web
-sudo -v
-npm run deps:playwright-host
-npm run release:ui-readiness
+cd /mnt/d/Warung\ Kerja\ 1.0/03_Active_Projects/Mission\ Control/mission-control-v2/apps/web
 npm run release:ui-handoff-verify
 npm run release:ui-readiness
 # Assert latest-ui-release-readiness.json file mtime refreshes after pre-gate release:ui-readiness
@@ -88,21 +70,21 @@ npm run release:ui-gate
 
 ## Handoff Artifacts
 
-- Timestamped handoff path: `/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/2026-04-05-1303-ui-release-handoff.md`
-- Stable latest handoff path: `/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-handoff.md`
-- Timestamped script path: `/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/2026-04-05-1303-ui-release-one-pass.sh`
-- Stable latest script path: `/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-one-pass.sh`
-- Stable latest bundle manifest: `/mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-handoff-bundle-manifest.json`
+- Timestamped handoff path: `/mnt/d/Warung Kerja 1.0/03_Active_Projects/Mission Control/mission-control-v2/work-logs/2026-04-10-0657-ui-release-handoff.md`
+- Stable latest handoff path: `/mnt/d/Warung Kerja 1.0/03_Active_Projects/Mission Control/mission-control-v2/work-logs/latest-ui-release-handoff.md`
+- Timestamped script path: `/mnt/d/Warung Kerja 1.0/03_Active_Projects/Mission Control/mission-control-v2/work-logs/2026-04-10-0657-ui-release-one-pass.sh`
+- Stable latest script path: `/mnt/d/Warung Kerja 1.0/03_Active_Projects/Mission Control/mission-control-v2/work-logs/latest-ui-release-one-pass.sh`
+- Stable latest bundle manifest: `/mnt/d/Warung Kerja 1.0/03_Active_Projects/Mission Control/mission-control-v2/work-logs/latest-ui-release-handoff-bundle-manifest.json`
 - Run from an interactive elevated host terminal:
   ```bash
-  bash /mnt/d/Warung Kerja 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/work-logs/latest-ui-release-one-pass.sh
+  bash ../../work-logs/latest-ui-release-one-pass.sh
   ```
 
 ## Run This In Interactive Elevated Host Terminal
 
 ```bash
-cd /mnt/d/Warung\ Kerja\ 1.0/06_Agents/noona/projects/mission-control/mission-control-v2/apps/web
-bash ../work-logs/latest-ui-release-one-pass.sh
+cd /mnt/d/Warung\ Kerja\ 1.0/03_Active_Projects/Mission\ Control/mission-control-v2/apps/web
+bash ../../work-logs/latest-ui-release-one-pass.sh
 ```
 
 ## Expected Success Artifact

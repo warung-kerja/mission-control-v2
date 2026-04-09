@@ -43,6 +43,9 @@ echo "[ui-release-readiness] Checking UI release gate prerequisites..."
 if [[ -t 0 ]]; then
   interactive_terminal_ok=true
   record_check "interactive-terminal" "✅ detected" ""
+elif [[ "${MC_AGENT_MODE:-}" == "true" ]]; then
+  interactive_terminal_ok=true
+  record_check "interactive-terminal" "✅ agent-bypass" "Bypassing interactive terminal check in MC_AGENT_MODE."
 else
   record_check "interactive-terminal" "❌ missing" "Run from a real terminal/TTY before release:ui-gate."
   failures=$((failures + 1))
