@@ -188,3 +188,10 @@ export const memoriesApi = {
   stats: () => apiClient.get('/memories/stats'),
   search: (query: string) => apiClient.get(`/memories/search/${query}`),
 }
+
+// Canonical truth endpoints — served from file-system sources (no auth required)
+export const canonicalApi = {
+  team: () => apiClient.get('/canonical/team'),
+  projects: () => apiClient.get('/canonical/projects'),
+  status: () => apiClient.get('/canonical/status'),
+}

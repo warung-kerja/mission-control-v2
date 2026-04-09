@@ -36,6 +36,7 @@ async function main() {
   )
   console.log('✅ Created users roster:', users.length)
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [raz, baro, noona, obey, bob, lin, soba, haji, jen] = users
 
   // --- PROJECTS ---

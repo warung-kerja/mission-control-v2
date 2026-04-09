@@ -11,6 +11,7 @@ router.get('/', authMiddleware, async (req, res) => {
   try {
     const { category, search, archived, tags } = req.query
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
     
     if (category && category !== 'all') {
@@ -124,6 +125,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { title, content, category, tags, source, sourceId, importance } = req.body
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userId = (req as any).user?.id
     
     if (!title || !content) {

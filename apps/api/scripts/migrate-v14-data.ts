@@ -564,7 +564,7 @@ async function runMigration(config: MigrationConfig = defaultConfig) {
     await migrateActivities(v14Data.activities, userIdMapping, config, logger)
 
     // Print summary
-    const { totalCreated, totalErrors } = logger.summary()
+    const { totalErrors } = logger.summary()
 
     if (totalErrors > 0) {
       console.log('\n⚠️ Migration completed with errors. Review the log above.')

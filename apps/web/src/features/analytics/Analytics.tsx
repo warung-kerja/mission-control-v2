@@ -243,7 +243,7 @@ export const Analytics: FC = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {members?.slice(0, 5).map((member: any) => {
+              {members?.slice(0, 5).map((member: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
                 const completed = member.workload?.byStatus?.DONE || 0
                 const total = member.workload?.total || 0
                 const percentage = total > 0 ? Math.round((completed / total) * 100) : 0

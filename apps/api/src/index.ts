@@ -17,6 +17,7 @@ import calendarRoutes from './routes/calendar.js'
 import messageRoutes from './routes/messages.js'
 import memoryRoutes from './routes/memories.js'
 import systemRoutes from './routes/system.js'
+import canonicalRoutes from './routes/canonical.js'
 import { initializeWebSocket } from './services/websocket.js'
 
 dotenv.config()
@@ -54,6 +55,7 @@ app.get('/api/health', (_req, res) => {
 
 // Public routes
 app.use('/api/auth', authRoutes)
+app.use('/api/canonical', canonicalRoutes)
 
 // Protected routes (require authentication)
 app.use('/api/projects', projectRoutes)

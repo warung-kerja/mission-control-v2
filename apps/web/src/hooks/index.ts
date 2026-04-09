@@ -56,3 +56,11 @@ export {
   type MemoryStats,
 } from './useMemories'
 export { useRealTimeMemories } from './useRealTimeMemories'
+export {
+  useCanonicalTeam,
+  useCanonicalProjects,
+  useCanonicalStatus,
+  type CanonicalTeamMember,
+  type CanonicalProject,
+  type CanonicalProjectMeta,
+} from './useCanonical'
