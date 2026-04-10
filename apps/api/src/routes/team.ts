@@ -151,12 +151,12 @@ router.get('/members', async (req: AuthRequest, res) => {
             status: true,
           },
         })
-        
+
         const tasksByStatus = taskBreakdown.reduce((acc, curr) => {
           acc[curr.status] = curr._count.status
           return acc
         }, {} as Record<string, number>)
-        
+
         // Get overdue tasks
         const overdueTasks = await prisma.task.count({
           where: {
@@ -166,7 +166,24 @@ router.get('/members', async (req: AuthRequest, res) => {
             ...(projectId && { projectId: projectId as string }),
           },
         })
-        
+
+        // Get active tasks (IN_PROGRESS) with project context
+        const activeTasks = await prisma.task.findMany({
+          where: {
+            assigneeId: user.id,
+            status: 'IN_PROGRESS',
+            ...(projectId && { projectId: projectId as string }),
+          },
+          select: {
+            id: true,
+            title: true,
+            priority: true,
+            project: { select: { id: true, name: true } },
+          },
+          orderBy: { updatedAt: 'desc' },
+          take: 3,
+        })
+
         return {
           ...user,
           workload: {
@@ -174,6 +191,7 @@ router.get('/members', async (req: AuthRequest, res) => {
             byStatus: tasksByStatus,
             overdue: overdueTasks,
           },
+          activeTasks,
         }
       })
     )

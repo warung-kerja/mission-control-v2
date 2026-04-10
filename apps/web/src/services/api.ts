@@ -137,7 +137,7 @@ export const teamApi = {
   get: (id: string) => apiClient.get(`/users/${id}`),
   updateStatus: (id: string, status: string) =>
     apiClient.patch(`/users/${id}/status`, { status }),
-  activityFeed: () => apiClient.get('/team/activity-feed'),
+  activityFeed: (limit = 15) => apiClient.get(`/team/activity-feed?limit=${limit}`),
 }
 
 export const dashboardApi = {
