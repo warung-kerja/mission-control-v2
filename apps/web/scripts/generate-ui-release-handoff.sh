@@ -309,17 +309,17 @@ fi
   echo "echo '[ui-release-one-pass] Verified release gate run-token format for pre-gate evidence.'"
   echo 'RELEASE_GATE_EXPECTED_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")'
   echo 'RELEASE_GATE_EXPECTED_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_READINESS_TIMESTAMP=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.timestamp||\"unknown\"));" work-logs/latest-ui-release-readiness.json 2>/dev/null || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_READINESS_STATUS=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.status||\"unknown\"));" work-logs/latest-ui-release-readiness.json 2>/dev/null || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_BLOCKING_CHECKS=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.blockingChecks ?? \"unknown\"));" work-logs/latest-ui-release-readiness.json 2>/dev/null || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_READINESS_SHA256=$(sha256sum work-logs/latest-ui-release-readiness.json 2>/dev/null | awk "{print \$1}" || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_READINESS_REPORT_JSON_SHA256=$(sha256sum work-logs/latest-ui-release-readiness-report.json 2>/dev/null | awk "{print \$1}" || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_READINESS_REPORT_MD_SHA256=$(sha256sum work-logs/latest-ui-release-readiness-report.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_SHA256=$(sha256sum work-logs/latest-ui-release-handoff-bundle-manifest.json 2>/dev/null | awk "{print \$1}" || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_PATH=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.artifacts?.latestBundleManifest?.path||\"unknown\"));" work-logs/latest-ui-release-handoff-bundle-manifest.json 2>/dev/null || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_HANDOFF_SHA256=$(sha256sum work-logs/latest-ui-release-handoff.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_OPERATOR_BRIEF_SHA256=$(sha256sum work-logs/latest-ui-release-operator-brief.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
-  echo 'RELEASE_GATE_EXPECTED_ONE_PASS_SHA256=$(sha256sum work-logs/latest-ui-release-one-pass.sh 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_READINESS_TIMESTAMP=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.timestamp||\"unknown\"));" ../../work-logs/latest-ui-release-readiness.json 2>/dev/null || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_READINESS_STATUS=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.status||\"unknown\"));" ../../work-logs/latest-ui-release-readiness.json 2>/dev/null || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_BLOCKING_CHECKS=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.blockingChecks ?? \"unknown\"));" ../../work-logs/latest-ui-release-readiness.json 2>/dev/null || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_READINESS_SHA256=$(sha256sum ../../work-logs/latest-ui-release-readiness.json 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_READINESS_REPORT_JSON_SHA256=$(sha256sum ../../work-logs/latest-ui-release-readiness-report.json 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_READINESS_REPORT_MD_SHA256=$(sha256sum ../../work-logs/latest-ui-release-readiness-report.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_SHA256=$(sha256sum ../../work-logs/latest-ui-release-handoff-bundle-manifest.json 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_PATH=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.artifacts?.latestBundleManifest?.path||\"unknown\"));" ../../work-logs/latest-ui-release-handoff-bundle-manifest.json 2>/dev/null || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_HANDOFF_SHA256=$(sha256sum ../../work-logs/latest-ui-release-handoff.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_OPERATOR_BRIEF_SHA256=$(sha256sum ../../work-logs/latest-ui-release-operator-brief.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'RELEASE_GATE_EXPECTED_ONE_PASS_SHA256=$(sha256sum ../../work-logs/latest-ui-release-one-pass.sh 2>/dev/null | awk "{print \$1}" || echo "unknown")'
   echo 'RELEASE_GATE_EXPECTED_WEB_DIR_PATH=$(pwd -P)'
   echo 'export RELEASE_GATE_RUN_TOKEN RELEASE_GATE_EXPECTED_COMMIT RELEASE_GATE_EXPECTED_BRANCH RELEASE_GATE_EXPECTED_READINESS_TIMESTAMP RELEASE_GATE_EXPECTED_READINESS_STATUS RELEASE_GATE_EXPECTED_BLOCKING_CHECKS RELEASE_GATE_EXPECTED_READINESS_SHA256 RELEASE_GATE_EXPECTED_READINESS_REPORT_JSON_SHA256 RELEASE_GATE_EXPECTED_READINESS_REPORT_MD_SHA256 RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_SHA256 RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_PATH RELEASE_GATE_EXPECTED_HANDOFF_SHA256 RELEASE_GATE_EXPECTED_OPERATOR_BRIEF_SHA256 RELEASE_GATE_EXPECTED_ONE_PASS_SHA256 RELEASE_GATE_EXPECTED_WEB_DIR_PATH'
   echo 'for REQUIRED_GATE_METADATA_VAR in RELEASE_GATE_EXPECTED_COMMIT RELEASE_GATE_EXPECTED_BRANCH RELEASE_GATE_EXPECTED_READINESS_TIMESTAMP RELEASE_GATE_EXPECTED_READINESS_STATUS RELEASE_GATE_EXPECTED_BLOCKING_CHECKS RELEASE_GATE_EXPECTED_READINESS_SHA256 RELEASE_GATE_EXPECTED_READINESS_REPORT_JSON_SHA256 RELEASE_GATE_EXPECTED_READINESS_REPORT_MD_SHA256 RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_SHA256 RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_PATH RELEASE_GATE_EXPECTED_HANDOFF_SHA256 RELEASE_GATE_EXPECTED_OPERATOR_BRIEF_SHA256 RELEASE_GATE_EXPECTED_ONE_PASS_SHA256 RELEASE_GATE_EXPECTED_WEB_DIR_PATH; do'
@@ -422,7 +422,7 @@ fi
   echo '  fi'
   echo 'done'
   echo "echo '[ui-release-one-pass] Verified SHA-256 metadata format for pre-gate evidence.'"
-  echo 'CURRENT_BUNDLE_MANIFEST_SHA256=$(sha256sum work-logs/latest-ui-release-handoff-bundle-manifest.json 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'CURRENT_BUNDLE_MANIFEST_SHA256=$(sha256sum ../../work-logs/latest-ui-release-handoff-bundle-manifest.json 2>/dev/null | awk "{print \$1}" || echo "unknown")'
   echo 'if [[ ! "$CURRENT_BUNDLE_MANIFEST_SHA256" =~ ^[a-f0-9]{64}$ ]]; then'
   echo "  echo '[ui-release-one-pass] ERROR: Invalid current handoff bundle manifest SHA-256 format for pre-gate drift assertion.'"
   echo '  echo "[ui-release-one-pass] currentManifestSha256=$CURRENT_BUNDLE_MANIFEST_SHA256"'
@@ -436,7 +436,7 @@ fi
   echo '  exit 1'
   echo 'fi'
   echo "echo '[ui-release-one-pass] Verified pre-gate handoff bundle manifest SHA-256 remains stable before gate execution.'"
-  echo 'CURRENT_BUNDLE_MANIFEST_PATH=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.artifacts?.latestBundleManifest?.path||\"unknown\"));" work-logs/latest-ui-release-handoff-bundle-manifest.json 2>/dev/null || echo "unknown")'
+  echo 'CURRENT_BUNDLE_MANIFEST_PATH=$(node -e "const fs=require(\"fs\");const d=JSON.parse(fs.readFileSync(process.argv[1],\"utf8\"));process.stdout.write(String(d.artifacts?.latestBundleManifest?.path||\"unknown\"));" ../../work-logs/latest-ui-release-handoff-bundle-manifest.json 2>/dev/null || echo "unknown")'
   echo 'if [[ "$CURRENT_BUNDLE_MANIFEST_PATH" != "work-logs/latest-ui-release-handoff-bundle-manifest.json" ]]; then'
   echo "  echo '[ui-release-one-pass] ERROR: Stable bundle manifest self-path is invalid before release gate execution.'"
   echo '  echo "[ui-release-one-pass] currentManifestSelfPath=$CURRENT_BUNDLE_MANIFEST_PATH expected=work-logs/latest-ui-release-handoff-bundle-manifest.json"'
@@ -450,7 +450,7 @@ fi
   echo '  exit 1'
   echo 'fi'
   echo "echo '[ui-release-one-pass] Verified stable handoff bundle manifest self-path before release gate execution.'"
-  echo 'CURRENT_HANDOFF_SHA256=$(sha256sum work-logs/latest-ui-release-handoff.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'CURRENT_HANDOFF_SHA256=$(sha256sum ../../work-logs/latest-ui-release-handoff.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
   echo 'if [[ ! "$CURRENT_HANDOFF_SHA256" =~ ^[a-f0-9]{64}$ ]]; then'
   echo "  echo '[ui-release-one-pass] ERROR: Invalid current handoff markdown SHA-256 format for pre-gate drift assertion.'"
   echo '  echo "[ui-release-one-pass] currentHandoffSha256=$CURRENT_HANDOFF_SHA256"'
@@ -464,7 +464,7 @@ fi
   echo '  exit 1'
   echo 'fi'
   echo "echo '[ui-release-one-pass] Verified pre-gate handoff markdown SHA-256 remains stable before gate execution.'"
-  echo 'CURRENT_OPERATOR_BRIEF_SHA256=$(sha256sum work-logs/latest-ui-release-operator-brief.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'CURRENT_OPERATOR_BRIEF_SHA256=$(sha256sum ../../work-logs/latest-ui-release-operator-brief.md 2>/dev/null | awk "{print \$1}" || echo "unknown")'
   echo 'if [[ ! "$CURRENT_OPERATOR_BRIEF_SHA256" =~ ^[a-f0-9]{64}$ ]]; then'
   echo "  echo '[ui-release-one-pass] ERROR: Invalid current operator brief SHA-256 format for pre-gate drift assertion.'"
   echo '  echo "[ui-release-one-pass] currentOperatorBriefSha256=$CURRENT_OPERATOR_BRIEF_SHA256"'
@@ -478,7 +478,7 @@ fi
   echo '  exit 1'
   echo 'fi'
   echo "echo '[ui-release-one-pass] Verified pre-gate operator brief SHA-256 remains stable before gate execution.'"
-  echo 'CURRENT_ONE_PASS_SHA256=$(sha256sum work-logs/latest-ui-release-one-pass.sh 2>/dev/null | awk "{print \$1}" || echo "unknown")'
+  echo 'CURRENT_ONE_PASS_SHA256=$(sha256sum ../../work-logs/latest-ui-release-one-pass.sh 2>/dev/null | awk "{print \$1}" || echo "unknown")'
   echo 'if [[ ! "$CURRENT_ONE_PASS_SHA256" =~ ^[a-f0-9]{64}$ ]]; then'
   echo "  echo '[ui-release-one-pass] ERROR: Invalid current one-pass script SHA-256 format for pre-gate drift assertion.'"
   echo '  echo "[ui-release-one-pass] currentOnePassSha256=$CURRENT_ONE_PASS_SHA256"'
@@ -512,7 +512,7 @@ fi
   echo "  echo '[ui-release-one-pass] release:ui-gate may have failed before writing stable evidence.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'SMOKE_EVIDENCE_MTIME_EPOCH=$(stat -c %Y work-logs/latest-ui-smoke-release-gate.md 2>/dev/null || echo 0)'
+  echo 'SMOKE_EVIDENCE_MTIME_EPOCH=$(stat -c %Y ../../work-logs/latest-ui-smoke-release-gate.md 2>/dev/null || echo 0)'
   echo 'if [[ ! "$SMOKE_EVIDENCE_MTIME_EPOCH" =~ ^[0-9]{10}$ ]]; then'
   echo "  echo '[ui-release-one-pass] ERROR: Invalid smoke evidence mtime epoch format after release:ui-gate.'"
   echo '  echo "[ui-release-one-pass] smokeEvidenceMtime=$SMOKE_EVIDENCE_MTIME_EPOCH"'
@@ -526,91 +526,91 @@ fi
   echo "  echo '[ui-release-one-pass] Re-run release:ui-gate and ensure latest-ui-smoke-release-gate.md updates.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Gate run token: \\`$RELEASE_GATE_RUN_TOKEN\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Gate run token: \\`$RELEASE_GATE_RUN_TOKEN\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence token mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedToken=$RELEASE_GATE_RUN_TOKEN"'
   echo "  echo '[ui-release-one-pass] Ensure run-ui-smoke-release.sh records Gate run token and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Commit: \\`$RELEASE_GATE_EXPECTED_COMMIT\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Commit: \\`$RELEASE_GATE_EXPECTED_COMMIT\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence commit hash mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedCommit=$RELEASE_GATE_EXPECTED_COMMIT"'
   echo "  echo '[ui-release-one-pass] Ensure release gate runs on the intended commit and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Branch: \\`$RELEASE_GATE_EXPECTED_BRANCH\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Branch: \\`$RELEASE_GATE_EXPECTED_BRANCH\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence branch mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedBranch=$RELEASE_GATE_EXPECTED_BRANCH"'
   echo "  echo '[ui-release-one-pass] Ensure release gate runs on the intended branch and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected readiness snapshot timestamp from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_TIMESTAMP\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected readiness snapshot timestamp from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_TIMESTAMP\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence readiness timestamp mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedReadinessTimestamp=$RELEASE_GATE_EXPECTED_READINESS_TIMESTAMP"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected readiness timestamp metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected readiness status from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_STATUS\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected readiness status from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_STATUS\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence readiness status mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedReadinessStatus=$RELEASE_GATE_EXPECTED_READINESS_STATUS"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected readiness status metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected readiness blocking checks from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_BLOCKING_CHECKS\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected readiness blocking checks from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_BLOCKING_CHECKS\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence readiness blocking-check count mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedReadinessBlockingChecks=$RELEASE_GATE_EXPECTED_BLOCKING_CHECKS"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected readiness blocking-check metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected readiness snapshot SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_SHA256\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected readiness snapshot SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_SHA256\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence readiness snapshot SHA-256 mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedReadinessSha256=$RELEASE_GATE_EXPECTED_READINESS_SHA256"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected readiness snapshot SHA-256 metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected readiness report JSON SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_REPORT_JSON_SHA256\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected readiness report JSON SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_REPORT_JSON_SHA256\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence readiness report JSON SHA-256 mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedReadinessReportJsonSha256=$RELEASE_GATE_EXPECTED_READINESS_REPORT_JSON_SHA256"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected readiness report JSON SHA-256 metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected readiness report markdown SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_REPORT_MD_SHA256\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected readiness report markdown SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_READINESS_REPORT_MD_SHA256\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence readiness report markdown SHA-256 mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedReadinessReportMarkdownSha256=$RELEASE_GATE_EXPECTED_READINESS_REPORT_MD_SHA256"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected readiness report markdown SHA-256 metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected handoff bundle manifest SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_SHA256\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected handoff bundle manifest SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_SHA256\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence handoff bundle manifest SHA-256 mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedManifestSha256=$RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_SHA256"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected handoff bundle manifest SHA-256 metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected handoff bundle manifest path from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_PATH\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected handoff bundle manifest path from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_PATH\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence handoff bundle manifest path mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedManifestPath=$RELEASE_GATE_EXPECTED_BUNDLE_MANIFEST_PATH"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected handoff bundle manifest path metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected handoff markdown SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_HANDOFF_SHA256\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected handoff markdown SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_HANDOFF_SHA256\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence handoff markdown SHA-256 mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedHandoffSha256=$RELEASE_GATE_EXPECTED_HANDOFF_SHA256"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected handoff markdown SHA-256 metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected operator brief SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_OPERATOR_BRIEF_SHA256\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected operator brief SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_OPERATOR_BRIEF_SHA256\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence operator brief SHA-256 mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedOperatorBriefSha256=$RELEASE_GATE_EXPECTED_OPERATOR_BRIEF_SHA256"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected operator brief SHA-256 metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected one-pass script SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_ONE_PASS_SHA256\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected one-pass script SHA-256 from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_ONE_PASS_SHA256\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence one-pass script SHA-256 mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedOnePassSha256=$RELEASE_GATE_EXPECTED_ONE_PASS_SHA256"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected one-pass script SHA-256 metadata and retry.'"
   echo '  exit 1'
   echo 'fi'
-  echo 'if ! grep -Fq "Expected web directory path from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_WEB_DIR_PATH\\`" work-logs/latest-ui-smoke-release-gate.md; then'
+  echo 'if ! grep -Fq "Expected web directory path from one-pass pre-gate check: \\`$RELEASE_GATE_EXPECTED_WEB_DIR_PATH\\`" ../../work-logs/latest-ui-smoke-release-gate.md; then'
   echo "  echo '[ui-release-one-pass] ERROR: Smoke evidence web directory path mismatch for this release:ui-gate run.'"
   echo '  echo "[ui-release-one-pass] expectedWebDir=$RELEASE_GATE_EXPECTED_WEB_DIR_PATH"'
   echo "  echo '[ui-release-one-pass] Ensure release gate records expected web directory path metadata and retry.'"
@@ -878,7 +878,7 @@ const fs = require('fs');
 const manifestPath = process.argv[2];
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 manifest.artifacts.latestBundleManifest = {
-  path: manifestPath,
+  path: 'work-logs/latest-ui-release-handoff-bundle-manifest.json',
   note: 'Self-referential manifest path entry (checksum validated externally by verifier input path)',
 };
 fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);

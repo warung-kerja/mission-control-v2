@@ -45,7 +45,7 @@ grep -Fq '[[ "$EXPECTED_READINESS_REPORT_JSON_SHA256" =~ ^[a-f0-9]{64}$ ]]' "$RE
 grep -Fq '[[ "$EXPECTED_READINESS_REPORT_MD_SHA256" =~ ^[a-f0-9]{64}$ ]]' "$RELEASE_GATE_SCRIPT" || fail "Release gate script is missing readiness report markdown SHA-256 metadata format validation"
 grep -Fq '[[ "$EXPECTED_BUNDLE_MANIFEST_SHA256" =~ ^[a-f0-9]{64}$ ]]' "$RELEASE_GATE_SCRIPT" || fail "Release gate script is missing handoff bundle manifest SHA-256 metadata format validation"
 grep -Fq '[[ "$EXPECTED_BUNDLE_MANIFEST_PATH" == "work-logs/latest-ui-release-handoff-bundle-manifest.json" ]]' "$RELEASE_GATE_SCRIPT" || fail "Release gate script is missing handoff bundle manifest path metadata validation"
-grep -q 'EXPECTED_BUNDLE_MANIFEST_ABS_PATH="$ROOT_DIR/$EXPECTED_BUNDLE_MANIFEST_PATH"' "$RELEASE_GATE_SCRIPT" || fail "Release gate script is missing stable handoff bundle manifest absolute-path resolution"
+grep -q 'EXPECTED_BUNDLE_MANIFEST_ABS_PATH="$MANIFEST_ROOT/$EXPECTED_BUNDLE_MANIFEST_PATH"' "$RELEASE_GATE_SCRIPT" || fail "Release gate script is missing stable handoff bundle manifest absolute-path resolution"
 grep -Fq '[[ -f "$EXPECTED_BUNDLE_MANIFEST_ABS_PATH" ]]' "$RELEASE_GATE_SCRIPT" || fail "Release gate script is missing stable handoff bundle manifest file-existence assertion"
 grep -q 'CURRENT_BUNDLE_MANIFEST_SHA256=' "$RELEASE_GATE_SCRIPT" || fail "Release gate script is missing stable handoff bundle manifest on-disk SHA-256 capture"
 grep -Fq '[[ "$CURRENT_BUNDLE_MANIFEST_SHA256" == "$EXPECTED_BUNDLE_MANIFEST_SHA256" ]]' "$RELEASE_GATE_SCRIPT" || fail "Release gate script is missing stable handoff bundle manifest SHA-256 drift assertion"

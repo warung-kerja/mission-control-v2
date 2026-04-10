@@ -2,7 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-WORK_LOG_DIR="$(cd "$ROOT_DIR/../.." && pwd)/work-logs"
+MANIFEST_ROOT="$(cd "$ROOT_DIR/../.." && pwd)"
+WORK_LOG_DIR="$MANIFEST_ROOT/work-logs"
 mkdir -p "$WORK_LOG_DIR"
 
 TIMESTAMP_LOCAL="$(TZ=Australia/Sydney date +"%Y-%m-%d %I:%M %p (%Z)")"
@@ -117,7 +118,7 @@ CURRENT_WEB_DIR_PATH="$(pwd -P)"
 
 echo '[ui-release-gate] Verified web directory path matches one-pass pre-gate expectation before release gate execution.'
 
-EXPECTED_BUNDLE_MANIFEST_ABS_PATH="$ROOT_DIR/$EXPECTED_BUNDLE_MANIFEST_PATH"
+EXPECTED_BUNDLE_MANIFEST_ABS_PATH="$MANIFEST_ROOT/$EXPECTED_BUNDLE_MANIFEST_PATH"
 [[ -f "$EXPECTED_BUNDLE_MANIFEST_ABS_PATH" ]] || {
   echo "[ui-release-gate] ERROR: Expected handoff bundle manifest file is missing: $EXPECTED_BUNDLE_MANIFEST_ABS_PATH"
   echo '[ui-release-gate] Re-run the prepared handoff script so stable handoff bundle artifacts are regenerated deterministically:'
