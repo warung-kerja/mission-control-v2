@@ -31,7 +31,7 @@ test.describe('release smoke', () => {
     const mobileSidebar = page.locator('aside.w-72')
     await expect(mobileSidebar).toBeVisible()
 
-    const overlay = page.locator('div.fixed.inset-0.bg-black/50')
+    const overlay = page.locator('[data-testid="mobile-sidebar-overlay"]')
     await expect(overlay).toBeVisible()
     await overlay.click({ position: { x: 10, y: 10 } })
     await expect(mobileSidebar).toBeHidden()
