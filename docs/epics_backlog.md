@@ -29,7 +29,7 @@ This document outlines the high-level Epics for Mission Control V2, distilling t
 **Goal:** Build out the missing feature modules that were scoped for V2.
 - `[ ]` **Memories Browser:** Visualization and search tools for querying long-term agent memory and context.
 - `[ ]` **Office Visualization:** A virtual "layout" view showcasing live team presence, status, and active subagent workspaces.
-- `[ ]` **Collaboration Tools:** Task tracking, backlog breakdown visuals, and active agent interplay interfaces.
+- `[~]` **Collaboration Tools:** ~~Task tracking, backlog breakdown visuals, and active agent interplay interfaces.~~ **Deprioritised (2026-04-10).** Agent-to-agent and human-to-agent collaboration happens via external comms (not in-platform). The Collaboration tab will remain as a basic stub but will not be built out further.
 - `[ ]` **Analytics Expansion:** Drive the Analytics page using deeply integrated real-world data tracking rather than synthesized test stats.
 
 ## 🔴 Epic 5: Advanced Real-time Integrations (Future)

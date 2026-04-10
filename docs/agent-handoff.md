@@ -56,10 +56,15 @@ Primary source:
 - `memory/*.md`
 - project memory / docs as needed
 
+## Product Decisions (Permanent)
+- **Collaboration tab deprioritised (2026-04-10):** Agent-to-agent and human-to-agent collaboration happens via external comms. The Collaboration page will remain as a stub but will not be built out further. Do not invest engineering time here.
+
 ## Current Best Next Tasks
-1. Start implementation of Epic 4 modules (Memories Browser / Office Visualization).
-2. Final audit of real-time Socket.io reliability.
-3. Keep V2 documentation/handoff clean for multi-agent work.
+1. Epic 4: Memories Browser enhancements (surface canonical `memory/*.md` files alongside DB memories).
+2. Epic 4: Office Visualization — add active subagent workspaces dimension.
+3. Epic 4: Analytics Expansion — deepen with project-level breakdowns.
+4. Final audit of real-time Socket.io reliability.
+5. Keep V2 documentation/handoff clean for multi-agent work.
 
 ## Release Context
 Most useful files for release state:
