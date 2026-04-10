@@ -272,6 +272,64 @@ router.get('/productivity', async (req: AuthRequest, res) => {
   }
 })
 
+// GET /api/team/analytics/projects - Per-project task breakdown
+router.get('/analytics/projects', async (_req: AuthRequest, res) => {
+  try {
+    const projects = await prisma.project.findMany({
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        _count: { select: { members: true } },
+      },
+      orderBy: { name: 'asc' },
+    })
+
+    const breakdown = await Promise.all(
+      projects.map(async (project) => {
+        const tasksByStatus = await prisma.task.groupBy({
+          by: ['status'],
+          where: { projectId: project.id },
+          _count: { status: true },
+        })
+
+        const byStatus = tasksByStatus.reduce((acc, curr) => {
+          acc[curr.status] = curr._count.status
+          return acc
+        }, {} as Record<string, number>)
+
+        const total = Object.values(byStatus).reduce((sum, n) => sum + n, 0)
+        const completed = byStatus.DONE || 0
+
+        const overdue = await prisma.task.count({
+          where: {
+            projectId: project.id,
+            dueDate: { lt: new Date() },
+            status: { not: 'DONE' },
+          },
+        })
+
+        return {
+          id: project.id,
+          name: project.name,
+          status: project.status,
+          memberCount: project._count.members,
+          total,
+          completed,
+          completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+          byStatus,
+          overdue,
+        }
+      })
+    )
+
+    res.json({ success: true, data: breakdown })
+  } catch (error) {
+    console.error('Project analytics error:', error)
+    res.status(500).json({ error: 'Failed to fetch project analytics' })
+  }
+})
+
 // GET /api/team/activity-feed - Get team activity feed
 router.get('/activity-feed', async (req: AuthRequest, res) => {
   try {

@@ -154,10 +154,12 @@ export const notificationsApi = {
 }
 
 export const teamAnalyticsApi = {
-  analytics: () => apiClient.get('/team/analytics'),
+  analytics: (params?: { projectId?: string; startDate?: string; endDate?: string }) =>
+    apiClient.get('/team/analytics', { params }),
   members: () => apiClient.get('/team/members'),
-  productivity: () => apiClient.get('/team/productivity'),
+  productivity: (params?: { days?: number }) => apiClient.get('/team/productivity', { params }),
   activityFeed: () => apiClient.get('/team/activity-feed'),
+  projectBreakdown: () => apiClient.get('/team/analytics/projects'),
 }
 
 export const calendarApi = {

@@ -39,12 +39,24 @@ export interface TeamMemberWithWorkload {
   }
 }
 
-// Fetch team analytics overview
-export function useTeamAnalytics() {
+export interface ProjectBreakdown {
+  id: string
+  name: string
+  status: string
+  memberCount: number
+  total: number
+  completed: number
+  completionRate: number
+  byStatus: Record<string, number>
+  overdue: number
+}
+
+// Fetch team analytics overview, optionally scoped to a project
+export function useTeamAnalytics(projectId?: string) {
   return useQuery({
-    queryKey: ['team', 'analytics'],
+    queryKey: ['team', 'analytics', projectId ?? 'all'],
     queryFn: async () => {
-      const response = await teamAnalyticsApi.analytics()
+      const response = await teamAnalyticsApi.analytics(projectId ? { projectId } : undefined)
       return response.data.data as TeamAnalytics
     },
   })
@@ -55,7 +67,7 @@ export function useTeamProductivity(days = 7) {
   return useQuery({
     queryKey: ['team', 'productivity', days],
     queryFn: async () => {
-      const response = await teamAnalyticsApi.productivity()
+      const response = await teamAnalyticsApi.productivity({ days })
       return response.data.data as ProductivityData
     },
   })
@@ -68,6 +80,17 @@ export function useTeamMembersWithWorkload() {
     queryFn: async () => {
       const response = await teamAnalyticsApi.members()
       return response.data.data as TeamMemberWithWorkload[]
+    },
+  })
+}
+
+// Fetch per-project task breakdown
+export function useProjectBreakdown() {
+  return useQuery({
+    queryKey: ['team', 'analytics', 'projects'],
+    queryFn: async () => {
+      const response = await teamAnalyticsApi.projectBreakdown()
+      return response.data.data as ProjectBreakdown[]
     },
   })
 }
