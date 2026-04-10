@@ -1,87 +1,99 @@
-import { useEffect, useRef, useCallback } from 'react'
-import { io, Socket } from 'socket.io-client'
+/**
+ * useWebSocket — thin hook over the module-level singleton socket.
+ *
+ * Key fixes vs. old implementation:
+ * - No new socket per hook call: all components share one connection via socket.ts
+ * - Unmounting a component does NOT disconnect the socket
+ * - `on()` safely no-ops if called before the socket is ready
+ * - Auth token changes reconnect via the singleton (triggered by authStore listener)
+ */
+
+import { useEffect, useCallback, useRef } from 'react'
 import { useAuthStore } from '../stores/authStore'
+import { connectSocket, disconnectSocket, getSocket } from '../lib/socket'
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:3001'
+// ── Bootstrap: connect/disconnect driven by auth state ──────────────────────
 
-interface WebSocketOptions {
-  autoConnect?: boolean
-  onConnect?: () => void
-  onDisconnect?: (reason: string) => void
-  onError?: (error: Error) => void
-}
-
-export function useWebSocket(options: WebSocketOptions = {}) {
-  const { autoConnect = true, onConnect, onDisconnect, onError } = options
-  const socketRef = useRef<Socket | null>(null)
+/**
+ * Mount this once near the app root (e.g. inside ProtectedLayout).
+ * It manages the socket lifecycle based on the auth token.
+ */
+export function useSocketBootstrap() {
   const token = useAuthStore((state) => state.token)
 
-  const connect = useCallback(() => {
-    if (socketRef.current?.connected) return
-
-    const socket = io(WS_URL, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    })
-
-    socket.on('connect', () => {
-      console.log('[WebSocket] Connected:', socket.id)
-      onConnect?.()
-    })
-
-    socket.on('disconnect', (reason) => {
-      console.log('[WebSocket] Disconnected:', reason)
-      onDisconnect?.(reason)
-    })
-
-    socket.on('connect_error', (error) => {
-      console.error('[WebSocket] Connection error:', error)
-      onError?.(error)
-    })
-
-    socketRef.current = socket
-  }, [token, onConnect, onDisconnect, onError])
-
-  const disconnect = useCallback(() => {
-    socketRef.current?.disconnect()
-    socketRef.current = null
-  }, [])
-
-  const emit = useCallback(<T = unknown>(event: string, data: T) => {
-    socketRef.current?.emit(event, data)
-  }, [])
-
-  const on = useCallback(<T = unknown>(event: string, callback: (data: T) => void) => {
-    socketRef.current?.on(event, callback)
-    return () => {
-      socketRef.current?.off(event, callback)
-    }
-  }, [])
-
-  const off = useCallback((event: string) => {
-    socketRef.current?.off(event)
-  }, [])
-
   useEffect(() => {
-    if (autoConnect && token) {
-      connect()
+    if (token) {
+      connectSocket(token)
+    } else {
+      disconnectSocket()
     }
+    // No cleanup: the socket stays alive while the user is logged in.
+    // Logout (token → null) triggers disconnectSocket above.
+  }, [token])
+}
+
+// ── Per-component event subscription hook ───────────────────────────────────
+
+export function useWebSocket(_options: { onConnect?: () => void; onDisconnect?: (reason: string) => void } = {}) {
+  const { onConnect, onDisconnect } = _options
+
+  // Track callbacks registered by this hook instance so we can clean them up.
+  const listenersRef = useRef<Array<() => void>>([])
+
+  // Attach connect/disconnect callbacks to the singleton socket.
+  useEffect(() => {
+    const socket = getSocket()
+    if (!socket) return
+
+    const handleConnect = () => onConnect?.()
+    const handleDisconnect = (reason: string) => onDisconnect?.(reason)
+
+    socket.on('connect', handleConnect)
+    socket.on('disconnect', handleDisconnect)
 
     return () => {
-      disconnect()
+      socket.off('connect', handleConnect)
+      socket.off('disconnect', handleDisconnect)
     }
-  }, [autoConnect, token, connect, disconnect])
+  }, [onConnect, onDisconnect])
 
-  return {
-    socket: socketRef.current,
-    connect,
-    disconnect,
-    emit,
-    on,
-    off,
-    isConnected: socketRef.current?.connected ?? false,
-  }
+  // Cleanup all listeners registered via `on()` when the component unmounts.
+  useEffect(() => {
+    const cleanupFns = listenersRef.current
+    return () => {
+      cleanupFns.forEach((fn) => fn())
+      listenersRef.current = []
+    }
+  }, [])
+
+  /**
+   * Subscribe to a socket event. Returns an unsubscribe function.
+   * Safe to call even when the socket is not yet connected — the listener
+   * will fire once the socket delivers the event.
+   */
+  const on = useCallback(<T = unknown>(event: string, callback: (data: T) => void) => {
+    const socket = getSocket()
+    if (!socket) {
+      // Socket not ready yet — return a noop unsubscribe
+      return () => {}
+    }
+    socket.on(event, callback)
+    const off = () => socket.off(event, callback)
+    listenersRef.current.push(off)
+    return off
+  }, [])
+
+  /** Emit an event. Silent noop if disconnected — caller should handle. */
+  const emit = useCallback(<T = unknown>(event: string, data?: T) => {
+    const socket = getSocket()
+    if (!socket?.connected) {
+      console.warn(`[Socket] emit('${event}') skipped — not connected`)
+      return
+    }
+    socket.emit(event, data)
+  }, [])
+
+  const isConnected = getSocket()?.connected ?? false
+
+  return { on, emit, isConnected, socket: getSocket() }
 }

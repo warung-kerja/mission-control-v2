@@ -2,9 +2,13 @@ import { FC, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
+import { useSocketBootstrap } from '../../hooks/useWebSocket'
 
 export const Layout: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Initialise the singleton socket once for the entire authenticated session.
+  useSocketBootstrap()
 
   return (
     <div className="flex h-screen bg-mission-bg">

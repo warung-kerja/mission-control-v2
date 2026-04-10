@@ -2,35 +2,65 @@ import { Server, Socket } from 'socket.io'
 import { prisma } from '../index.js'
 import jwt from 'jsonwebtoken'
 
-// Active user presence tracking
-interface PresenceUser {
+// ── Presence tracking ────────────────────────────────────────────────────────
+
+interface PresenceEntry {
   userId: string
   socketId: string
   status: 'online' | 'away' | 'busy'
   lastActivity: Date
 }
 
-const presenceMap = new Map<string, PresenceUser>() // socketId -> PresenceUser
-const userSocketMap = new Map<string, string>() // userId -> socketId
+// socketId → presence
+const presenceMap = new Map<string, PresenceEntry>()
+// userId → Set<socketId>  (multi-tab: a user can have many open sockets)
+const userSocketsMap = new Map<string, Set<string>>()
 
-// Initialize WebSocket services
-export function initializeWebSocket(io: Server) {
-  io.on('connection', handleConnection)
-  
-  // Start presence cleanup interval
-  setInterval(() => cleanupInactiveUsers(io), 60000) // Every minute
+function addUserSocket(userId: string, socketId: string): void {
+  const existing = userSocketsMap.get(userId) ?? new Set()
+  existing.add(socketId)
+  userSocketsMap.set(userId, existing)
 }
 
-async function handleConnection(socket: Socket) {
-  console.log('Client connected:', socket.id)
-  
-  // Authenticate socket connection
+function removeUserSocket(userId: string, socketId: string): boolean {
+  const sockets = userSocketsMap.get(userId)
+  if (!sockets) return false
+  sockets.delete(socketId)
+  if (sockets.size === 0) {
+    userSocketsMap.delete(userId)
+    return true // last socket for this user
+  }
+  return false // user still has other sockets open
+}
+
+function touchActivity(socketId: string): void {
+  const entry = presenceMap.get(socketId)
+  if (entry) entry.lastActivity = new Date()
+}
+
+// ── Initialise ───────────────────────────────────────────────────────────────
+
+export function initializeWebSocket(io: Server) {
+  io.on('connection', (socket) => {
+    handleConnection(io, socket).catch((err) => {
+      console.error('[WebSocket] Unhandled error in handleConnection:', err)
+      socket.disconnect()
+    })
+  })
+
+  // Cleanup stale ONLINE entries every minute
+  setInterval(() => cleanupInactiveUsers(io), 60_000)
+}
+
+// ── Connection handler ───────────────────────────────────────────────────────
+
+async function handleConnection(io: Server, socket: Socket): Promise<void> {
   const token = socket.handshake.auth.token as string
   if (!token) {
     socket.disconnect()
     return
   }
-  
+
   let userId: string
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret') as { userId: string }
@@ -39,127 +69,112 @@ async function handleConnection(socket: Socket) {
     socket.disconnect()
     return
   }
-  
-  // Update user presence
-  await setUserOnline(socket.id, userId)
-  
-  // Join personal room for direct messages
+
+  console.log(`[WS] connect  user=${userId} socket=${socket.id}`)
+
+  // Register presence
+  presenceMap.set(socket.id, {
+    userId,
+    socketId: socket.id,
+    status: 'online',
+    lastActivity: new Date(),
+  })
+  addUserSocket(userId, socket.id)
+
+  // Persist ONLINE in DB (ignore error — presence is best-effort)
+  try {
+    await prisma.user.update({ where: { id: userId }, data: { status: 'ONLINE' } })
+  } catch (err) {
+    console.error('[WS] DB error setting user online:', err)
+  }
+
+  // Join personal room
   socket.join(`user:${userId}`)
-  
-  // Broadcast user online to all clients
+
+  // Broadcast online status
   socket.broadcast.emit('user:online', { userId })
-  
-  // Send current presence list to newly connected user
-  const onlineUsers = Array.from(presenceMap.values()).map(p => ({
+
+  // Send current presence list to this socket
+  const onlineUsers = Array.from(presenceMap.values()).map((p) => ({
     userId: p.userId,
     status: p.status,
   }))
   socket.emit('presence:list', onlineUsers)
-  
-  // Handle room subscriptions
+
+  // ── Event handlers ─────────────────────────────────────────────────────────
+
   socket.on('project:join', (projectId: string) => {
+    touchActivity(socket.id)
     socket.join(`project:${projectId}`)
-    console.log(`User ${userId} joined project:${projectId}`)
   })
-  
+
   socket.on('project:leave', (projectId: string) => {
     socket.leave(`project:${projectId}`)
-    console.log(`User ${userId} left project:${projectId}`)
   })
-  
-  // Handle presence updates
+
   socket.on('presence:update', async (status: 'online' | 'away' | 'busy') => {
-    await updateUserPresence(userId, status)
+    touchActivity(socket.id)
+    const entry = presenceMap.get(socket.id)
+    if (entry) entry.status = status
+
+    const dbStatus = status === 'online' ? 'ONLINE' : status === 'away' ? 'AWAY' : 'BUSY'
+    try {
+      await prisma.user.update({ where: { id: userId }, data: { status: dbStatus } })
+    } catch (err) {
+      console.error('[WS] DB error updating presence:', err)
+    }
     socket.broadcast.emit('presence:update', { userId, status })
   })
-  
-  // Handle typing indicators
+
   socket.on('typing:start', ({ projectId, taskId }: { projectId?: string; taskId?: string }) => {
+    touchActivity(socket.id)
     const room = taskId ? `task:${taskId}` : projectId ? `project:${projectId}` : null
-    if (room) {
-      socket.to(room).emit('typing:start', { userId, taskId, projectId })
-    }
+    if (room) socket.to(room).emit('typing:start', { userId, taskId, projectId })
   })
-  
+
   socket.on('typing:stop', ({ projectId, taskId }: { projectId?: string; taskId?: string }) => {
     const room = taskId ? `task:${taskId}` : projectId ? `project:${projectId}` : null
-    if (room) {
-      socket.to(room).emit('typing:stop', { userId, taskId, projectId })
-    }
+    if (room) socket.to(room).emit('typing:stop', { userId, taskId, projectId })
   })
-  
-  // Handle disconnection
+
   socket.on('disconnect', async () => {
-    console.log('Client disconnected:', socket.id)
-    await setUserOffline(socket.id, userId)
-    socket.broadcast.emit('user:offline', { userId })
-  })
-}
+    console.log(`[WS] disconnect user=${userId} socket=${socket.id}`)
+    presenceMap.delete(socket.id)
 
-async function setUserOnline(socketId: string, userId: string) {
-  presenceMap.set(socketId, {
-    userId,
-    socketId,
-    status: 'online',
-    lastActivity: new Date(),
-  })
-  userSocketMap.set(userId, socketId)
-  
-  // Update database
-  await prisma.user.update({
-    where: { id: userId },
-    data: { status: 'ONLINE' },
-  })
-}
-
-async function setUserOffline(socketId: string, userId: string) {
-  presenceMap.delete(socketId)
-  userSocketMap.delete(userId)
-  
-  // Update database
-  await prisma.user.update({
-    where: { id: userId },
-    data: { status: 'OFFLINE' },
-  })
-}
-
-async function updateUserPresence(userId: string, status: 'online' | 'away' | 'busy') {
-  const socketId = userSocketMap.get(userId)
-  if (socketId) {
-    const presence = presenceMap.get(socketId)
-    if (presence) {
-      presence.status = status
-      presence.lastActivity = new Date()
-    }
-  }
-  
-  // Map to database status
-  const dbStatus = status === 'online' ? 'ONLINE' : status === 'away' ? 'AWAY' : 'BUSY'
-  await prisma.user.update({
-    where: { id: userId },
-    data: { status: dbStatus },
-  })
-}
-
-async function cleanupInactiveUsers(io: Server) {
-  const now = new Date()
-  const inactiveThreshold = 5 * 60 * 1000 // 5 minutes
-  
-  for (const [, presence] of presenceMap) {
-    if (now.getTime() - presence.lastActivity.getTime() > inactiveThreshold) {
-      if (presence.status === 'online') {
-        presence.status = 'away'
-        await prisma.user.update({
-          where: { id: presence.userId },
-          data: { status: 'AWAY' },
-        })
-        io.emit('presence:update', { userId: presence.userId, status: 'away' })
+    const isLastSocket = removeUserSocket(userId, socket.id)
+    if (isLastSocket) {
+      // Only mark OFFLINE if no other tabs are connected for this user
+      try {
+        await prisma.user.update({ where: { id: userId }, data: { status: 'OFFLINE' } })
+      } catch (err) {
+        console.error('[WS] DB error setting user offline:', err)
       }
+      socket.broadcast.emit('user:offline', { userId })
+    }
+  })
+}
+
+// ── Stale presence cleanup ───────────────────────────────────────────────────
+
+async function cleanupInactiveUsers(io: Server): Promise<void> {
+  const now = Date.now()
+  const awayThreshold = 5 * 60 * 1000 // 5 minutes
+
+  for (const [, entry] of presenceMap) {
+    if (entry.status === 'online' && now - entry.lastActivity.getTime() > awayThreshold) {
+      entry.status = 'away'
+      try {
+        await prisma.user.update({ where: { id: entry.userId }, data: { status: 'AWAY' } })
+      } catch (err) {
+        console.error('[WS] DB error auto-marking away:', err)
+      }
+      io.emit('presence:update', { userId: entry.userId, status: 'away' })
     }
   }
 }
 
-// Event broadcasting helpers
+// ── Broadcast helpers ────────────────────────────────────────────────────────
+
 export function broadcastProjectEvent(io: Server, projectId: string, event: string, data: unknown) {
   io.to(`project:${projectId}`).emit(event, data)
 }
@@ -176,12 +191,10 @@ export function broadcastToAll(io: Server, event: string, data: unknown) {
   io.emit(event, data)
 }
 
-// Get user's socket ID for direct messaging
-export function getUserSocketId(userId: string): string | undefined {
-  return userSocketMap.get(userId)
+export function getUserSocketIds(userId: string): Set<string> {
+  return userSocketsMap.get(userId) ?? new Set()
 }
 
-// Export presence map for external access
-export function getPresenceMap(): Map<string, PresenceUser> {
+export function getPresenceMap(): Map<string, PresenceEntry> {
   return presenceMap
 }
