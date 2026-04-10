@@ -120,6 +120,12 @@ Important note:
 - Blocker: None. Epic 3 is complete.
 - Next recommended step: Epic 4 — Memories Browser and Office Visualization modules.
 
+### 2026-04-10 - Antigravity
+- What changed: Implemented real-time WebSocket infrastructure. Added a socket.io client singleton (`apps/web/src/lib/socket.ts`), a `useWebSocket` hook for connection management, and integrated it into the main `Layout.tsx`. Updated the API WebSocket service to handle connections.
+- Validation: Committed changes locally. (Note: push to remote requires manual user intervention due to SSH environment restrictions).
+- Blocker: Unable to push to remote due to SSH host key verification / authentication failure in the agent environment.
+- Next recommended step: User to perform `git push` to sync changes to GitHub. Proceed with Epic 4 feature modules once Push is confirmed.
+
 ## Update Template
 Use this when leaving a new handoff note:
 
