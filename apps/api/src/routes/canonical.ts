@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   readCanonicalTeam,
   readCanonicalProjects,
+  readCanonicalMemories,
   canonicalSourceStatus,
 } from '../lib/canonicalSources.js'
 
@@ -43,6 +44,22 @@ router.get('/projects', (_req, res) => {
   } catch (error) {
     console.error('Canonical projects read error:', error)
     res.status(500).json({ error: 'Failed to read canonical project registry' })
+  }
+})
+
+// GET /api/canonical/memories — canonical shared memory files (.md)
+router.get('/memories', (_req, res) => {
+  try {
+    const result = readCanonicalMemories()
+    res.json({
+      success: result.ok,
+      data: result.data,
+      source: result.source,
+      ...(result.error && { error: result.error }),
+    })
+  } catch (error) {
+    console.error('Canonical memories read error:', error)
+    res.status(500).json({ error: 'Failed to read canonical memory files' })
   }
 })
 

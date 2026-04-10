@@ -196,4 +196,5 @@ export const canonicalApi = {
   team: () => apiClient.get('/canonical/team'),
   projects: () => apiClient.get('/canonical/projects'),
   status: () => apiClient.get('/canonical/status'),
+  memories: () => apiClient.get('/canonical/memories'),
 }

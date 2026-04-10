@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 
 
 // ---------------------------------------------------------------------------
@@ -172,6 +173,88 @@ export function readCanonicalProjects(): {
       },
       source,
     }
+  } catch (err) {
+    return {
+      ok: false,
+      data: [],
+      error: err instanceof Error ? err.message : String(err),
+      source,
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Canonical memory files
+// ---------------------------------------------------------------------------
+
+export const CANONICAL_SHARED_MEMORY_PATH =
+  '/mnt/d/Warung Kerja 1.0/06_Agents/_Shared_Memory'
+
+export interface CanonicalMemoryFile {
+  /** Relative path from the shared memory root, e.g. "USER.md" or "Business_Plans/Amazon.md" */
+  relativePath: string
+  /** Filename without directory */
+  filename: string
+  /** Top-level category derived from the first path segment (or "root") */
+  category: string
+  /** Raw markdown content */
+  content: string
+  /** File size in bytes */
+  sizeBytes: number
+  /** Last modified timestamp (ISO string) */
+  modifiedAt: string
+}
+
+/** Recursively walk a directory and collect all .md files */
+function collectMdFiles(dir: string, rootDir: string): CanonicalMemoryFile[] {
+  const results: CanonicalMemoryFile[] = []
+  let entries: fs.Dirent[]
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true })
+  } catch {
+    return results
+  }
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      results.push(...collectMdFiles(fullPath, rootDir))
+    } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.md')) {
+      const relativePath = path.relative(rootDir, fullPath).replace(/\\/g, '/')
+      const parts = relativePath.split('/')
+      const category = parts.length > 1 ? parts[0] : 'root'
+      try {
+        const stat = fs.statSync(fullPath)
+        const content = fs.readFileSync(fullPath, 'utf-8')
+        results.push({
+          relativePath,
+          filename: entry.name,
+          category,
+          content,
+          sizeBytes: stat.size,
+          modifiedAt: stat.mtime.toISOString(),
+        })
+      } catch {
+        // skip unreadable files
+      }
+    }
+  }
+  return results
+}
+
+export function readCanonicalMemories(): {
+  ok: boolean
+  data: CanonicalMemoryFile[]
+  error?: string
+  source: string
+} {
+  const source = CANONICAL_SHARED_MEMORY_PATH
+  try {
+    if (!fs.existsSync(source)) {
+      return { ok: false, data: [], error: 'Shared memory directory not found', source }
+    }
+    const data = collectMdFiles(source, source)
+    return { ok: true, data, source }
   } catch (err) {
     return {
       ok: false,
