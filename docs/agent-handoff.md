@@ -19,7 +19,7 @@ This is the shared dynamic handoff document for Noona, Cursor, Antigravity, or a
 **Phase 5.5 - Stabilisation, truth-alignment, and deployment readiness**
 
 ## Overall Progress
-**~85%** `█████████░`
+**~92%** `█████████░`
 
 ## What Is Working
 - Standalone V2 repo has been created, cleaned up, and pushed to GitHub.
@@ -34,12 +34,11 @@ This is the shared dynamic handoff document for Noona, Cursor, Antigravity, or a
 - Core Canonical endpoints `/api/canonical/team` and `/api/canonical/projects` supply API layer values directly from the truth files.
 - API route exists for source-of-truth status: `/api/system/source-truth-status`.
 - Frontend architecture separates Canonical Roster vs Runtime logic in the Team page.
-- UI release readiness reached **READY** status after manual terminal step and host dependency install.
+- **UI release gate (Epic 3) is fully complete and passing.** Full one-pass sequence runs clean end-to-end.
 
 ## Current Blockers
-- Final UI release tooling is still not fully clean.
-- Most recent release-gate blocker: operator brief / handoff verification expectations are still being tightened.
-- The environment blocker is gone; the remaining blockers are now script/handoff correctness issues.
+- None for the release gate path.
+- Next focus: Epic 4 feature modules and Socket.io reliability audit.
 
 ## Canonical Data Direction
 ### Team truth
@@ -58,10 +57,9 @@ Primary source:
 - project memory / docs as needed
 
 ## Current Best Next Tasks
-1. Finish the release-handoff / operator-brief verification cleanup so the UI release path is fully clean (Epic 3).
-2. Start implementation of Epic 4 modules (Memories Browser / Office Visualization).
-3. Final audit of real-time Socket.io reliability.
-4. Keep V2 documentation/handoff clean for multi-agent work.
+1. Start implementation of Epic 4 modules (Memories Browser / Office Visualization).
+2. Final audit of real-time Socket.io reliability.
+3. Keep V2 documentation/handoff clean for multi-agent work.
 
 ## Release Context
 Most useful files for release state:
@@ -110,6 +108,12 @@ Important note:
 - Validation: Successful `turbo run build` and `lint` inside WSL context. Verified dynamic data paths for Team, Projects, and Analytics.
 - Blocker: None.
 - Next recommended step: Execute the release-gate sequence (Epic 3) using `latest-ui-release-one-pass.sh` to finalize the UI ship.
+
+### 2026-04-10 - Claude (Noona session)
+- What changed: Fixed a cascade of path bugs in the release gate script chain that had blocked Epic 3 completion. (1) `generate-ui-release-handoff.sh`: ~20 file access paths in the generated one-pass script used bare `work-logs/...` instead of `../../work-logs/...` (one-pass runs from `apps/web`); manifest self-referential path was storing an absolute path instead of the expected relative `work-logs/...`. (2) `run-ui-smoke-release.sh`: `EXPECTED_BUNDLE_MANIFEST_ABS_PATH` was constructed from `$ROOT_DIR` (`apps/web`) instead of the project root, producing a non-existent path. (3) `verify-ui-release-handoff-bundle.sh`: self-path check was comparing the stored relative path against the absolute file path. (4) `Layout.tsx` / `release-smoke.spec.ts`: Playwright mobile overlay locator used `div.fixed.inset-0.bg-black/50` which fails because `/` is not valid in CSS class selectors — fixed with `data-testid`.
+- Validation: Full one-pass sequence executed end-to-end and passed. All Playwright smoke tests green.
+- Blocker: None. Epic 3 is complete.
+- Next recommended step: Epic 4 — Memories Browser and Office Visualization modules.
 
 ## Update Template
 Use this when leaving a new handoff note:
