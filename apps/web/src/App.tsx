@@ -2,6 +2,8 @@ import { FC, lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
 import { FeatureErrorBoundary, LoadingState } from './components/common'
+import { AuthGuard } from './components/auth/AuthGuard'
+import { Login } from './features/auth/Login'
 
 const Dashboard = lazy(() => import('./features/dashboard/Dashboard').then((m) => ({ default: m.Dashboard })))
 const Projects = lazy(() => import('./features/projects/Projects').then((m) => ({ default: m.Projects })))
@@ -28,7 +30,16 @@ const withFeatureShell = (Component: FC, featureName: string) => {
 const App: FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
+      <Route path="/login" element={<Login />} />
+      
+      <Route
+        path="/"
+        element={
+          <AuthGuard>
+            <Layout />
+          </AuthGuard>
+        }
+      >
         <Route index element={withFeatureShell(Dashboard, 'Dashboard')} />
         <Route path="projects" element={withFeatureShell(Projects, 'Projects')} />
         <Route path="tasks" element={withFeatureShell(Tasks, 'Tasks')} />

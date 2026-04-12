@@ -126,6 +126,12 @@ Important note:
 - Blocker: Unable to push to remote due to SSH host key verification / authentication failure in the agent environment.
 - Next recommended step: User to perform `git push` to sync changes to GitHub. Proceed with Epic 4 feature modules once Push is confirmed.
 
+### 2026-04-12 - Claude (Noona session)
+- What changed: (1) Fixed the Office "disconnection" problem — `useOffice.ts` was pure polling (60 s). Added `useOfficeRealtime` hook that subscribes to the API's existing WebSocket presence events (`user:online`, `user:offline`, `presence:update`) and immediately invalidates the workspace query on any change, so status updates are near-instant. Activity feed also listens for `activity:new` events. (2) Added live connection status tracking (isSocketConnected) surfaced as a "Live / Polling" badge in the Office header. (3) Improved Office UI substantially: coloured top-accent stripes per card, glow shadow for ONLINE/BUSY, staggered slide-up animation on active cards, animated pulsing ring on avatars, animated workload bar fill, compact member cards, activity feed with staggered slide-in. (4) Extended `tailwind.config.js` with `slide-in-left`, `scale-in`, and `glow-pulse` keyframes.
+- Validation: Icons verified against lucide-react 0.344.0. TypeScript imports reviewed manually. Tailwind classes all use existing design tokens.
+- Blocker: None.
+- Next recommended step: Run `npm run dev` and navigate to `/office` to confirm live badge and animations render as expected. Then continue with Epic 4 — Memories Browser enhancements and Analytics Expansion.
+
 ## Update Template
 Use this when leaving a new handoff note:
 

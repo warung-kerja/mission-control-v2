@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
-import { teamApi } from '../services/api'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { teamApi, teamAnalyticsApi } from '../services/api'
+import { getSocket } from '../lib/socket'
 
 export interface ActiveTask {
   id: string
@@ -39,14 +41,15 @@ export interface WorkspaceData {
   awayCount: number
 }
 
-const STALE_TIME = 30000 // 30 seconds
-const REFETCH_INTERVAL = 60000 // 1 minute
+const STALE_TIME = 30000        // 30 seconds
+const REFETCH_INTERVAL = 60000  // 1 minute — socket events trigger earlier invalidations
+const FEED_REFETCH = 20000      // 20 seconds for activity feed
 
 export const useWorkspace = () => {
   return useQuery<WorkspaceData, Error>({
     queryKey: ['workspace'],
     queryFn: async () => {
-      const response = await teamApi.list()
+      const response = await teamAnalyticsApi.members()
       const members: WorkspaceMember[] = response.data.data || []
 
       const onlineCount = members.filter((m) => m.status === 'ONLINE').length
@@ -74,8 +77,61 @@ export const useActivityFeed = (limit = 15) => {
       return response.data.data || []
     },
     staleTime: STALE_TIME,
-    refetchInterval: REFETCH_INTERVAL,
+    refetchInterval: FEED_REFETCH,
   })
+}
+
+/**
+ * Combined hook for the Office page.
+ * Wraps useWorkspace + useActivityFeed and adds real-time socket event subscriptions.
+ * Socket presence events (user:online, user:offline, presence:update) immediately
+ * invalidate the workspace query instead of waiting for the 60 s poll.
+ */
+export const useOfficeRealtime = (feedLimit = 15) => {
+  const queryClient = useQueryClient()
+  const [isSocketConnected, setIsSocketConnected] = useState(
+    () => getSocket()?.connected ?? false,
+  )
+
+  useEffect(() => {
+    const socket = getSocket()
+    if (!socket) return
+
+    // Sync initial connection state
+    setIsSocketConnected(socket.connected)
+
+    const handleConnect = () => setIsSocketConnected(true)
+    const handleDisconnect = () => setIsSocketConnected(false)
+
+    const invalidateWorkspace = () =>
+      queryClient.invalidateQueries({ queryKey: ['workspace'] })
+
+    const invalidateActivity = () =>
+      queryClient.invalidateQueries({ queryKey: ['activityFeed'] })
+
+    socket.on('connect', handleConnect)
+    socket.on('disconnect', handleDisconnect)
+    // Presence events the API already emits
+    socket.on('user:online', invalidateWorkspace)
+    socket.on('user:offline', invalidateWorkspace)
+    socket.on('presence:update', invalidateWorkspace)
+    // Opt-in activity events (emitted by broadcastToAll when supported)
+    socket.on('activity:new', invalidateActivity)
+
+    return () => {
+      socket.off('connect', handleConnect)
+      socket.off('disconnect', handleDisconnect)
+      socket.off('user:online', invalidateWorkspace)
+      socket.off('user:offline', invalidateWorkspace)
+      socket.off('presence:update', invalidateWorkspace)
+      socket.off('activity:new', invalidateActivity)
+    }
+  }, [queryClient])
+
+  const workspace = useWorkspace()
+  const feed = useActivityFeed(feedLimit)
+
+  return { workspace, feed, isSocketConnected }
 }
 
 export const useWorkspaceStats = () => {
