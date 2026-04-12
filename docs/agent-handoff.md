@@ -19,7 +19,7 @@ This is the shared dynamic handoff document for Noona, Cursor, Antigravity, or a
 **Phase 5.5 - Stabilisation, truth-alignment, and deployment readiness**
 
 ## Overall Progress
-**~92%** `█████████░`
+**~94%** `█████████░`
 
 ## What Is Working
 - Standalone V2 repo has been created, cleaned up, and pushed to GitHub.
@@ -35,10 +35,12 @@ This is the shared dynamic handoff document for Noona, Cursor, Antigravity, or a
 - API route exists for source-of-truth status: `/api/system/source-truth-status`.
 - Frontend architecture separates Canonical Roster vs Runtime logic in the Team page.
 - **UI release gate (Epic 3) is fully complete and passing.** Full one-pass sequence runs clean end-to-end.
+- **Office real-time presence** — `useOfficeRealtime` in `apps/web/src/hooks/useOffice.ts` wires presence socket events to instant query invalidation. Status changes reflect immediately, not on the 60 s poll.
+- **Office UI overhaul (2026-04-12)** — per-status glow/shadow/accent stripe, staggered animations, pulsing avatar rings, Live/Polling connection badge, smooth workload bars. New Tailwind keyframes: `slide-in-left`, `scale-in`, `glow-pulse`.
 
 ## Current Blockers
 - None for the release gate path.
-- Next focus: Epic 4 feature modules and Socket.io reliability audit.
+- `npm` is not accessible from the Git Bash shell used by Claude Code (Node.js is Windows-only install). Run `npm run dev` manually from Windows Terminal / PowerShell.
 
 ## Canonical Data Direction
 ### Team truth
@@ -60,11 +62,11 @@ Primary source:
 - **Collaboration tab deprioritised (2026-04-10):** Agent-to-agent and human-to-agent collaboration happens via external comms. The Collaboration page will remain as a stub but will not be built out further. Do not invest engineering time here.
 
 ## Current Best Next Tasks
-1. Epic 4: Memories Browser enhancements (surface canonical `memory/*.md` files alongside DB memories).
-2. Epic 4: Office Visualization — add active subagent workspaces dimension.
-3. Epic 4: Analytics Expansion — deepen with project-level breakdowns.
-4. Final audit of real-time Socket.io reliability.
-5. Keep V2 documentation/handoff clean for multi-agent work.
+1. **Truth audit pass** — audit Dashboard, Projects, Team, Office, and Analytics page-by-page so each surface has a clear truth source and no stale/demo assumptions remain.
+2. **Projects registry cleanup** — update `_registry/projects.json` until the recognisable active project list matches current reality.
+3. **Cron Health / Automation Status** — add API + UI visibility for all cron jobs so Raz can self-serve job status, failures, next runs, and blockers without needing chat.
+4. **Runtime truth expansion** — surface agent/session/subagent live state more clearly across Dashboard, Team, and Office.
+5. **Epic 4 follow-through** — refine Memories Browser, Office subagent workspaces, and Analytics after the truth layer is trustworthy.
 
 ## Release Context
 Most useful files for release state:
@@ -89,6 +91,7 @@ Important note:
 - Refactored `Team.tsx` UI to dynamically display the authentic Canonical Roster vs. the Runtime DB state, bringing the architecture plan to life.
 - Fixed overarching workspace ESLint issues blocking pre-hook commits across multiple app workspaces.
 - Progress summaries and hourly cron behavior were refined for Telegram readability.
+- Release gate is no longer the critical path. The main remaining trust gap is operational visibility: accurate projects, accurate runtime state, and in-app cron health.
 
 ## Handoff Notes
 ### 2026-04-09 - Antigravity
@@ -131,6 +134,12 @@ Important note:
 - Validation: Icons verified against lucide-react 0.344.0. TypeScript imports reviewed manually. Tailwind classes all use existing design tokens.
 - Blocker: None.
 - Next recommended step: Run `npm run dev` and navigate to `/office` to confirm live badge and animations render as expected. Then continue with Epic 4 — Memories Browser enhancements and Analytics Expansion.
+
+### 2026-04-12 - Noona (Roadmap sync)
+- What changed: Integrated the weekly plan into the roadmap based on the current app trust gaps. Elevated truth audit, project registry cleanup, Cron Health / Automation Status, and runtime truth expansion as the main near-term priorities. Updated `docs/epics_backlog.md` so the roadmap now reflects that the release gate is complete and the remaining problem is trustworthy operational visibility.
+- Validation: Reviewed latest handoff notes, recent commits, and current repo state before updating roadmap docs.
+- Blocker: None.
+- Next recommended step: Start with a page-by-page truth audit, then build Cron Health visibility once the data-source map is clear.
 
 ## Update Template
 Use this when leaving a new handoff note:
