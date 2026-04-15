@@ -42,7 +42,7 @@ function touchActivity(socketId: string): void {
 
 export function initializeWebSocket(io: Server) {
   io.on('connection', (socket) => {
-    handleConnection(io, socket).catch((err) => {
+    handleConnection(socket).catch((err) => {
       console.error('[WebSocket] Unhandled error in handleConnection:', err)
       socket.disconnect()
     })
@@ -54,7 +54,7 @@ export function initializeWebSocket(io: Server) {
 
 // ── Connection handler ───────────────────────────────────────────────────────
 
-async function handleConnection(io: Server, socket: Socket): Promise<void> {
+async function handleConnection(socket: Socket): Promise<void> {
   const token = socket.handshake.auth.token as string
   if (!token) {
     socket.disconnect()

@@ -37,13 +37,18 @@ lerna-debug.log*
 # Testing
 coverage/
 .nyc_output/
+apps/web/test-results/
 
 # Turbo
 .turbo/
 
 # Prisma
 prisma/*.db
+apps/api/prisma/*.db
 prisma/migrations/
+
+# Local agent/tooling state
+.claude/
 
 # Misc
 *.local
