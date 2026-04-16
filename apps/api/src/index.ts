@@ -82,7 +82,8 @@ app.get('/api/dashboard/stats', async (_req, res) => {
       data: {
         activeProjects,
         tasksCompleted,
-        hoursLogged: 0, // TODO: Implement time tracking
+        hoursLogged: null,
+        hoursLoggedAvailable: false,
         teamMembers,
       },
     })

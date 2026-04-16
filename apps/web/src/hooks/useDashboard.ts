@@ -4,7 +4,8 @@ import { dashboardApi, teamApi, tasksApi, canonicalApi, projectsApi } from '../s
 export interface DashboardStats {
   activeProjects: number
   tasksCompleted: number
-  hoursLogged: number
+  hoursLogged: number | null
+  hoursLoggedAvailable?: boolean
   teamMembers: number
 }
 

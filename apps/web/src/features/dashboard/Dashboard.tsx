@@ -34,7 +34,7 @@ export const Dashboard: FC = () => {
     },
     { 
       label: 'Hours Logged', 
-      value: stats?.hoursLogged?.toString() || '0', 
+      value: stats?.hoursLoggedAvailable ? stats.hoursLogged?.toString() || '0' : 'N/A', 
       icon: Clock, 
       color: 'text-yellow-400', 
       bg: 'bg-yellow-400/10',
