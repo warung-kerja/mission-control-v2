@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database } from 'lucide-react'
-import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus } from '../../hooks'
+import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus, useCanonicalProjects } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
 
 export const Dashboard: FC = () => {
@@ -9,15 +9,19 @@ export const Dashboard: FC = () => {
   const { data: activities, isLoading: activitiesLoading } = useTeamActivityFeed(5)
   const { data: projects, isLoading: projectsLoading } = useActiveProjects(4)
   const { data: canonicalStatus, isLoading: canonicalStatusLoading } = useCanonicalStatus()
+  const { data: canonicalProjects, isLoading: canonicalProjectsLoading } = useCanonicalProjects()
+
+  const canonicalActiveProjectCount =
+    canonicalProjects?.data.filter((project) => project.status.toLowerCase() !== 'archived').length ?? 0
 
   const statItems = [
     { 
       label: 'Active Projects', 
-      value: stats?.activeProjects?.toString() || '0', 
+      value: canonicalActiveProjectCount.toString(), 
       icon: Activity, 
       color: 'text-blue-400', 
       bg: 'bg-blue-400/10',
-      loading: statsLoading 
+      loading: canonicalProjectsLoading 
     },
     { 
       label: 'Tasks Completed', 
