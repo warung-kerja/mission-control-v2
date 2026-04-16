@@ -13,14 +13,14 @@ export const Dashboard: FC = () => {
   const { data: canonicalTeam, isLoading: canonicalTeamLoading } = useCanonicalTeam()
   const { data: automationStatus, isLoading: automationStatusLoading } = useAutomationStatus()
 
-  const canonicalActiveProjectCount =
+  const canonicalTrackedProjectCount =
     canonicalProjects?.data.filter((project) => project.status.toLowerCase() !== 'archived').length ?? 0
   const canonicalTeamMemberCount = canonicalTeam?.length ?? 0
 
   const statItems = [
     { 
-      label: 'Active Projects', 
-      value: canonicalActiveProjectCount.toString(), 
+      label: 'Tracked Projects', 
+      value: canonicalTrackedProjectCount.toString(), 
       icon: Activity, 
       color: 'text-blue-400', 
       bg: 'bg-blue-400/10',
@@ -267,10 +267,10 @@ export const Dashboard: FC = () => {
         </div>
       </div>
 
-      {/* Active Projects */}
+      {/* Tracked Projects */}
       <div className="bg-mission-card border border-mission-border rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-mission-text">Active Projects</h3>
+          <h3 className="font-semibold text-mission-text">Tracked Projects</h3>
           <a href="/projects" className="text-sm text-primary-400 hover:text-primary-300">
             View all
           </a>
@@ -315,7 +315,7 @@ export const Dashboard: FC = () => {
           </div>
         ) : (
           <p className="text-sm text-mission-muted text-center py-8">
-            No active projects
+            No tracked projects
           </p>
         )}
       </div>
