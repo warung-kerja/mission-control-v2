@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database } from 'lucide-react'
-import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus, useCanonicalProjects } from '../../hooks'
+import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus, useCanonicalProjects, useAutomationStatus } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
 
 export const Dashboard: FC = () => {
@@ -10,6 +10,7 @@ export const Dashboard: FC = () => {
   const { data: projects, isLoading: projectsLoading } = useActiveProjects(4)
   const { data: canonicalStatus, isLoading: canonicalStatusLoading } = useCanonicalStatus()
   const { data: canonicalProjects, isLoading: canonicalProjectsLoading } = useCanonicalProjects()
+  const { data: automationStatus, isLoading: automationStatusLoading } = useAutomationStatus()
 
   const canonicalActiveProjectCount =
     canonicalProjects?.data.filter((project) => project.status.toLowerCase() !== 'archived').length ?? 0
@@ -121,27 +122,65 @@ export const Dashboard: FC = () => {
         </p>
       </div>
 
-      <div className="bg-mission-card border border-mission-border rounded-xl p-4 lg:p-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Database className="w-4 h-4 text-primary-400" />
-              <h3 className="font-semibold text-mission-text">Source of Truth Status</h3>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div className="bg-mission-card border border-mission-border rounded-xl p-4 lg:p-5">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Database className="w-4 h-4 text-primary-400" />
+                <h3 className="font-semibold text-mission-text">Source of Truth Status</h3>
+              </div>
+              <p className="text-sm text-mission-muted">
+                Canonical roster and project registry health for dashboard truth alignment.
+              </p>
             </div>
-            <p className="text-sm text-mission-muted">
-              Canonical roster and project registry health for dashboard truth alignment.
-            </p>
+            {canonicalStatusLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin text-mission-muted" />
+            ) : (
+              <div className="flex items-center gap-2 flex-wrap text-xs">
+                <span className={`px-2.5 py-1 rounded-full ${canonicalStatus?.teamRosterExists ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                  Team roster {canonicalStatus?.teamRosterExists ? 'connected' : 'missing'}
+                </span>
+                <span className={`px-2.5 py-1 rounded-full ${canonicalStatus?.projectRegistryExists ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                  Project registry {canonicalStatus?.projectRegistryExists ? 'connected' : 'missing'}
+                </span>
+              </div>
+            )}
           </div>
-          {canonicalStatusLoading ? (
-            <Loader2 className="w-5 h-5 animate-spin text-mission-muted" />
-          ) : (
-            <div className="flex items-center gap-2 flex-wrap text-xs">
-              <span className={`px-2.5 py-1 rounded-full ${canonicalStatus?.teamRosterExists ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                Team roster {canonicalStatus?.teamRosterExists ? 'connected' : 'missing'}
+        </div>
+
+        <div className="bg-mission-card border border-mission-border rounded-xl p-4 lg:p-5">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Activity className="w-4 h-4 text-primary-400" />
+                <h3 className="font-semibold text-mission-text">Automation Status</h3>
+              </div>
+              <p className="text-sm text-mission-muted">
+                First-pass cron health visibility, truthful about current integration readiness.
+              </p>
+            </div>
+            {automationStatusLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin text-mission-muted" />
+            ) : (
+              <span className={`px-2.5 py-1 rounded-full text-xs ${automationStatus?.integrationReady ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
+                {automationStatus?.integrationReady ? 'Live cron integration ready' : 'Cron visibility planned'}
               </span>
-              <span className={`px-2.5 py-1 rounded-full ${canonicalStatus?.projectRegistryExists ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                Project registry {canonicalStatus?.projectRegistryExists ? 'connected' : 'missing'}
-              </span>
+            )}
+          </div>
+          {!automationStatusLoading && automationStatus && (
+            <div className="mt-3 space-y-2 text-sm text-mission-muted">
+              <p>
+                Provider: <span className="text-mission-text">{automationStatus.provider}</span>
+              </p>
+              <p className="line-clamp-2">
+                Next step: <span className="text-mission-text">{automationStatus.nextStep}</span>
+              </p>
+              {automationStatus.blockers[0] && (
+                <p className="line-clamp-2">
+                  Blocker: <span className="text-mission-text">{automationStatus.blockers[0]}</span>
+                </p>
+              )}
             </div>
           )}
         </div>

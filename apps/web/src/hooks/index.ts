@@ -64,3 +64,7 @@ export {
   type CanonicalProject,
   type CanonicalProjectMeta,
 } from './useCanonical'
+export {
+  useAutomationStatus,
+  type AutomationStatus,
+} from './useSystem'

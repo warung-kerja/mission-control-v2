@@ -145,6 +145,11 @@ export const dashboardApi = {
   activity: () => apiClient.get('/dashboard/activity'),
 }
 
+export const systemApi = {
+  sourceTruthStatus: () => apiClient.get('/system/source-truth-status'),
+  automationStatus: () => apiClient.get('/system/automation-status'),
+}
+
 export const notificationsApi = {
   list: () => apiClient.get('/notifications'),
   unreadCount: () => apiClient.get('/notifications/unread-count'),
