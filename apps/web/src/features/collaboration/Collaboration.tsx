@@ -82,7 +82,7 @@ export const Collaboration: FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-mission-text">Collaboration</h2>
-          <p className="text-mission-muted">Team messaging and coordination</p>
+          <p className="text-mission-muted">Stub view only, primary agent collaboration happens outside Mission Control</p>
         </div>
 
         {/* Project Selector */}
@@ -187,9 +187,9 @@ export const Collaboration: FC = () => {
               <div className="w-12 h-12 rounded-full bg-mission-bg flex items-center justify-center mb-3">
                 <Send className="w-5 h-5 text-mission-muted" />
               </div>
-              <p className="text-mission-muted text-sm">No messages yet</p>
+              <p className="text-mission-muted text-sm">No in-app collaboration history</p>
               <p className="text-mission-muted text-xs mt-1">
-                Be the first to send a message in this project
+                This page is intentionally lightweight while team coordination stays in external comms
               </p>
             </div>
           )}
@@ -224,7 +224,7 @@ export const Collaboration: FC = () => {
             </button>
           </div>
           <p className="text-xs text-mission-muted mt-2">
-            Press Enter to send • Messages are saved to the project
+            Temporary stub only • external comms remain the source of truth for collaboration
           </p>
         </form>
       </div>
