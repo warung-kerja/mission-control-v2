@@ -48,7 +48,7 @@ export function useCanonicalTeam() {
   })
 }
 
-/** Fetch canonical project registry from bootstrap JSON via the API. */
+/** Fetch canonical project registry via the API. */
 export function useCanonicalProjects() {
   return useQuery({
     queryKey: ['canonical', 'projects'],
@@ -72,9 +72,9 @@ export function useCanonicalStatus() {
       const response = await canonicalApi.status()
       return response.data.data as {
         teamRosterExists: boolean
-        projectRegistryBootstrapExists: boolean
+        projectRegistryExists: boolean
         teamRosterPath: string
-        projectRegistryBootstrapPath: string
+        projectRegistryPath: string
       }
     },
     staleTime: 60 * 1000, // 1 min
