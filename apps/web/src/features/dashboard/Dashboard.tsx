@@ -194,15 +194,37 @@ export const Dashboard: FC = () => {
             {automationStatusLoading ? (
               <Loader2 className="w-5 h-5 animate-spin text-mission-muted" />
             ) : (
-              <span className={`px-2.5 py-1 rounded-full text-xs ${automationStatus?.integrationReady ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
-                {automationStatus?.integrationReady ? 'Live cron integration ready' : 'Cron visibility planned'}
+              <span className={`px-2.5 py-1 rounded-full text-xs ${automationStatus?.adapterConfigured ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
+                {automationStatus?.adapterConfigured ? 'Cron adapter configured' : 'Cron adapter not configured'}
               </span>
             )}
           </div>
           {!automationStatusLoading && automationStatus && (
-            <div className="mt-3 space-y-2 text-sm text-mission-muted">
+            <div className="mt-3 space-y-3 text-sm text-mission-muted">
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className={`px-2.5 py-1 rounded-full ${automationStatus.gatewayUrlConfigured ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                  Gateway URL {automationStatus.gatewayUrlConfigured ? 'set' : 'missing'}
+                </span>
+                <span className={`px-2.5 py-1 rounded-full ${automationStatus.gatewayTokenConfigured ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                  Gateway token {automationStatus.gatewayTokenConfigured ? 'set' : 'missing'}
+                </span>
+                <span className={`px-2.5 py-1 rounded-full ${automationStatus.cliDetected ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
+                  CLI {automationStatus.cliDetected ? 'detected' : 'not detected'}
+                </span>
+              </div>
               <p>
                 Provider: <span className="text-mission-text">{automationStatus.provider}</span>
+              </p>
+              <p>
+                Visibility: <span className="text-mission-text">{automationStatus.visibility}</span>
+              </p>
+              {automationStatus.configuredGatewayHost && (
+                <p>
+                  Gateway: <span className="text-mission-text">{automationStatus.configuredGatewayHost}</span>
+                </p>
+              )}
+              <p>
+                Checked: <span className="text-mission-text">{formatTimeAgo(automationStatus.lastCheckedAt)}</span>
               </p>
               <p className="line-clamp-2">
                 Next step: <span className="text-mission-text">{automationStatus.nextStep}</span>

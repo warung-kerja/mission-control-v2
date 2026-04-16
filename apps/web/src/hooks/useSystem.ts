@@ -4,8 +4,13 @@ import { systemApi } from '../services/api'
 export interface AutomationStatus {
   integrationReady: boolean
   provider: string
-  visibility: string
+  visibility: 'stub' | 'config-audit' | 'runtime-integrated'
   lastCheckedAt: string
+  adapterConfigured: boolean
+  gatewayUrlConfigured: boolean
+  gatewayTokenConfigured: boolean
+  cliDetected: boolean
+  configuredGatewayHost: string | null
   blockers: string[]
   nextStep: string
 }
