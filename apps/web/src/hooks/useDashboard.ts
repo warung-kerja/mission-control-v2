@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { dashboardApi, teamApi, projectsApi, tasksApi } from '../services/api'
+import { dashboardApi, teamApi, tasksApi, canonicalApi, projectsApi } from '../services/api'
 
 export interface DashboardStats {
   activeProjects: number
@@ -28,6 +28,8 @@ export interface ProjectSummary {
   progress: number
   taskCount: number
   completedTasks: number
+  currentPhase?: string
+  nextStep?: string
 }
 
 export interface TaskSummary {
@@ -83,14 +85,35 @@ export function useTeamActivityFeed(limit = 10) {
 // Fetch active projects summary
 export function useActiveProjects(limit = 5) {
   return useQuery({
-    queryKey: ['projects', 'active', limit],
+    queryKey: ['projects', 'active', 'canonical', limit],
     queryFn: async () => {
-      const response = await projectsApi.list()
-      const projects = response.data.data || []
-      // Sort by most recently updated and take limit
-      return (projects as ProjectSummary[])
-        .filter((p) => p.status !== 'ARCHIVED')
+      const response = await canonicalApi.projects()
+      const projects = (response.data.data || []) as Array<{
+        id: string
+        name: string
+        status: string
+        currentPhase: string
+        nextStep: string
+        updatedAt: string
+      }>
+
+      return projects
+        .filter((p) => p.status.toLowerCase() !== 'archived')
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
         .slice(0, limit)
+        .map(
+          (project) =>
+            ({
+              id: project.id,
+              name: project.name,
+              status: project.status,
+              progress: 0,
+              taskCount: 0,
+              completedTasks: 0,
+              currentPhase: project.currentPhase,
+              nextStep: project.nextStep,
+            }) satisfies ProjectSummary,
+        )
     },
   })
 }

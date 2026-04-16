@@ -93,6 +93,20 @@ export const Dashboard: FC = () => {
     return date.toLocaleDateString()
   }
 
+  const getProjectStatusBadge = (status: string) => {
+    const key = status.toLowerCase()
+    if (key === 'active') return 'bg-green-500/10 text-green-400'
+    if (key === 'in-progress') return 'bg-blue-500/10 text-blue-400'
+    if (key === 'paused') return 'bg-yellow-500/10 text-yellow-400'
+    return 'bg-mission-border text-mission-muted'
+  }
+
+  const getProjectStatusLabel = (status: string) =>
+    status
+      .split('-')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
@@ -205,15 +219,11 @@ export const Dashboard: FC = () => {
                     {project.name}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      project.status === 'ACTIVE' ? 'bg-green-500/10 text-green-400' :
-                      project.status === 'ON_HOLD' ? 'bg-yellow-500/10 text-yellow-400' :
-                      'bg-mission-border text-mission-muted'
-                    }`}>
-                      {project.status}
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${getProjectStatusBadge(project.status)}`}>
+                      {getProjectStatusLabel(project.status)}
                     </span>
-                    <span className="text-xs text-mission-muted">
-                      {project.completedTasks}/{project.taskCount} tasks
+                    <span className="text-xs text-mission-muted truncate max-w-48">
+                      {project.nextStep || project.currentPhase || 'Canonical project registry'}
                     </span>
                   </div>
                 </div>
