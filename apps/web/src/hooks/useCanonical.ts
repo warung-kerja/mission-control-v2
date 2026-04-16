@@ -32,6 +32,28 @@ export interface CanonicalProjectMeta {
   note?: string
 }
 
+export interface CanonicalSourceHealth {
+  key: 'teamRoster' | 'projectRegistry'
+  label: string
+  path: string
+  exists: boolean
+  readable: boolean
+  modifiedAt: string | null
+  itemCount: number
+  status: 'healthy' | 'missing' | 'invalid'
+  error?: string
+}
+
+export interface CanonicalStatus {
+  overallStatus: 'healthy' | 'degraded'
+  teamRosterExists: boolean
+  projectRegistryExists: boolean
+  teamRosterPath: string
+  projectRegistryPath: string
+  teamRoster: CanonicalSourceHealth
+  projectRegistry: CanonicalSourceHealth
+}
+
 // ---------------------------------------------------------------------------
 // Hooks
 // ---------------------------------------------------------------------------
@@ -64,18 +86,13 @@ export function useCanonicalProjects() {
   })
 }
 
-/** Diagnostic: source-of-truth file existence status. */
+/** Diagnostic: source-of-truth health, parseability, and item counts. */
 export function useCanonicalStatus() {
   return useQuery({
     queryKey: ['canonical', 'status'],
     queryFn: async () => {
       const response = await canonicalApi.status()
-      return response.data.data as {
-        teamRosterExists: boolean
-        projectRegistryExists: boolean
-        teamRosterPath: string
-        projectRegistryPath: string
-      }
+      return response.data.data as CanonicalStatus
     },
     staleTime: 60 * 1000, // 1 min
   })

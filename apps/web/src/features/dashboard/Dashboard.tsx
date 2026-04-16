@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import type { CanonicalSourceHealth } from '../../hooks'
 import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database } from 'lucide-react'
 import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus, useCanonicalProjects, useCanonicalTeam, useAutomationStatus } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
@@ -115,6 +116,18 @@ export const Dashboard: FC = () => {
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ')
 
+  const getCanonicalHealthBadge = (status: CanonicalSourceHealth['status']) => {
+    if (status === 'healthy') return 'bg-green-500/10 text-green-400'
+    if (status === 'invalid') return 'bg-yellow-500/10 text-yellow-400'
+    return 'bg-red-500/10 text-red-400'
+  }
+
+  const getCanonicalHealthLabel = (source: CanonicalSourceHealth) => {
+    if (source.status === 'healthy') return `${source.itemCount} items live`
+    if (source.status === 'invalid') return 'Unreadable'
+    return 'Missing'
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
@@ -139,16 +152,32 @@ export const Dashboard: FC = () => {
             {canonicalStatusLoading ? (
               <Loader2 className="w-5 h-5 animate-spin text-mission-muted" />
             ) : (
-              <div className="flex items-center gap-2 flex-wrap text-xs">
-                <span className={`px-2.5 py-1 rounded-full ${canonicalStatus?.teamRosterExists ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                  Team roster {canonicalStatus?.teamRosterExists ? 'connected' : 'missing'}
-                </span>
-                <span className={`px-2.5 py-1 rounded-full ${canonicalStatus?.projectRegistryExists ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                  Project registry {canonicalStatus?.projectRegistryExists ? 'connected' : 'missing'}
-                </span>
-              </div>
+              <span className={`px-2.5 py-1 rounded-full text-xs ${canonicalStatus?.overallStatus === 'healthy' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
+                {canonicalStatus?.overallStatus === 'healthy' ? 'Truth sources healthy' : 'Truth sources degraded'}
+              </span>
             )}
           </div>
+          {!canonicalStatusLoading && canonicalStatus && (
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-mission-muted">
+              {[canonicalStatus.teamRoster, canonicalStatus.projectRegistry].map((source) => (
+                <div key={source.key} className="rounded-lg border border-mission-border bg-mission-bg p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium text-mission-text">{source.label}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${getCanonicalHealthBadge(source.status)}`}>
+                      {getCanonicalHealthLabel(source)}
+                    </span>
+                  </div>
+                  <p className="mt-2 truncate text-xs text-mission-muted">{source.path}</p>
+                  <p className="mt-2 text-xs">
+                    {source.modifiedAt ? `Updated ${formatTimeAgo(source.modifiedAt)}` : 'No readable timestamp'}
+                  </p>
+                  {source.error && (
+                    <p className="mt-1 text-xs text-red-400 line-clamp-2">{source.error}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="bg-mission-card border border-mission-border rounded-xl p-4 lg:p-5">

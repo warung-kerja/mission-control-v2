@@ -63,6 +63,8 @@ export {
   type CanonicalTeamMember,
   type CanonicalProject,
   type CanonicalProjectMeta,
+  type CanonicalSourceHealth,
+  type CanonicalStatus,
 } from './useCanonical'
 export {
   useAutomationStatus,

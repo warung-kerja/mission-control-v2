@@ -17,16 +17,102 @@ export const canonicalSourcePaths = {
   projectRegistry: CANONICAL_PROJECT_REGISTRY_PATH,
 }
 
+export interface CanonicalSourceHealth {
+  key: 'teamRoster' | 'projectRegistry'
+  label: string
+  path: string
+  exists: boolean
+  readable: boolean
+  modifiedAt: string | null
+  itemCount: number
+  status: 'healthy' | 'missing' | 'invalid'
+  error?: string
+}
+
 // ---------------------------------------------------------------------------
 // Status helper (used by /api/system/source-truth-status)
 // ---------------------------------------------------------------------------
 
-export const canonicalSourceStatus = () => ({
-  teamRosterExists: fs.existsSync(CANONICAL_TEAM_ROSTER_PATH),
-  projectRegistryExists: fs.existsSync(CANONICAL_PROJECT_REGISTRY_PATH),
-  teamRosterPath: CANONICAL_TEAM_ROSTER_PATH,
-  projectRegistryPath: CANONICAL_PROJECT_REGISTRY_PATH,
-})
+function getCanonicalSourceHealth(
+  key: CanonicalSourceHealth['key'],
+  label: string,
+  filePath: string,
+  countItems: (raw: string) => number,
+): CanonicalSourceHealth {
+  if (!fs.existsSync(filePath)) {
+    return {
+      key,
+      label,
+      path: filePath,
+      exists: false,
+      readable: false,
+      modifiedAt: null,
+      itemCount: 0,
+      status: 'missing',
+      error: 'File not found',
+    }
+  }
+
+  try {
+    const stat = fs.statSync(filePath)
+    const raw = fs.readFileSync(filePath, 'utf-8')
+    const itemCount = countItems(raw)
+
+    return {
+      key,
+      label,
+      path: filePath,
+      exists: true,
+      readable: true,
+      modifiedAt: stat.mtime.toISOString(),
+      itemCount,
+      status: 'healthy',
+    }
+  } catch (err) {
+    return {
+      key,
+      label,
+      path: filePath,
+      exists: true,
+      readable: false,
+      modifiedAt: null,
+      itemCount: 0,
+      status: 'invalid',
+      error: err instanceof Error ? err.message : String(err),
+    }
+  }
+}
+
+export const canonicalSourceStatus = () => {
+  const teamRoster = getCanonicalSourceHealth(
+    'teamRoster',
+    'Team roster',
+    CANONICAL_TEAM_ROSTER_PATH,
+    (raw) => parseTeamRoster(raw).length,
+  )
+  const projectRegistry = getCanonicalSourceHealth(
+    'projectRegistry',
+    'Project registry',
+    CANONICAL_PROJECT_REGISTRY_PATH,
+    (raw) => {
+      const registry: CanonicalProjectRegistry = JSON.parse(raw)
+      return Array.isArray(registry.projects) ? registry.projects.length : 0
+    },
+  )
+
+  return {
+    overallStatus:
+      teamRoster.status === 'healthy' && projectRegistry.status === 'healthy'
+        ? 'healthy'
+        : 'degraded',
+    teamRosterExists: teamRoster.exists,
+    projectRegistryExists: projectRegistry.exists,
+    teamRosterPath: teamRoster.path,
+    projectRegistryPath: projectRegistry.path,
+    teamRoster,
+    projectRegistry,
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Types
