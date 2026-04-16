@@ -1,6 +1,6 @@
 import { FC } from 'react'
-import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2 } from 'lucide-react'
-import { useDashboardStats, useTeamActivityFeed, useActiveProjects } from '../../hooks'
+import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database } from 'lucide-react'
+import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
 
 export const Dashboard: FC = () => {
@@ -8,6 +8,7 @@ export const Dashboard: FC = () => {
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: activities, isLoading: activitiesLoading } = useTeamActivityFeed(5)
   const { data: projects, isLoading: projectsLoading } = useActiveProjects(4)
+  const { data: canonicalStatus, isLoading: canonicalStatusLoading } = useCanonicalStatus()
 
   const statItems = [
     { 
@@ -114,6 +115,32 @@ export const Dashboard: FC = () => {
         <p className="text-mission-muted">
           Welcome back{user?.name ? `, ${user.name}` : ''}. Here's what's happening today.
         </p>
+      </div>
+
+      <div className="bg-mission-card border border-mission-border rounded-xl p-4 lg:p-5">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Database className="w-4 h-4 text-primary-400" />
+              <h3 className="font-semibold text-mission-text">Source of Truth Status</h3>
+            </div>
+            <p className="text-sm text-mission-muted">
+              Canonical roster and project registry health for dashboard truth alignment.
+            </p>
+          </div>
+          {canonicalStatusLoading ? (
+            <Loader2 className="w-5 h-5 animate-spin text-mission-muted" />
+          ) : (
+            <div className="flex items-center gap-2 flex-wrap text-xs">
+              <span className={`px-2.5 py-1 rounded-full ${canonicalStatus?.teamRosterExists ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                Team roster {canonicalStatus?.teamRosterExists ? 'connected' : 'missing'}
+              </span>
+              <span className={`px-2.5 py-1 rounded-full ${canonicalStatus?.projectRegistryExists ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                Project registry {canonicalStatus?.projectRegistryExists ? 'connected' : 'missing'}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Stats Grid - Responsive: 1 col mobile, 2 cols tablet, 4 cols desktop */}
