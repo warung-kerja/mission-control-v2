@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database } from 'lucide-react'
-import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus, useCanonicalProjects, useAutomationStatus } from '../../hooks'
+import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus, useCanonicalProjects, useCanonicalTeam, useAutomationStatus } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
 
 export const Dashboard: FC = () => {
@@ -10,10 +10,12 @@ export const Dashboard: FC = () => {
   const { data: projects, isLoading: projectsLoading } = useActiveProjects(4)
   const { data: canonicalStatus, isLoading: canonicalStatusLoading } = useCanonicalStatus()
   const { data: canonicalProjects, isLoading: canonicalProjectsLoading } = useCanonicalProjects()
+  const { data: canonicalTeam, isLoading: canonicalTeamLoading } = useCanonicalTeam()
   const { data: automationStatus, isLoading: automationStatusLoading } = useAutomationStatus()
 
   const canonicalActiveProjectCount =
     canonicalProjects?.data.filter((project) => project.status.toLowerCase() !== 'archived').length ?? 0
+  const canonicalTeamMemberCount = canonicalTeam?.length ?? 0
 
   const statItems = [
     { 
@@ -42,11 +44,11 @@ export const Dashboard: FC = () => {
     },
     { 
       label: 'Team Members', 
-      value: stats?.teamMembers?.toString() || '0', 
+      value: canonicalTeamMemberCount.toString(), 
       icon: Users, 
       color: 'text-purple-400', 
       bg: 'bg-purple-400/10',
-      loading: statsLoading 
+      loading: canonicalTeamLoading 
     },
   ]
 
