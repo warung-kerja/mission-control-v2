@@ -1,21 +1,24 @@
 import { FC } from 'react'
 import type { CanonicalSourceHealth } from '../../hooks'
 import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database } from 'lucide-react'
-import { useDashboardStats, useTeamActivityFeed, useActiveProjects, useCanonicalStatus, useCanonicalProjects, useCanonicalTeam, useAutomationStatus } from '../../hooks'
+import { useDashboardStats, useTeamActivityFeed, useCanonicalStatus, useCanonicalProjects, useCanonicalTeam, useAutomationStatus } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
 
 export const Dashboard: FC = () => {
   const { user } = useAuthStore()
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: activities, isLoading: activitiesLoading } = useTeamActivityFeed(5)
-  const { data: projects, isLoading: projectsLoading } = useActiveProjects(4)
   const { data: canonicalStatus, isLoading: canonicalStatusLoading } = useCanonicalStatus()
   const { data: canonicalProjects, isLoading: canonicalProjectsLoading } = useCanonicalProjects()
   const { data: canonicalTeam, isLoading: canonicalTeamLoading } = useCanonicalTeam()
   const { data: automationStatus, isLoading: automationStatusLoading } = useAutomationStatus()
 
-  const canonicalTrackedProjectCount =
-    canonicalProjects?.data.filter((project) => project.status.toLowerCase() !== 'archived').length ?? 0
+  const canonicalTrackedProjects =
+    canonicalProjects?.data
+      .filter((project) => project.status.toLowerCase() !== 'archived')
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()) ?? []
+  const canonicalTrackedProjectCount = canonicalTrackedProjects.length
+  const canonicalDashboardProjects = canonicalTrackedProjects.slice(0, 4)
   const canonicalTeamMemberCount = canonicalTeam?.length ?? 0
 
   const statItems = [
@@ -326,13 +329,13 @@ export const Dashboard: FC = () => {
             View all
           </a>
         </div>
-        {projectsLoading ? (
+        {canonicalProjectsLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-mission-muted" />
           </div>
-        ) : projects && projects.length > 0 ? (
+        ) : canonicalDashboardProjects.length > 0 ? (
           <div className="space-y-3">
-            {projects.map((project) => (
+            {canonicalDashboardProjects.map((project) => (
               <div
                 key={project.id}
                 className="flex items-center justify-between p-3 bg-mission-bg rounded-lg hover:bg-mission-border/50 transition-colors"
@@ -350,15 +353,12 @@ export const Dashboard: FC = () => {
                     </span>
                   </div>
                 </div>
-                <div className="ml-4">
-                  <div className="w-16 h-2 bg-mission-border rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary-500 rounded-full transition-all"
-                      style={{ width: `${project.progress}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-mission-muted text-right mt-1">
-                    {project.progress}%
+                <div className="ml-4 text-right">
+                  <p className="text-xs text-mission-muted">
+                    Updated {formatTimeAgo(project.updatedAt)}
+                  </p>
+                  <p className="text-xs text-mission-muted mt-1">
+                    Owner {project.owner}
                   </p>
                 </div>
               </div>
