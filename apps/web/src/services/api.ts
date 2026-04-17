@@ -82,6 +82,9 @@ apiClient.interceptors.response.use(
   }
 )
 
+const getActivityFeedRequest = (limit?: number) =>
+  apiClient.get('/team/activity-feed', { params: limit ? { limit } : undefined })
+
 function getDefaultErrorMessage(status: number): string {
   switch (status) {
     case 400:
@@ -137,7 +140,7 @@ export const teamApi = {
   get: (id: string) => apiClient.get(`/users/${id}`),
   updateStatus: (id: string, status: string) =>
     apiClient.patch(`/users/${id}/status`, { status }),
-  activityFeed: (limit = 15) => apiClient.get(`/team/activity-feed?limit=${limit}`),
+  activityFeed: (limit = 15) => getActivityFeedRequest(limit),
 }
 
 export const dashboardApi = {
@@ -163,7 +166,7 @@ export const teamAnalyticsApi = {
     apiClient.get('/team/analytics', { params }),
   members: () => apiClient.get('/team/members'),
   productivity: (params?: { days?: number }) => apiClient.get('/team/productivity', { params }),
-  activityFeed: (limit?: number) => apiClient.get('/team/activity-feed', { params: limit ? { limit } : undefined }),
+  activityFeed: (limit?: number) => getActivityFeedRequest(limit),
   projectBreakdown: () => apiClient.get('/team/analytics/projects'),
 }
 
