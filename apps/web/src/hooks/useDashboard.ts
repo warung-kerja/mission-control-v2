@@ -66,7 +66,7 @@ export function useRecentActivity(limit = 10) {
   return useQuery({
     queryKey: ['dashboard', 'activity', limit],
     queryFn: async () => {
-      const response = await dashboardApi.activity()
+      const response = await dashboardApi.activity(limit)
       return response.data.data as ActivityItem[]
     },
   })
@@ -77,7 +77,7 @@ export function useTeamActivityFeed(limit = 10) {
   return useQuery({
     queryKey: ['team', 'activity-feed', limit],
     queryFn: async () => {
-      const response = await teamApi.activityFeed()
+      const response = await teamApi.activityFeed(limit)
       return response.data.data as ActivityItem[]
     },
   })

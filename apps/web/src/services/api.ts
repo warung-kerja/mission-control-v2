@@ -142,7 +142,7 @@ export const teamApi = {
 
 export const dashboardApi = {
   stats: () => apiClient.get('/dashboard/stats'),
-  activity: () => apiClient.get('/dashboard/activity'),
+  activity: (limit?: number) => apiClient.get('/dashboard/activity', { params: limit ? { limit } : undefined }),
 }
 
 export const systemApi = {
@@ -163,7 +163,7 @@ export const teamAnalyticsApi = {
     apiClient.get('/team/analytics', { params }),
   members: () => apiClient.get('/team/members'),
   productivity: (params?: { days?: number }) => apiClient.get('/team/productivity', { params }),
-  activityFeed: () => apiClient.get('/team/activity-feed'),
+  activityFeed: (limit?: number) => apiClient.get('/team/activity-feed', { params: limit ? { limit } : undefined }),
   projectBreakdown: () => apiClient.get('/team/analytics/projects'),
 }
 

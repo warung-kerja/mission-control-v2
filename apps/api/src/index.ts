@@ -93,10 +93,13 @@ app.get('/api/dashboard/stats', async (_req, res) => {
   }
 })
 
-app.get('/api/dashboard/activity', async (_req, res) => {
+app.get('/api/dashboard/activity', async (req, res) => {
   try {
+    const requestedLimit = Number.parseInt(String(req.query.limit ?? '10'), 10)
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 50) : 10
+
     const activities = await prisma.activity.findMany({
-      take: 10,
+      take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
         user: {
