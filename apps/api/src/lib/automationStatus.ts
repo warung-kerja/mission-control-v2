@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { fetchCronJobs } from './openclawClient.js'
 
 const OPENCLAW_BINARY_CANDIDATES = [
   '/home/baro/.npm-global/bin/openclaw',
@@ -34,7 +35,7 @@ function isCliDetected() {
   return OPENCLAW_BINARY_CANDIDATES.some((candidate) => fs.existsSync(candidate))
 }
 
-export function getAutomationStatus(): AutomationStatus {
+export async function getAutomationStatus(): Promise<AutomationStatus> {
   const gatewayUrl = process.env.OPENCLAW_GATEWAY_URL?.trim()
   const gatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN?.trim()
 
@@ -57,21 +58,55 @@ export function getAutomationStatus(): AutomationStatus {
     blockers.push('OpenClaw CLI binary was not detected on expected host paths.')
   }
 
-  blockers.push('Dashboard does not yet read live job status, last run, or next run from the runtime.')
+  if (!adapterConfigured || !cliDetected) {
+    return {
+      integrationReady: false,
+      provider: 'openclaw-cron',
+      visibility: 'config-audit',
+      lastCheckedAt: new Date().toISOString(),
+      adapterConfigured,
+      gatewayUrlConfigured,
+      gatewayTokenConfigured,
+      cliDetected,
+      configuredGatewayHost: safeGatewayHost(gatewayUrl),
+      blockers,
+      nextStep: 'Configure the Gateway URL and token in apps/api/.env and make sure the OpenClaw CLI is available on the host.',
+    }
+  }
+
+  const runtime = await fetchCronJobs()
+
+  if (runtime.ok) {
+    return {
+      integrationReady: true,
+      provider: 'openclaw-cron',
+      visibility: 'runtime-integrated',
+      lastCheckedAt: runtime.fetchedAt,
+      adapterConfigured,
+      gatewayUrlConfigured,
+      gatewayTokenConfigured,
+      cliDetected,
+      configuredGatewayHost: safeGatewayHost(gatewayUrl),
+      blockers: [],
+      nextStep: runtime.jobs.length > 0
+        ? 'Live cron data is connected. Keep the dashboard aligned with real job state and use disabled jobs as intentional signals, not failures.'
+        : 'Gateway is reachable but no jobs were returned. Check whether cron jobs are intentionally absent or filtered upstream.',
+    }
+  }
+
+  blockers.push(runtime.error)
 
   return {
     integrationReady: false,
     provider: 'openclaw-cron',
     visibility: 'config-audit',
-    lastCheckedAt: new Date().toISOString(),
+    lastCheckedAt: runtime.fetchedAt,
     adapterConfigured,
     gatewayUrlConfigured,
     gatewayTokenConfigured,
     cliDetected,
     configuredGatewayHost: safeGatewayHost(gatewayUrl),
     blockers,
-    nextStep: adapterConfigured
-      ? 'Use the configured Gateway connection to fetch cron jobs and surface live health in the dashboard.'
-      : 'Configure Gateway URL and token in apps/api/.env, then wire runtime cron reads into the API.',
+    nextStep: 'Gateway config is present, but live runtime fetch failed. Check gateway reachability, token validity, and the OpenClaw CLI response path.',
   }
 }
