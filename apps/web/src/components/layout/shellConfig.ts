@@ -53,6 +53,12 @@ const pageMetaByPath: Record<string, ShellPageMeta> = {
     question: 'What is live, what needs attention, and what should move next?',
     truthSources: ['canonical', 'runtime', 'fallback'],
   },
+  '/dashboard': {
+    title: 'Control Room',
+    eyebrow: 'Mission Control V3',
+    question: 'What is live, what needs attention, and what should move next?',
+    truthSources: ['canonical', 'runtime', 'fallback'],
+  },
   '/tasks': {
     title: 'Tasks',
     eyebrow: 'Execution Surface',
@@ -94,6 +100,12 @@ const pageMetaByPath: Record<string, ShellPageMeta> = {
     eyebrow: 'Utility Surface',
     question: 'What patterns are worth noticing without losing truth?',
     truthSources: ['canonical', 'runtime', 'fallback'],
+  },
+  '/collaboration': {
+    title: 'Collaboration',
+    eyebrow: 'Coordination Watch',
+    question: 'Who looks live, what moved recently, and which project lanes are active?',
+    truthSources: ['canonical', 'runtime'],
   },
   '/dashboard-v2': {
     title: 'Dashboard',
