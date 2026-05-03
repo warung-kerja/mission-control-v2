@@ -12,6 +12,7 @@ const Tasks = lazy(() => import('./features/tasks/Tasks').then((m) => ({ default
 const Calendar = lazy(() => import('./features/calendar/Calendar').then((m) => ({ default: m.Calendar })))
 const Team = lazy(() => import('./features/team/Team').then((m) => ({ default: m.Team })))
 const Office = lazy(() => import('./features/office/Office').then((m) => ({ default: m.Office })))
+const MemoryVault = lazy(() => import('./features/memory-vault/MemoryVault').then((m) => ({ default: m.MemoryVault })))
 const Memories = lazy(() => import('./features/memories/Memories').then((m) => ({ default: m.Memories })))
 const Collaboration = lazy(() =>
   import('./features/collaboration/Collaboration').then((m) => ({ default: m.Collaboration }))
@@ -48,7 +49,8 @@ const App: FC = () => {
         <Route path="calendar" element={withFeatureShell(Calendar, 'Calendar')} />
         <Route path="team" element={withFeatureShell(Team, 'Team')} />
         <Route path="office" element={withFeatureShell(Office, 'Office')} />
-        <Route path="memories" element={withFeatureShell(Memories, 'Memories')} />
+        <Route path="memories" element={withFeatureShell(MemoryVault, 'Memory Vault')} />
+        <Route path="memories-db" element={withFeatureShell(Memories, 'Memories')} />
         <Route path="collaboration" element={withFeatureShell(Collaboration, 'Collaboration')} />
         <Route path="analytics" element={withFeatureShell(Analytics, 'Analytics')} />
       </Route>
