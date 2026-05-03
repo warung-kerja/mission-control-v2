@@ -159,18 +159,12 @@ All V3 work ships as bounded, validated commits on this branch. The `main` branc
 
 | Commit | Description |
 |--------|-------------|
+| `f786e78` | feat: polish collaboration as coordination watch |
+| `d1f58ac` | feat: polish signals as truth pattern detector |
+| `1ef58b1` | feat: polish office presence surface |
+| `484ce82` | feat: rebuild team as org-chart from canonical roster |
 | `888d9a7` | feat: rebuild tasks as execution visibility board |
-| `d9cd998` | chore: add shell metadata for v3 routes |
-| `40b56f6` | chore: mark legacy v2 surfaces in shell |
-| `2a7d600` | chore: point dashboard route to v3 control room |
-| `3514cbd` | chore: align v3 shell labels |
-| `c3f7fd8` | feat: refocus collaboration around coordination watch |
-| `8d774db` | feat: add v3 signals view |
-| `452a744` | feat: add v3 memory vault |
-| `715407e` | feat: add v3 control room home |
-| `b0a6053` | feat: refocus projects around next moves |
-| `903fa6f` | feat: turn calendar into automation audit |
-| `baf725e` | feat: reset mission control shell for v3 |
+| `4d59f4a` | docs: rewrite README for V3 control-room reality |
 
 ---
 
@@ -178,13 +172,14 @@ All V3 work ships as bounded, validated commits on this branch. The `main` branc
 
 ```
 Raz (human)
-├── Baro (Creative Lead) — Kimi 2.6 (Ollama)
-│   └── Haji (Creative) — Kimi 2.6 (Ollama)
-├── Noona (Tech Lead) — GPT-5.4 (OpenAI Codex)
-│   └── Jen (Coding) — Gemma 4 31B (Ollama)
-└── Obey (Agent) — GLM 5.1 (Ollama)
+├── Baro (Creative Lead) — ollama/kimi-k2.6:cloud
+│   ├── Haji (Creative) — ollama/kimi-k2.6:cloud
+│   └── Lin (Trends) — xai/grok-4-1-fast
+├── Noona (Tech Lead) — openai-codex/gpt-5.5
+│   └── Jen (Coding) — ollama/deepseek-v4-pro:cloud
+└── Obey (Agent) — ollama/glm-5.1:cloud
 
-Ecosystem: Bob (Research), SOBA-1 (Ops)
+Ecosystem: Bob (Research) — xai/grok-4-1-fast; SOBA-1 (Ops) — ollama/gemma4:31b-cloud
 ```
 
 ---

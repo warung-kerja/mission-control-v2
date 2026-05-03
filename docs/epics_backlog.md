@@ -1,6 +1,6 @@
-# Mission Control V2 - Epic List & Backlog
+# Mission Control V3 - Epic List & Backlog
 
-This document outlines the high-level Epics for Mission Control V2, distilling the current state (`Phase 5.5`, ~94% complete) into an actionable roadmap of what is finished, what is currently blocking the launch, and what needs to be done to reach 100% feature-complete status.
+This document tracks the Mission Control V3 control-room reset inside the existing `mission-control-v2` repo. The current goal is not broad PM breadth — it is truthful operational visibility for Raz's OpenClaw crew.
 
 ## 🟢 Epic 1: Repository & Foundation (Completed)
 
@@ -13,7 +13,7 @@ This document outlines the high-level Epics for Mission Control V2, distilling t
 - `[x]` Implement foundational JWT Authentication and Route Protection.
 - `[x]` Establish UI component library structure (Tailwind, Radix, Lucide).
 
-## 🟡 Epic 2: Truth Alignment (Current Focus)
+## 🟢 Epic 2: Truth Alignment (Mostly Complete)
 
 **Goal:** Strip out all temporary "demo" scaffolding and wire the UI state directly to authentic "Source of Truth" data (like markdown files and external registries).
 
@@ -21,7 +21,7 @@ This document outlines the high-level Epics for Mission Control V2, distilling t
 - `[x]` **Team Truth:** Hook up `/api/canonical/team` to read directly from `AGENTS_ROSTER.md`.
 - `[x]` Segregate the `Team` UI view to cleanly distinguish Canonical Data vs Runtime Workload Data.
 - `[x]` **Projects Truth:** Migrate the project list from the in-repo bootstrap file (`docs/projects.registry.bootstrap.json`) to the final external true registry at `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json`.
-- `[~]` **Dashboard Truth Audit:** Audit Dashboard, Projects, Team, Office, and Analytics so every surface clearly uses canonical data, runtime data, or an explicit fallback. Remove stale/demo assumptions and document each page's truth source.
+- `[x]` **V3 Surface Truth Audit:** Control Room, Tasks, Calendar, Projects, Memory Vault, Team, Office, Collaboration, and Signals now each declare a clear canonical/runtime/fallback truth posture in the shell and UI copy.
 - `[ ]` **Projects Registry Completion:** Update `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json` so the recognisable active project list matches reality, not just a partial subset.
 - `[ ]` **Dashboard Truth Rules:** Define and implement strict display rules for what counts as active, recent, stale, and missing across agents, projects, and operational status.
 
@@ -33,20 +33,20 @@ This document outlines the high-level Epics for Mission Control V2, distilling t
 - `[x]` Ensure `turbo run build` caching is configured and completing successfully.
 - `[x]` **Release Hand-off Tuning:** Fix the `latest-ui-release-one-pass.sh` generation logic and operator brief assertions so the full UI one-pass sequence succeeds clean end-to-end.
 
-## 🔴 Epic 4: Outstanding Core Modules (Next Up)
+## 🟡 Epic 4: V3 Control-Room Surfaces (Current Focus)
 
-**Goal:** Build out the missing feature modules that were scoped for V2.
+**Goal:** Finish the V3 surface reset so each module has one clear operational job and avoids fake state.
 
-- `[ ]` **Memories Browser:** Visualization and search tools for querying long-term agent memory and context.
+- `[x]` **Memories Browser:** Full two-tab UI — canonical _Shared_Memory files (default) and Runtime DB records. Searchable, category-filtered, click-to-read-full-file modal. `useCanonicalMemories` hook wires `/api/canonical/memories` to the file tab.
 - `[~]` **Office Visualization:** A virtual "layout" view showcasing live team presence, status, and active subagent workspaces.
   - `[x]` Real-time presence: `useOfficeRealtime` hook wires `user:online`, `user:offline`, `presence:update` socket events to immediate query invalidation — status changes no longer wait for the 60 s poll.
   - `[x]` Live connection badge: "Live / Polling" badge in Office header reflects actual socket connection state.
   - `[x]` Improved UI: per-status glow shadows, coloured accent stripes, staggered entrance animations, pulsing avatar rings, smooth workload bar transitions, activity feed with live badge.
   - `[x]` New Tailwind keyframes: `slide-in-left`, `scale-in`, `glow-pulse` added to `tailwind.config.js`.
   - `[ ]` Remaining: subagent workspaces dimension (active subagent context per member).
-- `[~]` **Collaboration Tools:** ~~Task tracking, backlog breakdown visuals, and active agent interplay interfaces.~~ **Deprioritised (2026-04-10).** Agent-to-agent and human-to-agent collaboration happens via external comms (not in-platform). The Collaboration tab will remain as a basic stub but will not be built out further.
-- `[ ]` **Analytics Expansion:** Drive the Analytics page using deeply integrated real-world data tracking rather than synthesized test stats.
-- `[ ]` **Cron Health Surface:** Add a first-class Cron Health / Automation Status module so Raz can see job success, failures, next runs, last runs, and blockers in-app without asking in chat.
+- `[x]` **Collaboration / Coordination Watch:** Read-only routing and awareness surface. Shows communication routing rules, active project owner lanes, runtime presence telemetry, canonical crew groups, and recent activity. It is explicitly not an in-app chat clone or second source of truth.
+- `[~]` **Analytics Expansion:** Canonical "Project Registry Health" section added — live status distribution, priority split, and recently-updated list from `_registry/projects.json`. DB task/productivity panels remain in place for runtime data.
+- `[x]` **Cron Health Surface:** `openclawClient.ts` bridged to live data via the OpenClaw CLI (`openclaw cron list --json`). This pattern is more robust than HTTP polling as it leverages the official WebSocket protocol and auth logic. Dashboard "Cron Health" panel now shows live job cards.
 
 ## 🔴 Epic 5: Advanced Real-time Integrations (Future)
 
@@ -65,25 +65,22 @@ This document outlines the high-level Epics for Mission Control V2, distilling t
 ### Weekly Focus Plan (Integrated 2026-04-12)
 
 #### Must Do
-1. **Truth audit pass**
-   - audit Dashboard, Projects, Team, Office, and Analytics page-by-page
-   - identify every remaining stale/demo/partial data path
-   - document the truth source for each surface
-2. **Projects registry cleanup**
+1. **Projects registry cleanup**
    - bring `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json` fully in line with the real current active project set
-3. **Cron status visibility**
-   - add API support for OpenClaw cron state
-   - surface Cron Health on Dashboard or a dedicated Automation view
-4. **Runtime visibility expansion**
+2. **Runtime visibility expansion**
    - expose agent/session/subagent live status more clearly in Dashboard, Team, and Office
+3. **Office subagent workspaces**
+   - show active subagent context per member without inventing fake workload
+4. **Final V3 verification**
+   - run lint/type-check/build and route/shell review before merge to `main`
 
 #### Should Do
 5. **Memories Browser refinement**
-   - make canonical memory browsing actually useful and trustworthy
-6. **Office subagent workspaces dimension**
-   - show what each subagent is actively doing on the Office view
-7. **Dashboard + Team real-time pass**
+   - improve canonical memory browsing usefulness without adding fake summaries
+6. **Dashboard + Team real-time pass**
    - extend the socket invalidation pattern beyond Office
+7. **Signals refinement**
+   - keep pattern detection useful while preserving explicit source labels
 
 #### Product Guardrails
 - Premium/login work should be stabilised before broad new feature branching.

@@ -1,6 +1,6 @@
-# Mission Control V2 - Agent Handoff
+# Mission Control V3 - Agent Handoff
 
-This is the shared dynamic handoff document for Noona, Cursor, Antigravity, or any other coding agent working on Mission Control V2.
+This is the shared dynamic handoff document for Noona, Jen, Cursor, Antigravity, or any other coding agent working on the Mission Control V3 control-room reset inside the existing `mission-control-v2` repo.
 
 ## Working Rules
 - Keep this document curated, not verbose.
@@ -12,14 +12,15 @@ This is the shared dynamic handoff document for Noona, Cursor, Antigravity, or a
 - **Canonical repo:** `/mnt/d/Warung Kerja 1.0/03_Active_Projects/Mission Control/mission-control-v2`
 - **GitHub repo:** `https://github.com/warung-kerja/mission-control-v2`
 - **Legacy V1 repo:** `/mnt/d/Warung Kerja 1.0/03_Active_Projects/Mission Control/mission-control`
-- **Current goal:** full production-ready ship
-- **Current deployment posture:** local-first for now
+- **Current goal:** V3 control-room reset: truthful operational visibility over fake PM/dashboard breadth
+- **Current branch:** `v3-control-room-reset`
+- **Current deployment posture:** local-first for now; merge to `main` only after the V3 reset is validated
 
 ## Current Phase
-**Phase 5.5 - Stabilisation, truth-alignment, and deployment readiness**
+**V3 control-room reset — truth-first surface rebuild and consistency pass**
 
 ## Overall Progress
-**~94%** `█████████░`
+**V3 reset ~80%** `████████░░`
 
 ## What Is Working
 - Standalone V2 repo has been created, cleaned up, and pushed to GitHub.
@@ -59,14 +60,16 @@ Primary source:
 - project memory / docs as needed
 
 ## Product Decisions (Permanent)
-- **Collaboration tab deprioritised (2026-04-10):** Agent-to-agent and human-to-agent collaboration happens via external comms. The Collaboration page will remain as a stub but will not be built out further. Do not invest engineering time here.
+- **V3 is a refocus, not a repo restart:** keep the existing `mission-control-v2` repo and progressively reshape it into a control-room product.
+- **Truth-first surfaces:** prefer canonical files and OpenClaw runtime data over stale/demo DB records.
+- **Collaboration is read-only coordination awareness:** agent-to-agent and human-to-agent communication stays in external channels. The Collaboration page should show routing, live presence, active lanes, and recent coordination signals — not become an in-app chat clone.
 
 ## Current Best Next Tasks
-1. **Truth audit pass** — audit Dashboard, Projects, Team, Office, and Analytics page-by-page so each surface has a clear truth source and no stale/demo assumptions remain.
+1. **Final V3 consistency pass** — remove stale legacy wording from docs, logs, and visible labels where it confuses the reset.
 2. **Projects registry cleanup** — update `_registry/projects.json` until the recognisable active project list matches current reality.
-3. **Cron Health / Automation Status** — add API + UI visibility for all cron jobs so Raz can self-serve job status, failures, next runs, and blockers without needing chat.
-4. **Runtime truth expansion** — surface agent/session/subagent live state more clearly across Dashboard, Team, and Office.
-5. **Epic 4 follow-through** — refine Memories Browser, Office subagent workspaces, and Analytics after the truth layer is trustworthy.
+3. **Runtime truth expansion** — surface agent/session/subagent live state more clearly across Dashboard, Team, and Office.
+4. **Office subagent workspaces** — show active subagent context per member without inventing fake workload.
+5. **Team/Office model drift checks** — keep canonical roster models aligned with actual runtime assignments.
 
 ## Release Context
 Most useful files for release state:
@@ -140,6 +143,24 @@ Important note:
 - Validation: Reviewed latest handoff notes, recent commits, and current repo state before updating roadmap docs.
 - Blocker: None.
 - Next recommended step: Start with a page-by-page truth audit, then build Cron Health visibility once the data-source map is clear.
+
+### 2026-04-17 - Jen/Assistant
+- What changed: Massive "Truth Alignment" blitz on Dashboard and Projects. Wired dashboard project cards, project count, and team count directly to canonical sources (`_registry/projects.json` and `AGENTS_ROSTER.md`). Added "Source of Truth Status" (canonicalSources parser health) and `[x]` **Cron Health Surface:** `openclawClient.ts` fetches live job data from OpenClaw gateway (`GET /jobs`). `/api/system/cron-jobs` endpoint proxies results. `useCronJobs` hook polls every 60s. Dashboard "Cron Health" panel shows live job cards (status, schedule, last/next run, error) when gateway responds; falls back to config-audit view when not reachable.
+- Validation: Dashboard now renders live health of canonical files and cron configuration status. Project list and team counts are provenanced from external truth rather than DB mocks.
+- Blocker: None.
+- Next recommended step: Complete Epic 2 (Analytics and Memories still need actual wiring to canonical sources).
+
+### 2026-04-17 - Antigravity
+- What changed: (1) Audited project state vs epic claims — corrected overall progress from 94% → 75% in both handoff and backlog docs. (2) Added missing handoff note for the Apr 16–17 blitz. (3) Memories Browser was already fully wired — fixed it so it defaults to the "Shared Memory Files" tab (canonical truth) instead of the empty DB tab. Added `useCanonicalMemories` to the hooks barrel. (4) Analytics: added "Project Registry Health" section (status distribution, priority breakdown, recently updated) sourced from `_registry/projects.json` above the DB task panels. (5) Cron Health: created `openclawClient.ts` as a **CLI-bridge** (using `execSync` to call the OpenClaw CLI). This solved the connectivity timeout issue (the gateway is primarily WebSocket-based and returns HTML on the root path). Dashboard now shows live job cards (status badge, schedule, last/next run, duration, error).
+- Validation: TypeScript-only changes, no new npm dependencies. All new code fails gracefully when the gateway is unreachable. The expected gateway contract (`GET /jobs` returning an array or `{jobs:[]}`) is documented in `openclawClient.ts`.
+- Blocker: OpenClaw gateway must be running and `OPENCLAW_GATEWAY_URL` + `OPENCLAW_GATEWAY_TOKEN` must be set in `apps/api/.env` to see live job data.
+- Next recommended step: **Extend WebSocket invalidation to Dashboard and Team** (currently poll-only; Office already has it). Then verify the OpenClaw gateway API shape against the actual running instance and adjust the `normaliseJob` mapper in `openclawClient.ts` if field names differ.
+
+### 2026-05-03 - Noona
+- What changed: V3 reset branch pushed and multiple core surfaces rebuilt as truth-first control-room screens: Control Room, Calendar Automation Audit, Projects Movement Board, Tasks Execution Visibility Board, Memory Vault, Team canonical org chart, Office presence console, Signals truth pattern detector, and Collaboration coordination watch. README and runtime/API labels now describe Mission Control V3 while preserving the existing repo.
+- Validation: `npm run lint`, `npm run type-check`, and `npm run build` passed after the latest Collaboration slice. V3 commits are pushed to `v3-control-room-reset`.
+- Blocker: No hard blocker. Repo still has pre-existing unrelated dirty files; avoid staging them unless intentionally included.
+- Next recommended step: projects registry cleanup and runtime subagent visibility, then final V3 route/shell verification before merge.
 
 ## Update Template
 Use this when leaving a new handoff note:

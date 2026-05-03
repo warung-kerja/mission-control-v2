@@ -132,7 +132,7 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 })
 
 server.listen(PORT, () => {
-  console.log(`🚀 Mission Control API V2.0 running on port ${PORT}`)
+  console.log(`🚀 Mission Control API V3 running on port ${PORT}`)
   console.log(`📡 WebSocket server initialized`)
 })
 
