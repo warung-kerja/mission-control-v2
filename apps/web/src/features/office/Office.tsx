@@ -1,5 +1,6 @@
-import { FC, CSSProperties, ReactNode } from 'react'
+import { FC, CSSProperties, ReactNode, useMemo } from 'react'
 import { useOfficeRealtime, type WorkspaceMember } from '../../hooks/useOffice'
+import { useCanonicalTeam } from '../../hooks'
 import {
   Loader2, Users, Circle, Clock, MinusCircle,
   Wifi, WifiOff, Zap, Radio, Signal,
@@ -87,6 +88,8 @@ const formatActivityTime = (iso: string) => {
   if (hrs < 24) return `${hrs}h ago`
   return `${Math.floor(hrs / 24)}d ago`
 }
+
+const normalizeName = (value: string) => value.trim().toLowerCase()
 
 const formatActivityLabel = (type: string, meta: Record<string, unknown> | null): string => {
   const title   = (meta?.title ?? meta?.taskTitle ?? '') as string
@@ -293,6 +296,7 @@ export const Office: FC = () => {
   const { workspace, feed, isSocketConnected } = useOfficeRealtime(15)
   const { data, isLoading, error } = workspace
   const { data: feedData } = feed
+  const { data: canonicalTeam } = useCanonicalTeam()
 
   if (isLoading) {
     return (
@@ -329,24 +333,40 @@ export const Office: FC = () => {
     offline: (data?.totalMembers ?? 0) - (data?.onlineCount ?? 0) - (data?.busyCount ?? 0) - (data?.awayCount ?? 0),
   }
 
+  const driftSummary = useMemo(() => {
+    const canonicalNames = new Set((canonicalTeam ?? []).map((member) => normalizeName(member.name)))
+    const runtimeNames = new Set(members.map((member) => normalizeName(member.name)))
+
+    const canonicalOnly = (canonicalTeam ?? []).filter((member) => !runtimeNames.has(normalizeName(member.name)))
+    const runtimeOnly = members.filter((member) => !canonicalNames.has(normalizeName(member.name)))
+
+    return { canonicalOnly, runtimeOnly }
+  }, [canonicalTeam, members])
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* ── Header ─────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h2 className="text-2xl font-bold text-mission-text">Office</h2>
-          <p className="text-mission-muted text-sm">Live team presence and active workspaces</p>
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <ConnectionBadge connected={isSocketConnected} />
+      <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <div className="mb-2 flex flex-wrap gap-2 text-[11px] font-medium uppercase tracking-[0.22em]">
+              <span className="border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-cyan-300">runtime truth</span>
+              <span className="border border-fuchsia-400/20 bg-fuchsia-400/10 px-2.5 py-1 text-fuchsia-300">canonical cross-check</span>
+            </div>
+            <h2 className="text-2xl font-bold text-mission-text">Office</h2>
+            <p className="text-mission-muted text-sm">Live team presence, active workspaces, and crew drift checks.</p>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <ConnectionBadge connected={isSocketConnected} />
 
-          {/* Stats strip */}
-          <div className="flex items-center gap-2 text-sm flex-wrap">
-            <StatPill icon={<Users className="w-3.5 h-3.5" />} label={`${stats.total} members`} className="text-mission-muted" />
-            <StatPill icon={<Circle className="w-2.5 h-2.5 fill-emerald-500 text-emerald-500" />} label={`${stats.online} online`} className="text-emerald-400" />
-            <StatPill icon={<Wifi className="w-3.5 h-3.5" />} label={`${stats.busy} busy`} className="text-rose-400" />
-            <StatPill icon={<Clock className="w-3.5 h-3.5" />} label={`${stats.away} away`} className="text-amber-400" />
-            <StatPill icon={<WifiOff className="w-3.5 h-3.5" />} label={`${stats.offline} offline`} className="text-slate-500" />
+            {/* Stats strip */}
+            <div className="flex items-center gap-2 text-sm flex-wrap">
+              <StatPill icon={<Users className="w-3.5 h-3.5" />} label={`${stats.total} members`} className="text-mission-muted" />
+              <StatPill icon={<Circle className="w-2.5 h-2.5 fill-emerald-500 text-emerald-500" />} label={`${stats.online} online`} className="text-emerald-400" />
+              <StatPill icon={<Wifi className="w-3.5 h-3.5" />} label={`${stats.busy} busy`} className="text-rose-400" />
+              <StatPill icon={<Clock className="w-3.5 h-3.5" />} label={`${stats.away} away`} className="text-amber-400" />
+              <StatPill icon={<WifiOff className="w-3.5 h-3.5" />} label={`${stats.offline} offline`} className="text-slate-500" />
+            </div>
           </div>
         </div>
       </div>
@@ -406,6 +426,29 @@ export const Office: FC = () => {
               </span>
             )}
           </div>
+
+          <div className="mb-4 grid gap-2">
+            <div className="rounded-xl border border-white/8 bg-mission-bg/70 p-3">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-mission-muted/70">Canonical only</p>
+              <p className="mt-1 text-sm text-mission-text">{driftSummary.canonicalOnly.length}</p>
+              <p className="text-[11px] text-mission-muted">Roster entries missing from runtime presence.</p>
+            </div>
+            <div className="rounded-xl border border-white/8 bg-mission-bg/70 p-3">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-mission-muted/70">Runtime only</p>
+              <p className="mt-1 text-sm text-mission-text">{driftSummary.runtimeOnly.length}</p>
+              <p className="text-[11px] text-mission-muted">Live DB members not represented canonically.</p>
+            </div>
+          </div>
+
+          {driftSummary.canonicalOnly.length > 0 && (
+            <div className="mb-4 rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-3">
+              <p className="text-xs font-medium text-amber-200">Missing from runtime presence</p>
+              <p className="mt-1 text-[11px] text-amber-100/80">
+                {driftSummary.canonicalOnly.slice(0, 3).map((member) => member.name).join(', ')}
+                {driftSummary.canonicalOnly.length > 3 ? ` +${driftSummary.canonicalOnly.length - 3} more` : ''}
+              </p>
+            </div>
+          )}
 
           {!feedData || feedData.length === 0 ? (
             <p className="text-xs text-mission-muted text-center py-10">No recent activity</p>
