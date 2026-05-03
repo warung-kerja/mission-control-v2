@@ -20,7 +20,7 @@ This is the shared dynamic handoff document for Noona, Jen, Cursor, Antigravity,
 **V3 control-room reset — truth-first surface rebuild and consistency pass**
 
 ## Overall Progress
-**V3 reset ~80%** `████████░░`
+**V3 reset ~85%** `████████░`
 
 ## What Is Working
 - Standalone V2 repo has been created, cleaned up, and pushed to GitHub.
@@ -68,8 +68,8 @@ Primary source:
 1. **Final V3 consistency pass** — remove stale legacy wording from docs, logs, and visible labels where it confuses the reset.
 2. **Projects registry cleanup** — update `_registry/projects.json` until the recognisable active project list matches current reality.
 3. **Runtime truth expansion** — surface agent/session/subagent live state more clearly across Dashboard, Team, and Office.
-4. **Office subagent workspaces** — show active subagent context per member without inventing fake workload.
-5. **Team/Office model drift checks** — keep canonical roster models aligned with actual runtime assignments.
+4. **Team/Office model drift checks** — keep canonical roster models aligned with actual runtime assignments and blocked-model rules.
+5. **Final V3 verification** — run route/shell review plus lint/type-check/build before merge.
 
 ## Release Context
 Most useful files for release state:
@@ -161,6 +161,12 @@ Important note:
 - Validation: `npm run lint`, `npm run type-check`, and `npm run build` passed after the latest Collaboration slice. V3 commits are pushed to `v3-control-room-reset`.
 - Blocker: No hard blocker. Repo still has pre-existing unrelated dirty files; avoid staging them unless intentionally included.
 - Next recommended step: projects registry cleanup and runtime subagent visibility, then final V3 route/shell verification before merge.
+
+### 2026-05-03 - Noona (continued)
+- What changed: Refreshed canonical project registry to version 3 outside the repo, added Office subagent workspace lanes, and added a Team restricted-model watch for `google/gemini-3.1-flash-lite-preview`. Ecosystem rows now render as Ecosystem instead of Sub-agent in the roster table.
+- Validation: `npm run lint`, `npm run type-check`, and `npm run build` passed for the Office and Team slices. Commits pushed: `13f39c9`, `a8f21a9`.
+- Blocker: No hard blocker. Avoid unrelated pre-existing dirty files in Dashboard/Analytics/Memories/hooks/services unless intentionally taking ownership of that slice.
+- Next recommended step: final V3 route/shell verification, then decide whether to clean the pre-existing dirty files or leave them for their original owner.
 
 ## Update Template
 Use this when leaving a new handoff note:

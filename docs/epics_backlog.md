@@ -22,7 +22,7 @@ This document tracks the Mission Control V3 control-room reset inside the existi
 - `[x]` Segregate the `Team` UI view to cleanly distinguish Canonical Data vs Runtime Workload Data.
 - `[x]` **Projects Truth:** Migrate the project list from the in-repo bootstrap file (`docs/projects.registry.bootstrap.json`) to the final external true registry at `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json`.
 - `[x]` **V3 Surface Truth Audit:** Control Room, Tasks, Calendar, Projects, Memory Vault, Team, Office, Collaboration, and Signals now each declare a clear canonical/runtime/fallback truth posture in the shell and UI copy.
-- `[ ]` **Projects Registry Completion:** Update `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json` so the recognisable active project list matches reality, not just a partial subset.
+- `[x]` **Projects Registry Completion:** Updated `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json` to version 3 with Mission Control V3, Handover, Handover Research Feedback UI, Framer workstreams, and maintained Mission Control substreams.
 - `[ ]` **Dashboard Truth Rules:** Define and implement strict display rules for what counts as active, recent, stale, and missing across agents, projects, and operational status.
 
 ## 🟢 Epic 3: Deployment Pipeline & CI (Completed)
@@ -38,12 +38,12 @@ This document tracks the Mission Control V3 control-room reset inside the existi
 **Goal:** Finish the V3 surface reset so each module has one clear operational job and avoids fake state.
 
 - `[x]` **Memories Browser:** Full two-tab UI — canonical _Shared_Memory files (default) and Runtime DB records. Searchable, category-filtered, click-to-read-full-file modal. `useCanonicalMemories` hook wires `/api/canonical/memories` to the file tab.
-- `[~]` **Office Visualization:** A virtual "layout" view showcasing live team presence, status, and active subagent workspaces.
+- `[x]` **Office Visualization:** A virtual "layout" view showcasing live team presence, status, and active subagent workspaces.
   - `[x]` Real-time presence: `useOfficeRealtime` hook wires `user:online`, `user:offline`, `presence:update` socket events to immediate query invalidation — status changes no longer wait for the 60 s poll.
   - `[x]` Live connection badge: "Live / Polling" badge in Office header reflects actual socket connection state.
   - `[x]` Improved UI: per-status glow shadows, coloured accent stripes, staggered entrance animations, pulsing avatar rings, smooth workload bar transitions, activity feed with live badge.
   - `[x]` New Tailwind keyframes: `slide-in-left`, `scale-in`, `glow-pulse` added to `tailwind.config.js`.
-  - `[ ]` Remaining: subagent workspaces dimension (active subagent context per member).
+  - `[x]` Subagent workspaces dimension: canonical subagents mapped to parent runtime lanes with explicit no-runtime / no-active-task states.
 - `[x]` **Collaboration / Coordination Watch:** Read-only routing and awareness surface. Shows communication routing rules, active project owner lanes, runtime presence telemetry, canonical crew groups, and recent activity. It is explicitly not an in-app chat clone or second source of truth.
 - `[~]` **Analytics Expansion:** Canonical "Project Registry Health" section added — live status distribution, priority split, and recently-updated list from `_registry/projects.json`. DB task/productivity panels remain in place for runtime data.
 - `[x]` **Cron Health Surface:** `openclawClient.ts` bridged to live data via the OpenClaw CLI (`openclaw cron list --json`). This pattern is more robust than HTTP polling as it leverages the official WebSocket protocol and auth logic. Dashboard "Cron Health" panel now shows live job cards.
@@ -65,13 +65,11 @@ This document tracks the Mission Control V3 control-room reset inside the existi
 ### Weekly Focus Plan (Integrated 2026-04-12)
 
 #### Must Do
-1. **Projects registry cleanup**
-   - bring `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json` fully in line with the real current active project set
-2. **Runtime visibility expansion**
-   - expose agent/session/subagent live status more clearly in Dashboard, Team, and Office
-3. **Office subagent workspaces**
-   - show active subagent context per member without inventing fake workload
-4. **Final V3 verification**
+1. **Runtime visibility expansion**
+   - expose agent/session/subagent live status more clearly in Dashboard and Team without inventing unavailable state
+2. **Team/Office model drift checks**
+   - keep canonical roster models aligned with actual runtime assignments and blocked-model rules
+3. **Final V3 verification**
    - run lint/type-check/build and route/shell review before merge to `main`
 
 #### Should Do
