@@ -17,6 +17,7 @@ const Memories = lazy(() => import('./features/memories/Memories').then((m) => (
 const Collaboration = lazy(() =>
   import('./features/collaboration/Collaboration').then((m) => ({ default: m.Collaboration }))
 )
+const Signals = lazy(() => import('./features/signals/Signals').then((m) => ({ default: m.Signals })))
 const Analytics = lazy(() => import('./features/analytics/Analytics').then((m) => ({ default: m.Analytics })))
 
 const withFeatureShell = (Component: FC, featureName: string) => {
@@ -52,7 +53,8 @@ const App: FC = () => {
         <Route path="memories" element={withFeatureShell(MemoryVault, 'Memory Vault')} />
         <Route path="memories-db" element={withFeatureShell(Memories, 'Memories')} />
         <Route path="collaboration" element={withFeatureShell(Collaboration, 'Collaboration')} />
-        <Route path="analytics" element={withFeatureShell(Analytics, 'Analytics')} />
+        <Route path="analytics" element={withFeatureShell(Signals, 'Signals')} />
+        <Route path="analytics-db" element={withFeatureShell(Analytics, 'Analytics')} />
       </Route>
     </Routes>
   )
