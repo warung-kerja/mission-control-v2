@@ -8,6 +8,7 @@ import {
   Building2,
   Brain,
   BarChart3,
+  MessageSquare,
 } from 'lucide-react'
 
 export type TruthSourceTone = 'canonical' | 'runtime' | 'fallback'
@@ -43,6 +44,7 @@ export const systemNavItems: ShellNavItem[] = [
 ]
 
 export const utilityNavItems: ShellNavItem[] = [
+  { path: '/collaboration', icon: MessageSquare, label: 'Collaboration' },
   { path: '/analytics', icon: BarChart3, label: 'Signals' },
 ]
 
@@ -61,9 +63,9 @@ const pageMetaByPath: Record<string, ShellPageMeta> = {
   },
   '/tasks': {
     title: 'Tasks',
-    eyebrow: 'Execution Surface',
-    question: 'What is being worked on right now?',
-    truthSources: ['runtime', 'fallback'],
+    eyebrow: 'Execution Board',
+    question: 'What should move next and is automation healthy?',
+    truthSources: ['canonical', 'runtime'],
   },
   '/calendar': {
     title: 'Calendar',
