@@ -12,6 +12,7 @@ import { useCanonicalTeam, type CanonicalTeamMember } from '../../hooks/useCanon
 function groupByParent(members: CanonicalTeamMember[]) {
   const independent = members.filter((m) => m.group === 'independent')
   const subagents = members.filter((m) => m.group === 'subagent')
+  const ecosystem = members.filter((m) => m.group === 'ecosystem')
 
   const byParent = new Map<string, CanonicalTeamMember[]>()
   for (const m of subagents) {
@@ -20,7 +21,7 @@ function groupByParent(members: CanonicalTeamMember[]) {
     byParent.get(parent)!.push(m)
   }
 
-  return { independent, byParent }
+  return { independent, byParent, ecosystem }
 }
 
 // ── component ────────────────────────────────────────────────────────
@@ -30,21 +31,12 @@ export const Team: FC = () => {
 
   const structure = useMemo(() => {
     const roster = canonicalTeam ?? []
-    const { independent, byParent } = groupByParent(roster)
+    const { independent, byParent, ecosystem } = groupByParent(roster)
 
     // Find the human (Raz)
     const human = independent.find((m) => m.role.toLowerCase().includes('boss') || m.model === 'human')
     // Peer agents (reporting to Raz)
     const peers = independent.filter((m) => m !== human && !m.parentAgent)
-    // Ecosystem agents that don't report to a peer
-    const agentSubs = new Set<string>()
-    for (const [, subs] of byParent) {
-      for (const s of subs) agentSubs.add(s.name)
-    }
-    // Any independent not a peer and not a subagent's parent are ecosystem
-    const ecosystem = independent.filter(
-      (m) => m !== human && !peers.includes(m) && !byParent.has(m.name) && !agentSubs.has(m.name),
-    )
 
     return { roster, human, peers, byParent, ecosystem }
   }, [canonicalTeam])

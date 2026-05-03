@@ -10,7 +10,7 @@ export interface CanonicalTeamMember {
   role: string
   model: string
   agentPath?: string
-  group: 'independent' | 'subagent'
+  group: 'independent' | 'subagent' | 'ecosystem'
   parentAgent?: string
 }
 

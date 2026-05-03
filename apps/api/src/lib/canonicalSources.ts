@@ -123,7 +123,7 @@ export interface CanonicalTeamMember {
   role: string
   model: string
   agentPath?: string
-  group: 'independent' | 'subagent'
+  group: 'independent' | 'subagent' | 'ecosystem'
   parentAgent?: string
 }
 
@@ -157,13 +157,16 @@ export interface CanonicalProjectRegistry {
 //
 //   Parent's Subagents:
 //   - Name: Role (model)
+//
+//   Ecosystem:
+//   - Name: Role (model)
 // ---------------------------------------------------------------------------
 
 export function parseTeamRoster(raw: string): CanonicalTeamMember[] {
   const members: CanonicalTeamMember[] = []
   const lines = raw.split('\n')
 
-  let currentGroup: 'independent' | 'subagent' = 'independent'
+  let currentGroup: CanonicalTeamMember['group'] = 'independent'
   let currentParent: string | undefined
 
   for (const line of lines) {
@@ -172,6 +175,12 @@ export function parseTeamRoster(raw: string): CanonicalTeamMember[] {
     // Detect group headers
     if (/^independent/i.test(trimmed)) {
       currentGroup = 'independent'
+      currentParent = undefined
+      continue
+    }
+
+    if (/^ecosystem/i.test(trimmed)) {
+      currentGroup = 'ecosystem'
       currentParent = undefined
       continue
     }
