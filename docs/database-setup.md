@@ -1,6 +1,6 @@
 # Database Setup Guide
 
-This guide explains how to set up the database for Mission Control V2.0.
+This guide explains how to set up the database for Mission Control V3.
 
 ## Quick Start (Development)
 
@@ -147,7 +147,8 @@ The seed script creates:
 - **Admin**: admin@missioncontrol.local / admin123
 - **Manager**: manager@missioncontrol.local / manager123
 - **Agents**: noona@, jen@, baro@ / agent123
-- **3 Projects**: Mission Control V2.0, Workspace Explorer, Memories Browser
+- **3 Projects**: Mission Control V3, Handover App, Framer Marketplace
+- **Current crew context**: Raz (human), Baro, Noona, Obey, subagents Jen/Haji/Lin, and ecosystem agents Bob/SOBA-1
 - **5 Tasks**: Various statuses and priorities
 - **3 Activities**: Sample activity feed
 

@@ -1,7 +1,7 @@
-# Mission Control V2 - Source of Truth Plan
+# Mission Control V3 - Source of Truth Plan
 
 ## Goal
-Make Mission Control V2 production-ready by separating:
+Make Mission Control V3 production-ready by separating:
 1. canonical static truth
 2. live runtime state
 3. derived dashboard view models
@@ -56,7 +56,7 @@ Purpose:
 - project summaries
 
 ## Architecture direction
-Mission Control V2 should:
+Mission Control V3 should:
 - ingest canonical sources
 - normalize them in the API layer
 - expose clean UI-facing models

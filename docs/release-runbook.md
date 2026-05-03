@@ -1,4 +1,4 @@
-# Mission Control V2.0 — Release Runbook
+# Mission Control V3 — Release Runbook
 
 This runbook standardizes final checks before any production release.
 
@@ -19,7 +19,7 @@ This executes, in order:
 
 ### Pass Criteria
 - All five checks complete without errors
-- Route chunks present: **9 / 9**
+- Route chunks present: **10 / 10**
 - Main web bundle remains under **370 KB** limit
 
 ---
@@ -74,16 +74,17 @@ Quick operator summary is always available at:
 
 Open the preview URL and validate the following routes and interactions.
 
-### Route Checklist (9 routes)
-- [ ] `/` Dashboard loads KPI cards, recent activity, and quick actions without console errors
-- [ ] `/projects` project search + status filter work; cards render owner/status/progress
-- [ ] `/tasks` status tabs + priority filter + search work; overdue highlighting visible
-- [ ] `/calendar` month nav, day selection, and project filter work; task panel opens
-- [ ] `/team` member cards load with role/workload data and no broken avatars
-- [ ] `/office` workspace overview and member presence render correctly
-- [ ] `/memories` list renders, category filters/search behave correctly
-- [ ] `/collaboration` room/message UI loads and interaction states render properly
-- [ ] `/analytics` charts/metrics load without layout overlap or runtime errors
+### Route Checklist (10 routes)
+- [ ] `/` Control Room loads canonical source health, project momentum, cron pulse, and crew snapshot without console errors
+- [ ] `/projects` project search + status filter work; cards render owner/status/progress from canonical registry
+- [ ] `/tasks` status tabs + priority filter + search work; overdue highlighting visible; automation status renders
+- [ ] `/calendar` month nav, day selection, and project filter work; cron audit panel opens
+- [ ] `/team` org chart renders from canonical roster with drift detection; restricted model watch shows policy status
+- [ ] `/office` live presence view and subagent workspace lanes render with real-time WebSocket updates
+- [ ] `/memories` Memory Vault renders canonical Shared Memory files as browsable, searchable surface
+- [ ] `/collaboration` coordination watch loads with routing rules, active lanes, presence telemetry, and recent signals
+- [ ] `/analytics` Signals renders truth pattern detector with canonical/runtime-backed signals
+- [ ] Legacy surfaces (`/dashboard-v2`, `/memories-db`, `/analytics-db`) preserved for reference only
 
 ### Core Interaction Checklist
 - [ ] Mobile sidebar opens/closes correctly (hamburger + overlay close)
@@ -108,7 +109,7 @@ Recommended location: `projects/mission-control/work-logs/` with a dated file.
 
 Do **not** release if any of these occur:
 - Any pre-deploy check fails
-- Any route is missing or throws runtime errors
+- Any V3 surface is missing or throws runtime errors
 - Main bundle exceeds 370 KB guardrail
 - Core nav/mobile interaction is broken
 
