@@ -44,7 +44,8 @@ const App: FC = () => {
         }
       >
         <Route index element={withFeatureShell(ControlRoom, 'Control Room')} />
-        <Route path="dashboard" element={withFeatureShell(Dashboard, 'Dashboard')} />
+        <Route path="dashboard" element={withFeatureShell(ControlRoom, 'Control Room')} />
+        <Route path="dashboard-v2" element={withFeatureShell(Dashboard, 'Dashboard')} />
         <Route path="projects" element={withFeatureShell(Projects, 'Projects')} />
         <Route path="tasks" element={withFeatureShell(Tasks, 'Tasks')} />
         <Route path="calendar" element={withFeatureShell(Calendar, 'Calendar')} />
