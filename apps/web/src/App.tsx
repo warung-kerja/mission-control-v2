@@ -5,6 +5,7 @@ import { FeatureErrorBoundary, LoadingState } from './components/common'
 import { AuthGuard } from './components/auth/AuthGuard'
 import { Login } from './features/auth/Login'
 
+const ControlRoom = lazy(() => import('./features/control-room/ControlRoom').then((m) => ({ default: m.ControlRoom })))
 const Dashboard = lazy(() => import('./features/dashboard/Dashboard').then((m) => ({ default: m.Dashboard })))
 const Projects = lazy(() => import('./features/projects/Projects').then((m) => ({ default: m.Projects })))
 const Tasks = lazy(() => import('./features/tasks/Tasks').then((m) => ({ default: m.Tasks })))
@@ -40,7 +41,8 @@ const App: FC = () => {
           </AuthGuard>
         }
       >
-        <Route index element={withFeatureShell(Dashboard, 'Dashboard')} />
+        <Route index element={withFeatureShell(ControlRoom, 'Control Room')} />
+        <Route path="dashboard" element={withFeatureShell(Dashboard, 'Dashboard')} />
         <Route path="projects" element={withFeatureShell(Projects, 'Projects')} />
         <Route path="tasks" element={withFeatureShell(Tasks, 'Tasks')} />
         <Route path="calendar" element={withFeatureShell(Calendar, 'Calendar')} />
