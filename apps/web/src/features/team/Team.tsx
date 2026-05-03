@@ -1,13 +1,17 @@
 import { FC, useMemo } from 'react'
 import {
+  AlertTriangle,
   ArrowDown,
   Loader2,
+  ShieldCheck,
   Users,
   Wrench,
 } from 'lucide-react'
 import { useCanonicalTeam, type CanonicalTeamMember } from '../../hooks/useCanonical'
 
 // ── helpers ──────────────────────────────────────────────────────────
+
+const RESTRICTED_MODELS = ['google/gemini-3.1-flash-lite-preview']
 
 function groupByParent(members: CanonicalTeamMember[]) {
   const independent = members.filter((m) => m.group === 'independent')
@@ -38,7 +42,9 @@ export const Team: FC = () => {
     // Peer agents (reporting to Raz)
     const peers = independent.filter((m) => m !== human && !m.parentAgent)
 
-    return { roster, human, peers, byParent, ecosystem }
+    const restrictedAssignments = roster.filter((member) => RESTRICTED_MODELS.includes(member.model))
+
+    return { roster, human, peers, byParent, ecosystem, restrictedAssignments }
   }, [canonicalTeam])
 
   if (isLoading) {
@@ -49,7 +55,7 @@ export const Team: FC = () => {
     )
   }
 
-  const { roster, human, peers, byParent, ecosystem } = structure
+  const { roster, human, peers, byParent, ecosystem, restrictedAssignments } = structure
 
   if (roster.length === 0) {
     return (
@@ -141,6 +147,42 @@ export const Team: FC = () => {
         </div>
       </div>
 
+      {/* ── model policy watch ── */}
+      <div className={`rounded-3xl border p-6 shadow-[0_20px_80px_rgba(0,0,0,0.25)] ${
+        restrictedAssignments.length > 0
+          ? 'border-rose-400/20 bg-rose-400/[0.05]'
+          : 'border-emerald-400/15 bg-emerald-400/[0.04]'
+      }`}
+      >
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+          {restrictedAssignments.length > 0 ? (
+            <AlertTriangle className="h-4 w-4 text-rose-300" />
+          ) : (
+            <ShieldCheck className="h-4 w-4 text-emerald-300" />
+          )}
+          Restricted model watch
+        </h2>
+        <p className="mt-1 text-sm text-mission-muted">
+          Canonical roster check for models Raz has explicitly blocked for agents or cron work.
+        </p>
+        <div className="mt-4 rounded-2xl border border-white/8 bg-[#07111f]/70 p-4">
+          {restrictedAssignments.length > 0 ? (
+            <div>
+              <p className="text-sm font-medium text-rose-200">Restricted model assignment detected</p>
+              <ul className="mt-2 space-y-1 text-sm text-rose-100/80">
+                {restrictedAssignments.map((member) => (
+                  <li key={member.name}>{member.name} → <code>{member.model}</code></li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="text-sm text-emerald-200">
+              Clear — no canonical roster member is assigned to <code className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px]">google/gemini-3.1-flash-lite-preview</code>.
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* ── roster detail table ── */}
       <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -196,10 +238,12 @@ export const Team: FC = () => {
                       className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${
                         member.group === 'independent'
                           ? 'border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-300'
-                          : 'border-cyan-400/20 bg-cyan-400/10 text-cyan-300'
+                          : member.group === 'ecosystem'
+                            ? 'border-purple-400/20 bg-purple-400/10 text-purple-300'
+                            : 'border-cyan-400/20 bg-cyan-400/10 text-cyan-300'
                       }`}
                     >
-                      {member.group === 'independent' ? 'Independent' : 'Sub-agent'}
+                      {member.group === 'independent' ? 'Independent' : member.group === 'ecosystem' ? 'Ecosystem' : 'Sub-agent'}
                     </span>
                   </td>
                   <td className="py-3 pr-4 text-mission-muted">
