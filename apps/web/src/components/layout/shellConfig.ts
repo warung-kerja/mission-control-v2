@@ -33,7 +33,7 @@ export const primaryNavItems: ShellNavItem[] = [
   { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
   { path: '/calendar', icon: Calendar, label: 'Calendar' },
   { path: '/projects', icon: FolderKanban, label: 'Projects' },
-  { path: '/memories', icon: Brain, label: 'Memory' },
+  { path: '/memories', icon: Brain, label: 'Memory Vault' },
 ]
 
 export const systemNavItems: ShellNavItem[] = [
@@ -42,7 +42,7 @@ export const systemNavItems: ShellNavItem[] = [
 ]
 
 export const utilityNavItems: ShellNavItem[] = [
-  { path: '/analytics', icon: BarChart3, label: 'Analytics' },
+  { path: '/analytics', icon: BarChart3, label: 'Signals' },
 ]
 
 const pageMetaByPath: Record<string, ShellPageMeta> = {
@@ -71,7 +71,7 @@ const pageMetaByPath: Record<string, ShellPageMeta> = {
     truthSources: ['canonical', 'fallback'],
   },
   '/memories': {
-    title: 'Memory',
+    title: 'Memory Vault',
     eyebrow: 'Context Surface',
     question: 'What do we already know?',
     truthSources: ['canonical', 'runtime'],
@@ -89,10 +89,10 @@ const pageMetaByPath: Record<string, ShellPageMeta> = {
     truthSources: ['runtime', 'fallback'],
   },
   '/analytics': {
-    title: 'Analytics',
+    title: 'Signals',
     eyebrow: 'Utility Surface',
     question: 'What patterns are worth noticing without losing truth?',
-    truthSources: ['runtime', 'fallback'],
+    truthSources: ['canonical', 'runtime', 'fallback'],
   },
 }
 
