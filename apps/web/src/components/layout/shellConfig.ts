@@ -26,6 +26,7 @@ export interface ShellPageMeta {
   eyebrow: string
   question: string
   truthSources: TruthSourceTone[]
+  isLegacy?: boolean
 }
 
 export const primaryNavItems: ShellNavItem[] = [
@@ -93,6 +94,27 @@ const pageMetaByPath: Record<string, ShellPageMeta> = {
     eyebrow: 'Utility Surface',
     question: 'What patterns are worth noticing without losing truth?',
     truthSources: ['canonical', 'runtime', 'fallback'],
+  },
+  '/dashboard-v2': {
+    title: 'Dashboard',
+    eyebrow: 'Legacy V2 Surface',
+    question: 'This is the older dashboard path preserved for reference only.',
+    truthSources: ['runtime', 'fallback'],
+    isLegacy: true,
+  },
+  '/memories-db': {
+    title: 'Memories DB',
+    eyebrow: 'Legacy V2 Surface',
+    question: 'This is the older memories interface preserved while V3 uses Memory Vault.',
+    truthSources: ['runtime', 'fallback'],
+    isLegacy: true,
+  },
+  '/analytics-db': {
+    title: 'Analytics',
+    eyebrow: 'Legacy V2 Surface',
+    question: 'This is the older analytics surface preserved while V3 uses Signals.',
+    truthSources: ['runtime', 'fallback'],
+    isLegacy: true,
   },
 }
 

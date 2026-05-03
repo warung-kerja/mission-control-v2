@@ -40,9 +40,15 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] uppercase tracking-[0.24em] text-mission-muted/80">{pageMeta.eyebrow}</span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300">
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                  pageMeta.isLegacy
+                    ? 'border border-amber-400/20 bg-amber-400/10 text-amber-300'
+                    : 'border border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
+                }`}
+              >
                 <RadioTower className="h-3.5 w-3.5" />
-                Live control room
+                {pageMeta.isLegacy ? 'Legacy V2 surface' : 'Live control room'}
               </span>
             </div>
             <div className="mt-2 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
