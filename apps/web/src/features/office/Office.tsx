@@ -2,7 +2,9 @@ import { FC, ReactNode, useMemo } from 'react'
 import {
   Activity,
   AlertTriangle,
+  Bot,
   Clock3,
+  GitBranch,
   Loader2,
   Radio,
   Signal,
@@ -116,6 +118,19 @@ export const Office: FC = () => {
 
   const canonicalGroups = useMemo(() => groupCanonicalCrew(canonicalRoster), [canonicalRoster])
 
+  const subagentWorkspaces = useMemo(() => {
+    return canonicalGroups.subagents.map((subagent) => {
+      const parentRuntime = members.find((member) => normalizeName(member.name) === normalizeName(subagent.parentAgent ?? ''))
+      const activeTasks = parentRuntime?.activeTasks ?? []
+
+      return {
+        subagent,
+        parentRuntime,
+        activeTasks,
+      }
+    })
+  }, [canonicalGroups.subagents, members])
+
   const liveState = error
     ? 'Runtime unavailable'
     : isSocketConnected
@@ -177,6 +192,39 @@ export const Office: FC = () => {
               <EmptyPanel title="No one appears live" body="Runtime presence is quiet. The canonical roster is still available in the side panel." />
             )}
           </section>
+
+          <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                  <Bot className="h-4 w-4 text-cyan-300" />
+                  Subagent workspaces
+                </h3>
+                <p className="mt-1 text-sm text-mission-muted">Canonical subagents mapped against parent runtime evidence. No invented workload.</p>
+              </div>
+              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-300">
+                {subagentWorkspaces.length} canonical lanes
+              </span>
+            </div>
+
+            {canonicalLoading ? (
+              <OfficeSkeleton compact />
+            ) : subagentWorkspaces.length > 0 ? (
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {subagentWorkspaces.map(({ subagent, parentRuntime, activeTasks }) => (
+                  <SubagentWorkspaceCard
+                    key={`${subagent.parentAgent}-${subagent.name}`}
+                    subagent={subagent}
+                    parentRuntime={parentRuntime}
+                    activeTasks={activeTasks}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyPanel title="No subagents in roster" body="The canonical roster does not currently define subagent lanes." />
+            )}
+          </section>
+
 
           <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
             <div className="flex items-center justify-between gap-3">
@@ -348,6 +396,67 @@ const PresenceCard: FC<{ member: WorkspaceMember; compact?: boolean; priority?: 
     </article>
   )
 }
+
+const SubagentWorkspaceCard: FC<{
+  subagent: CanonicalTeamMember
+  parentRuntime?: WorkspaceMember
+  activeTasks: WorkspaceMember['activeTasks']
+}> = ({ subagent, parentRuntime, activeTasks }) => {
+  const parentStatus = parentRuntime ? statusCopy[parentRuntime.status] : undefined
+
+  return (
+    <article className="rounded-2xl border border-cyan-400/12 bg-[#07111f]/80 p-4 transition-colors hover:border-cyan-300/25">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/15 bg-cyan-400/10 text-sm font-semibold text-cyan-200">
+          {getInitials(subagent.name)}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="font-medium text-white truncate">{subagent.name}</h4>
+            <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[10px] text-mission-muted">
+              {subagent.role}
+            </span>
+          </div>
+          <p className="mt-0.5 text-xs text-mission-muted truncate">{subagent.model}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-white/6 bg-white/[0.03] p-3">
+        <div className="flex items-center justify-between gap-2">
+          <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-mission-muted/70">
+            <GitBranch className="h-3 w-3" />
+            Parent lane
+          </p>
+          {parentStatus ? (
+            <span className={`rounded-full border px-2 py-0.5 text-[10px] ${parentStatus.badge}`}>{parentStatus.label}</span>
+          ) : (
+            <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] text-amber-300">No runtime</span>
+          )}
+        </div>
+        <p className="mt-2 text-sm text-white">{subagent.parentAgent ?? 'Unassigned parent'}</p>
+      </div>
+
+      <div className="mt-3">
+        <p className="mb-2 text-[11px] uppercase tracking-[0.18em] text-mission-muted/70">Runtime evidence</p>
+        {activeTasks && activeTasks.length > 0 ? (
+          <ul className="space-y-1.5">
+            {activeTasks.slice(0, 2).map((task) => (
+              <li key={task.id} className="rounded-lg border border-white/6 bg-white/[0.03] px-2.5 py-2 text-xs text-mission-text">
+                <span className="line-clamp-1">{task.title}</span>
+                <span className="mt-0.5 block text-[10px] text-mission-muted">via {subagent.parentAgent} · {task.project.name}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-lg border border-dashed border-white/8 bg-white/[0.02] px-2.5 py-2 text-xs leading-5 text-mission-muted">
+            No active runtime task linked to the parent lane.
+          </p>
+        )}
+      </div>
+    </article>
+  )
+}
+
 
 const CrewGroup: FC<{ title: string; members: CanonicalTeamMember[]; tone: 'fuchsia' | 'cyan' | 'purple' }> = ({ title, members, tone }) => {
   const toneClass = tone === 'fuchsia' ? 'text-fuchsia-300' : tone === 'cyan' ? 'text-cyan-300' : 'text-purple-300'
