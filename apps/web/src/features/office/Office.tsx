@@ -117,6 +117,15 @@ export const Office: FC = () => {
     }
   }, [canonicalRoster, members])
 
+  /** Cross-reference: for each runtime member, find matching canonical member (if any). */
+  const canonicalLookup = useMemo(() => {
+    const map = new Map<string, CanonicalTeamMember>()
+    for (const member of canonicalRoster) {
+      map.set(normalizeName(member.name), member)
+    }
+    return map
+  }, [canonicalRoster])
+
   const canonicalGroups = useMemo(() => groupCanonicalCrew(canonicalRoster), [canonicalRoster])
 
   const subagentWorkspaces = useMemo(() => {
@@ -135,8 +144,8 @@ export const Office: FC = () => {
   const liveState = error
     ? 'Runtime unavailable'
     : isSocketConnected
-      ? 'Live socket'
-      : 'Polling runtime'
+      ? 'Runtime socket live'
+      : 'Runtime polling'
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -174,7 +183,14 @@ export const Office: FC = () => {
                   <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.8)]" />
                   Active now
                 </h3>
-                <p className="mt-1 text-sm text-mission-muted">Runtime members currently online or busy.</p>
+                <p className="mt-1 text-sm text-mission-muted">
+                  Runtime members currently online or busy.
+                  {!isLoading && !error && (
+                    <span className="ml-1 text-[11px] text-mission-muted/60">
+                      ({stats.active.filter((m) => canonicalLookup.has(normalizeName(m.name))).length} of {stats.active.length} match the canonical roster)
+                    </span>
+                  )}
+                </p>
               </div>
               <ConnectionBadge connected={isSocketConnected} label={liveState} />
             </div>
@@ -186,7 +202,12 @@ export const Office: FC = () => {
             ) : stats.active.length > 0 ? (
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {stats.active.map((member) => (
-                  <PresenceCard key={member.id} member={member} priority="high" />
+                  <PresenceCard
+                    key={member.id}
+                    member={member}
+                    priority="high"
+                    canonicalMatch={canonicalLookup.get(normalizeName(member.name))}
+                  />
                 ))}
               </div>
             ) : (
@@ -234,7 +255,14 @@ export const Office: FC = () => {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h3 className="text-lg font-semibold text-white">Away / offline</h3>
-                <p className="mt-1 text-sm text-mission-muted">Lower-priority presence signals, kept compact.</p>
+                <p className="mt-1 text-sm text-mission-muted">
+                  Lower-priority presence signals.
+                  {!isLoading && !error && stats.passive.length > 0 && (
+                    <span className="ml-1 text-[11px] text-mission-muted/60">
+                      ({stats.passive.filter((m) => canonicalLookup.has(normalizeName(m.name))).length} of {stats.passive.length} in canonical roster)
+                    </span>
+                  )}
+                </p>
               </div>
               <span className="rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1 text-xs text-mission-muted">
                 {stats.passive.length} members
@@ -246,7 +274,12 @@ export const Office: FC = () => {
             ) : stats.passive.length > 0 ? (
               <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
                 {stats.passive.map((member) => (
-                  <PresenceCard key={member.id} member={member} compact />
+                  <PresenceCard
+                    key={member.id}
+                    member={member}
+                    compact
+                    canonicalMatch={canonicalLookup.get(normalizeName(member.name))}
+                  />
                 ))}
               </div>
             ) : (
@@ -337,18 +370,19 @@ const Metric: FC<{ label: string; value: number; tone: string; icon: ReactNode }
 )
 
 const ConnectionBadge: FC<{ connected: boolean; label: string }> = ({ connected, label }) => (
-  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-    connected
-      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
-      : 'border-amber-400/20 bg-amber-400/10 text-amber-300'
-  }`}
-  >
-    {connected ? <Radio className="h-3 w-3" /> : <Signal className="h-3 w-3" />}
-    {label}
-  </span>
+              <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
+                connected
+                  ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
+                  : 'border-amber-400/20 bg-amber-400/10 text-amber-300'
+              }`}
+              >
+                {connected ? <Radio className="h-3 w-3" /> : <Signal className="h-3 w-3" />}
+                <span className="hidden sm:inline">{label}</span>
+                <span className="sm:hidden">{connected ? 'Live' : 'Polling'}</span>
+              </span>
 )
 
-const PresenceCard: FC<{ member: WorkspaceMember; compact?: boolean; priority?: 'high' }> = ({ member, compact }) => {
+const PresenceCard: FC<{ member: WorkspaceMember; compact?: boolean; priority?: 'high'; canonicalMatch?: CanonicalTeamMember }> = ({ member, compact, canonicalMatch }) => {
   const status = statusCopy[member.status] ?? statusCopy.OFFLINE
   const activeTasks = member.activeTasks ?? []
   const total = member.workload?.total ?? 0
@@ -367,6 +401,15 @@ const PresenceCard: FC<{ member: WorkspaceMember; compact?: boolean; priority?: 
           <div className="flex flex-wrap items-center gap-2">
             <h4 className="font-medium text-white truncate">{member.name}</h4>
             <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${status.badge}`}>{status.label}</span>
+            {canonicalMatch ? (
+              <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-400/10 px-1.5 py-0.5 text-[9px] font-medium text-fuchsia-300" title={`Canonical role: ${canonicalMatch.role}`}>
+                canonical
+              </span>
+            ) : (
+              <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-1.5 py-0.5 text-[9px] font-medium text-amber-300" title="Not found in canonical roster — may be a DB-only or legacy entry">
+                runtime only
+              </span>
+            )}
           </div>
           <p className="mt-0.5 text-xs capitalize text-mission-muted">{member.role.toLowerCase()}</p>
         </div>
@@ -375,7 +418,9 @@ const PresenceCard: FC<{ member: WorkspaceMember; compact?: boolean; priority?: 
       {!compact && (
         <div className="mt-4 space-y-3">
           <div>
-            <p className="mb-2 text-[11px] uppercase tracking-[0.18em] text-mission-muted/70">Active workspace</p>
+            <p className="mb-2 text-[11px] uppercase tracking-[0.18em] text-mission-muted/70">
+              {canonicalMatch ? `Runtime workspace · ${canonicalMatch.role}` : 'Runtime workspace'}
+            </p>
             {activeTasks.length > 0 ? (
               <ul className="space-y-1.5">
                 {activeTasks.slice(0, 3).map((task) => (
@@ -392,8 +437,8 @@ const PresenceCard: FC<{ member: WorkspaceMember; compact?: boolean; priority?: 
             )}
           </div>
           <div className="flex flex-wrap gap-2 text-[11px] text-mission-muted">
-            <span className="rounded-full border border-white/8 px-2 py-0.5">{total} total tasks</span>
-            {overdue > 0 && <span className="rounded-full border border-rose-400/20 bg-rose-400/10 px-2 py-0.5 text-rose-300">{overdue} overdue</span>}
+            <span className="rounded-full border border-white/8 px-2 py-0.5">{total} runtime tasks</span>
+            {overdue > 0 && <span className="rounded-full border border-rose-400/20 bg-rose-400/10 px-2 py-0.5 text-rose-300">{overdue} runtime overdue</span>}
           </div>
         </div>
       )}
