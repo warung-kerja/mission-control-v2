@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useOfficeRealtime, type WorkspaceMember } from '../../hooks/useOffice'
 import { useCanonicalTeam, type CanonicalTeamMember } from '../../hooks/useCanonical'
+import { PixelCrew } from '../../components/domain/PixelCrew'
 
 // ── helpers ──────────────────────────────────────────────────────────
 
@@ -192,6 +193,9 @@ export const Office: FC = () => {
               <EmptyPanel title="No one appears live" body="Runtime presence is quiet. The canonical roster is still available in the side panel." />
             )}
           </section>
+
+          {/* ── pixel crew visualization ── */}
+          <PixelCrew />
 
           <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
             <div className="flex flex-wrap items-center justify-between gap-3">

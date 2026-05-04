@@ -389,7 +389,7 @@ const CanonicalFilesTab: FC = () => {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export const Memories: FC = () => {
-  const [tab, setTab] = useState<'db' | 'files'>('db')
+  const [tab, setTab] = useState<'db' | 'files'>('files')
 
   const { data: files } = useCanonicalMemories()
 
@@ -404,17 +404,6 @@ export const Memories: FC = () => {
       {/* Tabs */}
       <div className="flex items-center gap-1 border-b border-mission-border">
         <button
-          onClick={() => setTab('db')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            tab === 'db'
-              ? 'border-primary-500 text-primary-400'
-              : 'border-transparent text-mission-muted hover:text-mission-text'
-          }`}
-        >
-          <Database className="w-4 h-4" />
-          DB Memories
-        </button>
-        <button
           onClick={() => setTab('files')}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
             tab === 'files'
@@ -423,12 +412,23 @@ export const Memories: FC = () => {
           }`}
         >
           <FileText className="w-4 h-4" />
-          Files
+          Shared Memory Files
           {files && files.length > 0 && (
             <span className="text-xs bg-primary-500/20 text-primary-400 px-1.5 py-0.5 rounded-full">
               {files.length}
             </span>
           )}
+        </button>
+        <button
+          onClick={() => setTab('db')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            tab === 'db'
+              ? 'border-primary-500 text-primary-400'
+              : 'border-transparent text-mission-muted hover:text-mission-text'
+          }`}
+        >
+          <Database className="w-4 h-4" />
+          Runtime DB
         </button>
       </div>
 

@@ -151,6 +151,7 @@ export const dashboardApi = {
 export const systemApi = {
   sourceTruthStatus: () => apiClient.get('/system/source-truth-status'),
   automationStatus: () => apiClient.get('/system/automation-status'),
+  cronJobs: () => apiClient.get('/system/cron-jobs'),
 }
 
 export const notificationsApi = {

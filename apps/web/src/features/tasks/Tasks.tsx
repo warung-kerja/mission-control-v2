@@ -131,6 +131,12 @@ export const Tasks: FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* ── page heading ── */}
+      <div>
+        <h2 className="text-2xl font-bold text-mission-text">Tasks</h2>
+        <p className="text-mission-muted">Canonical task registry, execution board</p>
+      </div>
+
       {/* ── header ── */}
       <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium uppercase tracking-[0.22em]">
         <span className="border border-fuchsia-400/20 bg-fuchsia-400/10 px-2.5 py-1 text-fuchsia-300">

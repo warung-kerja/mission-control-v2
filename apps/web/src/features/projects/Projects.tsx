@@ -132,7 +132,8 @@ export const Projects: FC = () => {
                 <span className="border border-fuchsia-400/20 bg-fuchsia-400/10 px-2.5 py-1 text-fuchsia-300">canonical truth</span>
                 <span className="border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-cyan-300">what moves next</span>
               </div>
-              <h3 className="text-xl font-semibold text-white">Project focus board</h3>
+              <h2 className="text-xl font-semibold text-white">Projects</h2>
+              <h3 className="text-sm font-medium text-mission-muted mt-1">Project focus board — what moves next</h3>
               <p className="mt-1 max-w-2xl text-sm text-mission-muted">
                 Canonical project registry, ranked for attention instead of buried in a flat list.
               </p>
