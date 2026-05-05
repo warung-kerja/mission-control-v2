@@ -21,6 +21,7 @@ export interface CronJob {
   durationMs: number | null
   error: string | null
   tags: string[]
+  agentId: string | null
 }
 
 export type CronJobsResult =
@@ -56,6 +57,7 @@ interface RawCronJob {
   schedule?: string | RawCronSchedule
   state?: RawCronState
   tags?: unknown[]
+  agentId?: unknown
 }
 
 interface ExecFailure {
@@ -106,6 +108,7 @@ function normaliseJob(raw: RawCronJob): CronJob {
     durationMs: state.lastDurationMs != null ? Number(state.lastDurationMs) : null,
     error: state.lastError || state.error || null,
     tags: Array.isArray(raw.tags) ? raw.tags.map(String) : [],
+    agentId: raw.agentId ? String(raw.agentId) : null,
   }
 }
 

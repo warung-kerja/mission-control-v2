@@ -14,6 +14,7 @@ import {
 import { useAutomationStatus, useCronJobs, type CronJob } from '../../hooks'
 
 type StatusFilter = 'all' | 'healthy' | 'failing' | 'disabled'
+type AgentFilter = 'all' | string
 
 type JobTone = 'healthy' | 'failing' | 'running' | 'disabled' | 'pending'
 
@@ -51,6 +52,15 @@ function formatRelative(value: string | null) {
   return diffMs >= 0 ? `${tense} ${days}d`.trim() : `${days}d ago`
 }
 
+
+function getJobAgent(job: CronJob) {
+  return job.agentId || 'unassigned'
+}
+
+function formatAgentLabel(agentId: string) {
+  return agentId === 'unassigned' ? 'Unassigned' : agentId
+}
+
 function getJobTone(job: CronJob): JobTone {
   if (job.status === 'disabled') return 'disabled'
   if (job.status === 'failure') return 'failing'
@@ -84,10 +94,15 @@ const sourceTone = {
 export const Calendar: FC = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [query, setQuery] = useState('')
+  const [agentFilter, setAgentFilter] = useState<AgentFilter>('all')
   const { data: automationStatus, isLoading: automationStatusLoading } = useAutomationStatus()
   const { data: cronJobs, isLoading: cronJobsLoading } = useCronJobs()
 
   const jobs = cronJobs?.ok ? cronJobs.jobs : []
+
+  const agentOptions = useMemo(() => {
+    return Array.from(new Set(jobs.map(getJobAgent))).sort((a, b) => a.localeCompare(b))
+  }, [jobs])
 
   const summary = useMemo(() => {
     const enabled = jobs.filter((job) => job.status !== 'disabled')
@@ -119,11 +134,13 @@ export const Calendar: FC = () => {
         (statusFilter === 'failing' && job.status === 'failure') ||
         (statusFilter === 'disabled' && job.status === 'disabled')
 
-      const matchesQuery = !normalisedQuery || `${job.name} ${job.schedule} ${job.error ?? ''}`.toLowerCase().includes(normalisedQuery)
+      const agentId = getJobAgent(job)
+      const matchesAgent = agentFilter === 'all' || agentId === agentFilter
+      const matchesQuery = !normalisedQuery || `${job.name} ${job.schedule} ${agentId} ${job.error ?? ''}`.toLowerCase().includes(normalisedQuery)
 
-      return matchesFilter && matchesQuery
+      return matchesFilter && matchesAgent && matchesQuery
     })
-  }, [jobs, query, statusFilter])
+  }, [agentFilter, jobs, query, statusFilter])
 
   const isLoading = automationStatusLoading || cronJobsLoading
 
@@ -241,14 +258,31 @@ export const Calendar: FC = () => {
             ))}
           </div>
 
-          <div className="relative w-full lg:max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mission-muted" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter jobs by name or schedule..."
-              className="w-full rounded-xl border border-white/8 bg-[#07111f]/70 py-2.5 pl-10 pr-4 text-sm text-mission-text placeholder:text-mission-muted focus:border-cyan-400/40 focus:outline-none"
-            />
+          <div className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-2xl">
+            <label className="sr-only" htmlFor="cron-agent-filter">Filter cron jobs by agent</label>
+            <select
+              id="cron-agent-filter"
+              value={agentFilter}
+              onChange={(event) => setAgentFilter(event.target.value)}
+              className="min-h-[42px] rounded-xl border border-white/8 bg-[#07111f]/70 px-3 text-sm text-mission-text focus:border-cyan-400/40 focus:outline-none sm:w-44"
+            >
+              <option value="all">All agents</option>
+              {agentOptions.map((agentId) => (
+                <option key={agentId} value={agentId}>
+                  {formatAgentLabel(agentId)}
+                </option>
+              ))}
+            </select>
+
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mission-muted" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Filter jobs by name, agent, or schedule..."
+                className="w-full rounded-xl border border-white/8 bg-[#07111f]/70 py-2.5 pl-10 pr-4 text-sm text-mission-text placeholder:text-mission-muted focus:border-cyan-400/40 focus:outline-none"
+              />
+            </div>
           </div>
         </div>
 
@@ -276,6 +310,9 @@ export const Calendar: FC = () => {
                         <span className="rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1 text-[11px] font-medium text-mission-muted">
                           {scheduleKind}
                         </span>
+                        <span className="rounded-full border border-cyan-400/15 bg-cyan-400/[0.06] px-2.5 py-1 text-[11px] font-medium text-cyan-200">
+                          Agent: {formatAgentLabel(getJobAgent(job))}
+                        </span>
                       </div>
 
                       <div className="mt-3 grid gap-3 text-sm text-mission-muted md:grid-cols-2 xl:grid-cols-4">
@@ -292,6 +329,10 @@ export const Calendar: FC = () => {
                           <p className="text-[11px] uppercase tracking-[0.2em] text-mission-muted/70">Next run</p>
                           <p className="mt-1 text-mission-text">{formatDateTime(job.nextRunAt)}</p>
                           <p className="text-xs">{formatRelative(job.nextRunAt) ?? 'No future run scheduled'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] uppercase tracking-[0.2em] text-mission-muted/70">Agent</p>
+                          <p className="mt-1 text-mission-text">{formatAgentLabel(getJobAgent(job))}</p>
                         </div>
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.2em] text-mission-muted/70">Duration</p>

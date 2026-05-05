@@ -25,6 +25,7 @@ export interface CronJob {
   durationMs: number | null
   error: string | null
   tags: string[]
+  agentId: string | null
 }
 
 export type CronJobsResult =

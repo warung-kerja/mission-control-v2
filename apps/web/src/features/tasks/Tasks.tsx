@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react'
+import { FC, useMemo, useState } from 'react'
 import {
   ArrowRight,
   Clock,
@@ -76,9 +76,20 @@ const cronStatusTone: Record<string, string> = {
   pending: 'border-slate-400/20 bg-slate-400/10 text-slate-300',
 }
 
+
+function getJobAgent(job: CronJob): string {
+  return job.agentId || 'unassigned'
+}
+
+function formatAgentLabel(agentId: string): string {
+  return agentId === 'unassigned' ? 'Unassigned' : agentId
+}
+
 // ── component ────────────────────────────────────────────────────────
 
 export const Tasks: FC = () => {
+  const [cronAgentFilter, setCronAgentFilter] = useState('all')
+
   // Data
   const { data: canonicalProjects, isLoading: projectsLoading } = useCanonicalProjects()
   const { data: canonicalTeam, isLoading: teamLoading } = useCanonicalTeam()
@@ -92,6 +103,14 @@ export const Tasks: FC = () => {
     [cronResult],
   )
   const cronError = cronResult && !cronResult.ok ? cronResult.error : null
+  const cronAgentOptions = useMemo(
+    () => Array.from(new Set(cronJobs.map(getJobAgent))).sort((a, b) => a.localeCompare(b)),
+    [cronJobs],
+  )
+  const filteredCronJobs = useMemo(
+    () => cronJobs.filter((job) => cronAgentFilter === 'all' || getJobAgent(job) === cronAgentFilter),
+    [cronAgentFilter, cronJobs],
+  )
 
   // ── project movement board ──
   const movement = useMemo(() => {
@@ -109,13 +128,13 @@ export const Tasks: FC = () => {
 
   // ── cron pulse ──
   const cronPulse = useMemo(() => {
-    const total = cronJobs.length
-    const healthy = cronJobs.filter((j) => j.status === 'success').length
-    const failing = cronJobs.filter((j) => j.status === 'failure').length
-    const pending = cronJobs.filter((j) => j.status === 'pending').length
-    const running = cronJobs.filter((j) => j.status === 'running').length
+    const total = filteredCronJobs.length
+    const healthy = filteredCronJobs.filter((j) => j.status === 'success').length
+    const failing = filteredCronJobs.filter((j) => j.status === 'failure').length
+    const pending = filteredCronJobs.filter((j) => j.status === 'pending').length
+    const running = filteredCronJobs.filter((j) => j.status === 'running').length
     return { total, healthy, failing, pending, running }
-  }, [cronJobs])
+  }, [filteredCronJobs])
 
   // ── team snapshot ──
   const teamIndependent = useMemo(
@@ -298,9 +317,29 @@ export const Tasks: FC = () => {
               <Radio className="h-4 w-4 text-cyan-300" />
               <h2 className="text-lg font-semibold text-white">Automation pulse</h2>
             </div>
-            <p className="mt-1 text-sm text-mission-muted">
-              Live cron status from OpenClaw runtime.
-            </p>
+            <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <p className="text-sm text-mission-muted">
+                Live cron status from OpenClaw runtime.
+              </p>
+              <div className="w-full sm:w-44">
+                <label className="mb-1 block text-[10px] font-medium uppercase tracking-[0.2em] text-mission-muted/70" htmlFor="tasks-cron-agent-filter">
+                  Agent
+                </label>
+                <select
+                  id="tasks-cron-agent-filter"
+                  value={cronAgentFilter}
+                  onChange={(event) => setCronAgentFilter(event.target.value)}
+                  className="w-full rounded-xl border border-white/8 bg-[#07111f]/70 px-3 py-2 text-xs text-mission-text focus:border-cyan-400/40 focus:outline-none"
+                >
+                  <option value="all">All agents</option>
+                  {cronAgentOptions.map((agentId) => (
+                    <option key={agentId} value={agentId}>
+                      {formatAgentLabel(agentId)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
             {cronLoading ? (
               <div className="flex min-h-[120px] items-center justify-center">
@@ -314,13 +353,13 @@ export const Tasks: FC = () => {
                 </p>
                 <p className="mt-1 text-xs text-rose-200/70">{cronError}</p>
               </div>
-            ) : cronJobs.length === 0 ? (
+            ) : filteredCronJobs.length === 0 ? (
               <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-[#07111f]/60 p-4 text-sm text-mission-muted">
-                No cron jobs detected in the current runtime.
+                No cron jobs match the selected agent filter.
               </div>
             ) : (
               <div className="mt-4 space-y-2 max-h-[520px] overflow-y-auto pr-0.5">
-                {cronJobs.map((job) => {
+                {filteredCronJobs.map((job) => {
                   const tone = cronStatusTone[job.status] ?? cronStatusTone.pending
                   return (
                     <div
@@ -331,6 +370,7 @@ export const Tasks: FC = () => {
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-white truncate">{job.name}</p>
                           <p className="mt-0.5 text-[11px] text-mission-muted">{job.schedule}</p>
+                          <p className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-cyan-200/70">Agent: {formatAgentLabel(getJobAgent(job))}</p>
                         </div>
                         <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase ${tone}`}>
                           {job.status}
