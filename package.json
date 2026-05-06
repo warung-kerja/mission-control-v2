@@ -2,7 +2,7 @@
   "name": "mission-control-v2",
   "version": "2.0.0",
   "private": true,
-  "description": "Mission Control Dashboard V2.0 - Production-ready modular architecture",
+  "description": "Mission Control V3 — Live control room for Raz's OpenClaw agent system",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

@@ -1,4 +1,4 @@
-# Contributing to Mission Control V2.0
+# Contributing to Mission Control V3
 
 ## Development Workflow
 

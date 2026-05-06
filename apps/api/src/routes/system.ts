@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { authMiddleware } from '../middleware/auth.js'
 import { canonicalSourceStatus } from '../lib/canonicalSources.js'
 import { getAutomationStatus } from '../lib/automationStatus.js'
-import { fetchCronJobs } from '../lib/openclawClient.js'
+import { fetchCronJobs, fetchOpenClawRuntime } from '../lib/openclawClient.js'
 
 const router = Router()
 
@@ -42,6 +42,19 @@ router.get('/cron-jobs', async (_req, res) => {
   } catch (error) {
     console.error('Cron jobs fetch error:', error)
     res.status(500).json({ error: 'Failed to fetch cron jobs' })
+  }
+})
+
+// GET /api/system/openclaw-runtime
+// Summarises local OpenClaw runtime truth from the official CLI.
+// Always returns 200 — the client checks result.ok and warnings for partial data.
+router.get('/openclaw-runtime', async (_req, res) => {
+  try {
+    const result = await fetchOpenClawRuntime()
+    res.json({ success: true, data: result })
+  } catch (error) {
+    console.error('OpenClaw runtime fetch error:', error)
+    res.status(500).json({ error: 'Failed to fetch OpenClaw runtime status' })
   }
 })
 

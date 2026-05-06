@@ -1,10 +1,12 @@
 import { FC } from 'react'
 import type { CanonicalSourceHealth } from '../../hooks'
-import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database } from 'lucide-react'
-import { useDashboardStats, useTeamActivityFeed, useCanonicalStatus, useCanonicalProjects, useCanonicalTeam, useAutomationStatus } from '../../hooks'
+import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database, Zap, AlertTriangle, RefreshCw } from 'lucide-react'
+import { useDashboardStats, useTeamActivityFeed, useCanonicalStatus, useCanonicalProjects, useCanonicalTeam, useAutomationStatus, useCronJobs, useRealTimeUpdates } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
 
 export const Dashboard: FC = () => {
+  useRealTimeUpdates()
+
   const { user } = useAuthStore()
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: activities, isLoading: activitiesLoading } = useTeamActivityFeed(5)
@@ -12,6 +14,7 @@ export const Dashboard: FC = () => {
   const { data: canonicalProjects, isLoading: canonicalProjectsLoading } = useCanonicalProjects()
   const { data: canonicalTeam, isLoading: canonicalTeamLoading } = useCanonicalTeam()
   const { data: automationStatus, isLoading: automationStatusLoading } = useAutomationStatus()
+  const { data: cronJobs, isLoading: cronJobsLoading } = useCronJobs()
 
   const canonicalTrackedProjects =
     canonicalProjects?.data
@@ -20,6 +23,34 @@ export const Dashboard: FC = () => {
   const canonicalTrackedProjectCount = canonicalTrackedProjects.length
   const canonicalDashboardProjects = canonicalTrackedProjects.slice(0, 4)
   const canonicalTeamMemberCount = canonicalTeam?.length ?? 0
+  const nowMs = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+
+  const dashboardTruthRules = canonicalTrackedProjects.reduce(
+    (rules, project) => {
+      const status = project.status.toLowerCase()
+      const updatedMs = new Date(project.updatedAt).getTime()
+      const hasReadableTimestamp = Number.isFinite(updatedMs)
+      const ageDays = hasReadableTimestamp ? (nowMs - updatedMs) / dayMs : null
+
+      const countsAsActive = status === 'active' || status === 'in-progress'
+      const countsAsRecent = ageDays !== null && ageDays >= 0 && ageDays <= 7
+      const countsAsStale = ageDays === null || ageDays > 14
+      const countsAsMissing =
+        !project.owner?.trim() ||
+        !project.status?.trim() ||
+        !project.updatedAt?.trim() ||
+        (!project.currentPhase?.trim() && !project.nextStep?.trim())
+
+      if (countsAsActive) rules.active += 1
+      if (countsAsRecent) rules.recent += 1
+      if (countsAsStale) rules.stale += 1
+      if (countsAsMissing) rules.missing += 1
+
+      return rules
+    },
+    { active: 0, recent: 0, stale: 0, missing: 0 },
+  )
 
   const statItems = [
     { 
@@ -131,6 +162,33 @@ export const Dashboard: FC = () => {
     return 'Missing'
   }
 
+  const truthRuleItems = [
+    {
+      label: 'Active',
+      value: dashboardTruthRules.active,
+      detail: 'status is active or in-progress; archived is excluded',
+      badge: 'bg-green-500/10 text-green-400',
+    },
+    {
+      label: 'Recent',
+      value: dashboardTruthRules.recent,
+      detail: 'registry updated within the last 7 days',
+      badge: 'bg-blue-500/10 text-blue-400',
+    },
+    {
+      label: 'Stale',
+      value: dashboardTruthRules.stale,
+      detail: 'timestamp missing/invalid or older than 14 days',
+      badge: 'bg-yellow-500/10 text-yellow-400',
+    },
+    {
+      label: 'Missing',
+      value: dashboardTruthRules.missing,
+      detail: 'owner, status, timestamp, or movement note absent',
+      badge: 'bg-red-500/10 text-red-400',
+    },
+  ]
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
@@ -187,56 +245,84 @@ export const Dashboard: FC = () => {
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Activity className="w-4 h-4 text-primary-400" />
-                <h3 className="font-semibold text-mission-text">Automation Status</h3>
+                <Zap className="w-4 h-4 text-primary-400" />
+                <h3 className="font-semibold text-mission-text">Cron Health</h3>
               </div>
               <p className="text-sm text-mission-muted">
-                First-pass cron health visibility, truthful about current integration readiness.
+                {cronJobs?.ok ? `${cronJobs.jobs.length} jobs · live from gateway` : 'OpenClaw gateway status'}
               </p>
             </div>
-            {automationStatusLoading ? (
+            {(automationStatusLoading || cronJobsLoading) ? (
               <Loader2 className="w-5 h-5 animate-spin text-mission-muted" />
+            ) : cronJobs?.ok ? (
+              <span className="px-2.5 py-1 rounded-full text-xs bg-green-500/10 text-green-400">Live</span>
             ) : (
-              <span className={`px-2.5 py-1 rounded-full text-xs ${automationStatus?.adapterConfigured ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
-                {automationStatus?.adapterConfigured ? 'Cron adapter configured' : 'Cron adapter not configured'}
+              <span className={`px-2.5 py-1 rounded-full text-xs ${automationStatus?.adapterConfigured ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'}`}>
+                {automationStatus?.adapterConfigured ? 'Not reachable' : 'Not configured'}
               </span>
             )}
           </div>
-          {!automationStatusLoading && automationStatus && (
-            <div className="mt-3 space-y-3 text-sm text-mission-muted">
+
+          {/* Live job cards */}
+          {!cronJobsLoading && cronJobs?.ok && cronJobs.jobs.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {cronJobs.jobs.slice(0, 6).map((job) => {
+                const isOk      = job.status === 'success'
+                const isFail    = job.status === 'failure'
+                const isRunning = job.status === 'running'
+                const statusCls = isOk      ? 'bg-green-500/10 text-green-400'
+                                : isFail    ? 'bg-red-500/10 text-red-400'
+                                : isRunning ? 'bg-blue-500/10 text-blue-400'
+                                            : 'bg-slate-500/10 text-slate-400'
+                return (
+                  <div key={job.id} className="flex items-start gap-2 p-2.5 bg-mission-bg rounded-lg border border-mission-border/60">
+                    <span className={`mt-0.5 text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 capitalize ${statusCls}`}>
+                      {job.status}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-mission-text truncate">{job.name}</p>
+                      <div className="flex items-center gap-2 text-[10px] text-mission-muted mt-0.5 flex-wrap">
+                        {job.schedule !== '—' && <span>⏱ {job.schedule}</span>}
+                        {job.lastRunAt && <span>Last: {formatTimeAgo(job.lastRunAt)}</span>}
+                        {job.nextRunAt && <span>Next: {formatTimeAgo(job.nextRunAt)}</span>}
+                        {job.durationMs != null && <span>{job.durationMs}ms</span>}
+                      </div>
+                      {isFail && job.error && (
+                        <p className="text-[10px] text-red-400 mt-0.5 line-clamp-1">{job.error}</p>
+                      )}
+                    </div>
+                    {isFail && <AlertTriangle className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />}
+                    {isRunning && <RefreshCw className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5 animate-spin" />}
+                  </div>
+                )
+              })}
+              {cronJobs.jobs.length > 6 && (
+                <p className="text-xs text-mission-muted text-center pt-1">+{cronJobs.jobs.length - 6} more jobs</p>
+              )}
+            </div>
+          )}
+
+          {/* No jobs returned (gateway live but empty) */}
+          {!cronJobsLoading && cronJobs?.ok && cronJobs.jobs.length === 0 && (
+            <p className="mt-3 text-sm text-mission-muted">Gateway connected — no jobs returned.</p>
+          )}
+
+          {/* Gateway not reachable — show config audit fallback */}
+          {!cronJobsLoading && cronJobs && !cronJobs.ok && automationStatus && (
+            <div className="mt-3 space-y-2 text-sm text-mission-muted">
+              <p className="text-xs text-red-400 line-clamp-2">{cronJobs.error}</p>
               <div className="flex flex-wrap gap-2 text-xs">
                 <span className={`px-2.5 py-1 rounded-full ${automationStatus.gatewayUrlConfigured ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
                   Gateway URL {automationStatus.gatewayUrlConfigured ? 'set' : 'missing'}
                 </span>
                 <span className={`px-2.5 py-1 rounded-full ${automationStatus.gatewayTokenConfigured ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                  Gateway token {automationStatus.gatewayTokenConfigured ? 'set' : 'missing'}
+                  Token {automationStatus.gatewayTokenConfigured ? 'set' : 'missing'}
                 </span>
                 <span className={`px-2.5 py-1 rounded-full ${automationStatus.cliDetected ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
                   CLI {automationStatus.cliDetected ? 'detected' : 'not detected'}
                 </span>
               </div>
-              <p>
-                Provider: <span className="text-mission-text">{automationStatus.provider}</span>
-              </p>
-              <p>
-                Visibility: <span className="text-mission-text">{automationStatus.visibility}</span>
-              </p>
-              {automationStatus.configuredGatewayHost && (
-                <p>
-                  Gateway: <span className="text-mission-text">{automationStatus.configuredGatewayHost}</span>
-                </p>
-              )}
-              <p>
-                Checked: <span className="text-mission-text">{formatTimeAgo(automationStatus.lastCheckedAt)}</span>
-              </p>
-              <p className="line-clamp-2">
-                Next step: <span className="text-mission-text">{automationStatus.nextStep}</span>
-              </p>
-              {automationStatus.blockers[0] && (
-                <p className="line-clamp-2">
-                  Blocker: <span className="text-mission-text">{automationStatus.blockers[0]}</span>
-                </p>
-              )}
+              <p className="text-xs line-clamp-2">Next step: <span className="text-mission-text">{automationStatus.nextStep}</span></p>
             </div>
           )}
         </div>
@@ -263,6 +349,37 @@ export const Dashboard: FC = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="bg-mission-card border border-mission-border rounded-xl p-4 lg:p-5">
+        <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+          <div>
+            <h3 className="font-semibold text-mission-text">Dashboard Truth Rules</h3>
+            <p className="text-sm text-mission-muted mt-1">
+              Project status is calculated from the canonical registry only. No demo activity, guessed progress, or stale DB records are counted here.
+            </p>
+          </div>
+          <span className="px-2.5 py-1 rounded-full text-xs bg-primary-600/10 text-primary-300">
+            Source: projects.json
+          </span>
+        </div>
+        {canonicalProjectsLoading ? (
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="w-6 h-6 animate-spin text-mission-muted" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            {truthRuleItems.map((item) => (
+              <div key={item.label} className="rounded-lg border border-mission-border bg-mission-bg p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-mission-text">{item.label}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${item.badge}`}>{item.value}</span>
+                </div>
+                <p className="mt-2 text-xs text-mission-muted leading-relaxed">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Activity & Quick Actions - Responsive: 1 col mobile, 2 cols desktop */}

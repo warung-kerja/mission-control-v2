@@ -36,6 +36,7 @@ export function useRealTimeUpdates(options: UseRealTimeOptions = {}) {
       queryClient.invalidateQueries({ queryKey: ['tasks', data.taskId] })
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       queryClient.invalidateQueries({ queryKey: ['projects', data.projectId, 'tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })
     })
 
     // Listen for new tasks
@@ -58,8 +59,22 @@ export function useRealTimeUpdates(options: UseRealTimeOptions = {}) {
     const unsubscribeActivity = on('activity:new', () => {
       console.log('[RealTime] New activity')
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] })
+      queryClient.invalidateQueries({ queryKey: ['team', 'activity-feed'] })
+      queryClient.invalidateQueries({ queryKey: ['activityFeed'] })
       queryClient.invalidateQueries({ queryKey: ['activities'] })
     })
+
+    // Presence/runtime events should refresh Team and Dashboard immediately.
+    const invalidatePresence = () => {
+      queryClient.invalidateQueries({ queryKey: ['team'] })
+      queryClient.invalidateQueries({ queryKey: ['workspace'] })
+      queryClient.invalidateQueries({ queryKey: ['system', 'openclaw-runtime'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })
+    }
+
+    const unsubscribeUserOnline = on('user:online', invalidatePresence)
+    const unsubscribeUserOffline = on('user:offline', invalidatePresence)
+    const unsubscribePresenceUpdate = on('presence:update', invalidatePresence)
 
     return () => {
       unsubscribeProject?.()
@@ -67,6 +82,9 @@ export function useRealTimeUpdates(options: UseRealTimeOptions = {}) {
       unsubscribeTaskCreated?.()
       unsubscribeTaskDeleted?.()
       unsubscribeActivity?.()
+      unsubscribeUserOnline?.()
+      unsubscribeUserOffline?.()
+      unsubscribePresenceUpdate?.()
       
       if (projectId) {
         emit('project:leave', { projectId })

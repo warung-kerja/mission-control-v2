@@ -5,16 +5,19 @@ import { FeatureErrorBoundary, LoadingState } from './components/common'
 import { AuthGuard } from './components/auth/AuthGuard'
 import { Login } from './features/auth/Login'
 
+const ControlRoom = lazy(() => import('./features/control-room/ControlRoom').then((m) => ({ default: m.ControlRoom })))
 const Dashboard = lazy(() => import('./features/dashboard/Dashboard').then((m) => ({ default: m.Dashboard })))
 const Projects = lazy(() => import('./features/projects/Projects').then((m) => ({ default: m.Projects })))
 const Tasks = lazy(() => import('./features/tasks/Tasks').then((m) => ({ default: m.Tasks })))
 const Calendar = lazy(() => import('./features/calendar/Calendar').then((m) => ({ default: m.Calendar })))
 const Team = lazy(() => import('./features/team/Team').then((m) => ({ default: m.Team })))
 const Office = lazy(() => import('./features/office/Office').then((m) => ({ default: m.Office })))
+const MemoryVault = lazy(() => import('./features/memory-vault/MemoryVault').then((m) => ({ default: m.MemoryVault })))
 const Memories = lazy(() => import('./features/memories/Memories').then((m) => ({ default: m.Memories })))
 const Collaboration = lazy(() =>
   import('./features/collaboration/Collaboration').then((m) => ({ default: m.Collaboration }))
 )
+const Signals = lazy(() => import('./features/signals/Signals').then((m) => ({ default: m.Signals })))
 const Analytics = lazy(() => import('./features/analytics/Analytics').then((m) => ({ default: m.Analytics })))
 
 const withFeatureShell = (Component: FC, featureName: string) => {
@@ -40,15 +43,19 @@ const App: FC = () => {
           </AuthGuard>
         }
       >
-        <Route index element={withFeatureShell(Dashboard, 'Dashboard')} />
+        <Route index element={withFeatureShell(ControlRoom, 'Control Room')} />
+        <Route path="dashboard" element={withFeatureShell(ControlRoom, 'Control Room')} />
+        <Route path="dashboard-v2" element={withFeatureShell(Dashboard, 'Dashboard')} />
         <Route path="projects" element={withFeatureShell(Projects, 'Projects')} />
         <Route path="tasks" element={withFeatureShell(Tasks, 'Tasks')} />
         <Route path="calendar" element={withFeatureShell(Calendar, 'Calendar')} />
         <Route path="team" element={withFeatureShell(Team, 'Team')} />
         <Route path="office" element={withFeatureShell(Office, 'Office')} />
-        <Route path="memories" element={withFeatureShell(Memories, 'Memories')} />
+        <Route path="memories" element={withFeatureShell(MemoryVault, 'Memory Vault')} />
+        <Route path="memories-db" element={withFeatureShell(Memories, 'Memories')} />
         <Route path="collaboration" element={withFeatureShell(Collaboration, 'Collaboration')} />
-        <Route path="analytics" element={withFeatureShell(Analytics, 'Analytics')} />
+        <Route path="analytics" element={withFeatureShell(Signals, 'Signals')} />
+        <Route path="analytics-db" element={withFeatureShell(Analytics, 'Analytics')} />
       </Route>
     </Routes>
   )

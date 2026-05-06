@@ -1,5 +1,5 @@
 import { FC, useState } from 'react'
-import { TrendingUp, Users, CheckCircle, Loader2, Calendar, AlertTriangle, FolderOpen } from 'lucide-react'
+import { TrendingUp, Users, CheckCircle, Loader2, Calendar, AlertTriangle, FolderOpen, Database } from 'lucide-react'
 import {
   useTeamAnalytics,
   useTeamProductivity,
@@ -7,6 +7,7 @@ import {
   useProjectBreakdown,
   type ProjectBreakdown,
 } from '../../hooks/useAnalytics'
+import { useCanonicalProjects, type CanonicalProject } from '../../hooks'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -33,6 +34,164 @@ const PROJECT_STATUS_BADGE: Record<string, string> = {
 }
 
 const getStatusLabel = (s: string) => s.toLowerCase().replace('_', ' ')
+
+const CANONICAL_STATUS_COLOR: Record<string, string> = {
+  active:      'bg-emerald-500/10 text-emerald-400',
+  'in-progress':'bg-blue-500/10 text-blue-400',
+  paused:      'bg-amber-500/10 text-amber-400',
+  completed:   'bg-slate-500/10 text-slate-400',
+  archived:    'bg-slate-500/10 text-slate-500',
+}
+
+const CANONICAL_STATUS_BAR: Record<string, string> = {
+  active:      'bg-emerald-500',
+  'in-progress':'bg-blue-500',
+  paused:      'bg-amber-500',
+  completed:   'bg-slate-400',
+  archived:    'bg-slate-600',
+}
+
+const CANONICAL_PRIORITY_COLOR: Record<string, string> = {
+  critical: 'bg-red-500/10 text-red-400',
+  high:     'bg-orange-500/10 text-orange-400',
+  medium:   'bg-yellow-500/10 text-yellow-400',
+  low:      'bg-green-500/10 text-green-400',
+}
+
+const CANONICAL_PRIORITY_BAR: Record<string, string> = {
+  critical: 'bg-red-500',
+  high:     'bg-orange-500',
+  medium:   'bg-yellow-500',
+  low:      'bg-green-500',
+}
+
+const formatDateShort = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+
+const timeAgo = (iso: string) => {
+  const diff = Date.now() - new Date(iso).getTime()
+  const days = Math.floor(diff / 86400000)
+  if (days === 0) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 7) return `${days}d ago`
+  if (days < 30) return `${Math.floor(days / 7)}w ago`
+  return formatDateShort(iso)
+}
+
+// ─── Canonical Project Registry Health ───────────────────────────────────────
+
+const CanonicalProjectHealth: FC<{ projects: CanonicalProject[] }> = ({ projects }) => {
+  const nonArchived = projects.filter(p => p.status.toLowerCase() !== 'archived')
+  const total = projects.length
+
+  // Status distribution
+  const statusCounts = projects.reduce<Record<string, number>>((acc, p) => {
+    const key = p.status.toLowerCase()
+    acc[key] = (acc[key] || 0) + 1
+    return acc
+  }, {})
+
+  // Priority distribution (non-archived only)
+  const priorityCounts = nonArchived.reduce<Record<string, number>>((acc, p) => {
+    const key = p.priority.toLowerCase()
+    acc[key] = (acc[key] || 0) + 1
+    return acc
+  }, {})
+
+  // Top 5 recently updated (non-archived)
+  const recent = [...nonArchived]
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, 5)
+
+  const statuses = Object.entries(statusCounts).sort((a, b) => b[1] - a[1])
+  const priorities = Object.entries(priorityCounts).sort((a, b) => b[1] - a[1])
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Database className="w-4 h-4 text-primary-400" />
+        <h3 className="text-sm font-semibold text-mission-text uppercase tracking-wide">
+          Project Registry Health
+        </h3>
+        <span className="text-xs text-mission-muted font-normal normal-case tracking-normal">
+          — {total} projects · canonical source
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Status distribution */}
+        <div className="bg-mission-card border border-mission-border rounded-xl p-5">
+          <h4 className="text-xs font-semibold text-mission-muted uppercase tracking-wide mb-4">By Status</h4>
+          <div className="space-y-3">
+            {statuses.map(([status, count]) => {
+              const pct = total > 0 ? Math.round((count / total) * 100) : 0
+              const barCls = CANONICAL_STATUS_BAR[status] ?? 'bg-slate-500'
+              const badgeCls = CANONICAL_STATUS_COLOR[status] ?? 'bg-slate-500/10 text-slate-400'
+              return (
+                <div key={status} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={`px-2 py-0.5 rounded-full capitalize ${badgeCls}`}>{status}</span>
+                    <span className="text-mission-muted tabular-nums">{count} ({pct}%)</span>
+                  </div>
+                  <div className="h-1.5 bg-mission-border rounded-full overflow-hidden">
+                    <div className={`h-full ${barCls} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Priority distribution */}
+        <div className="bg-mission-card border border-mission-border rounded-xl p-5">
+          <h4 className="text-xs font-semibold text-mission-muted uppercase tracking-wide mb-4">By Priority (active)</h4>
+          <div className="space-y-3">
+            {priorities.length > 0 ? priorities.map(([priority, count]) => {
+              const pct = nonArchived.length > 0 ? Math.round((count / nonArchived.length) * 100) : 0
+              const barCls = CANONICAL_PRIORITY_BAR[priority] ?? 'bg-slate-500'
+              const badgeCls = CANONICAL_PRIORITY_COLOR[priority] ?? 'bg-slate-500/10 text-slate-400'
+              return (
+                <div key={priority} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={`px-2 py-0.5 rounded-full capitalize ${badgeCls}`}>{priority}</span>
+                    <span className="text-mission-muted tabular-nums">{count} ({pct}%)</span>
+                  </div>
+                  <div className="h-1.5 bg-mission-border rounded-full overflow-hidden">
+                    <div className={`h-full ${barCls} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              )
+            }) : (
+              <p className="text-xs text-mission-muted text-center py-4">No priority data</p>
+            )}
+          </div>
+        </div>
+
+        {/* Recently updated */}
+        <div className="bg-mission-card border border-mission-border rounded-xl p-5">
+          <h4 className="text-xs font-semibold text-mission-muted uppercase tracking-wide mb-4">Recently Updated</h4>
+          <div className="space-y-3">
+            {recent.map(p => {
+              const badgeCls = CANONICAL_STATUS_COLOR[p.status.toLowerCase()] ?? 'bg-slate-500/10 text-slate-400'
+              return (
+                <div key={p.id} className="flex items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-mission-text truncate">{p.name}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full capitalize ${badgeCls}`}>{p.status.toLowerCase()}</span>
+                      <span className="text-[10px] text-mission-muted">{p.currentPhase || '—'}</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-mission-muted flex-shrink-0 tabular-nums mt-1">{timeAgo(p.updatedAt)}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
 
 // ─── Project Breakdown Card ──────────────────────────────────────────────────
 
@@ -104,6 +263,8 @@ export const Analytics: FC = () => {
   const { data: analytics, isLoading: analyticsLoading } = useTeamAnalytics(projectId || undefined)
   const { data: productivity, isLoading: productivityLoading } = useTeamProductivity(parseInt(period))
   const { data: members, isLoading: membersLoading } = useTeamMembersWithWorkload()
+  const { data: canonicalProjectsResult, isLoading: canonicalLoading } = useCanonicalProjects()
+  const canonicalProjects = canonicalProjectsResult?.data ?? []
 
   const stats = analytics?.tasks ?? { total: 0, completed: 0, completionRate: 0, byStatus: {}, byPriority: {} }
 
@@ -161,7 +322,7 @@ export const Analytics: FC = () => {
       {/* ── Header ───────────────────────────────────────────────── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-mission-text">Analytics</h2>
+          <h2 className="text-2xl font-bold text-mission-text">Signals</h2>
           <p className="text-mission-muted">
             {selectedProject ? `Showing: ${selectedProject.name}` : 'All projects · team performance'}
           </p>
@@ -189,6 +350,26 @@ export const Analytics: FC = () => {
             <option value="30">Last 30 days</option>
           </select>
         </div>
+      </div>
+
+      {/* ── Canonical Project Registry Health ──────────────────── */}
+      {canonicalLoading ? (
+        <div className="flex items-center gap-2 text-sm text-mission-muted py-4">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Loading project registry...
+        </div>
+      ) : canonicalProjects.length > 0 ? (
+        <CanonicalProjectHealth projects={canonicalProjects} />
+      ) : null}
+
+      {/* ── DB Task Metrics ────────────────────────────────────── */}
+      <div className="flex items-center gap-2 pt-2">
+        <h3 className="text-sm font-semibold text-mission-text uppercase tracking-wide">
+          Task Metrics
+        </h3>
+        <span className="text-xs text-mission-muted font-normal normal-case tracking-normal">
+          — runtime DB
+        </span>
       </div>
 
       {/* ── Metric cards ─────────────────────────────────────────── */}
