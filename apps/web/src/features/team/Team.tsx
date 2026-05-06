@@ -9,7 +9,7 @@ import {
   Users,
   Wrench,
 } from 'lucide-react'
-import { useCanonicalTeam, type CanonicalTeamMember } from '../../hooks/useCanonical'
+import { useCanonicalTeam, useRealTimeUpdates, type CanonicalTeamMember } from '../../hooks'
 import { useOpenClawRuntime } from '../../hooks/useSystem'
 
 // ── helpers ──────────────────────────────────────────────────────────
@@ -34,6 +34,8 @@ function groupByParent(members: CanonicalTeamMember[]) {
 // ── component ────────────────────────────────────────────────────────
 
 export const Team: FC = () => {
+  useRealTimeUpdates()
+
   const { data: canonicalTeam, isLoading } = useCanonicalTeam()
   const { data: runtimeStatus, isLoading: runtimeLoading } = useOpenClawRuntime()
 

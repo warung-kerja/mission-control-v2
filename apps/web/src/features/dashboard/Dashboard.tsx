@@ -1,10 +1,12 @@
 import { FC } from 'react'
 import type { CanonicalSourceHealth } from '../../hooks'
 import { Activity, CheckCircle, Clock, Users, Plus, FolderKanban, Calendar, MessageSquare, Loader2, Database, Zap, AlertTriangle, RefreshCw } from 'lucide-react'
-import { useDashboardStats, useTeamActivityFeed, useCanonicalStatus, useCanonicalProjects, useCanonicalTeam, useAutomationStatus, useCronJobs } from '../../hooks'
+import { useDashboardStats, useTeamActivityFeed, useCanonicalStatus, useCanonicalProjects, useCanonicalTeam, useAutomationStatus, useCronJobs, useRealTimeUpdates } from '../../hooks'
 import { useAuthStore } from '../../stores/authStore'
 
 export const Dashboard: FC = () => {
+  useRealTimeUpdates()
+
   const { user } = useAuthStore()
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: activities, isLoading: activitiesLoading } = useTeamActivityFeed(5)
