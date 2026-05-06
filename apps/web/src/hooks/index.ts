@@ -69,9 +69,11 @@ export {
 export {
   useAutomationStatus,
   useCronJobs,
+  useOpenClawRuntime,
   type AutomationStatus,
   type CronJob,
   type CronJobsResult,
+  type OpenClawRuntimeResult,
 } from './useSystem'
 export {
   useCanonicalMemories,

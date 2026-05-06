@@ -20,7 +20,7 @@ This is the shared dynamic handoff document for Noona, Jen, Cursor, Antigravity,
 **V3 control-room reset — truth-first surface rebuild and consistency pass**
 
 ## Overall Progress
-**V3 reset ~88%** `████████▊`
+**V3 reset ~91%** `█████████░`
 
 ## What Is Working
 - Standalone V2 repo has been created, cleaned up, and pushed to GitHub.
@@ -174,6 +174,12 @@ Important note:
 - Validation: `npm run lint` passed after the dashboard slice.
 - Blocker: None. Remaining merge-readiness risk is final route/shell audit and clean predeploy gate.
 - Next recommended step: run/accept route-shell verification, clean local artifacts, then run full lint/type-check/build/predeploy gate.
+
+### 2026-05-07 - Noona (runtime visibility slice)
+- What changed: Added `/api/system/openclaw-runtime`, a CLI-backed OpenClaw runtime adapter that summarises recent sessions, subagent task records, and gateway presence. Added `useOpenClawRuntime` and surfaced the snapshot on the Team page with explicit no-invented-workload copy.
+- Validation: `npm run lint`, `npm run type-check`, and `npm run build` passed.
+- Blocker: None. Dashboard can optionally consume the same runtime snapshot, but Team now has live runtime visibility beyond the canonical roster.
+- Next recommended step: complete the final route/shell audit and run the full merge-readiness gate including `npm run predeploy:check` after commit hygiene.
 
 ## Update Template
 Use this when leaving a new handoff note:

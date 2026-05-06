@@ -1,13 +1,16 @@
 import { FC, useMemo } from 'react'
 import {
+  Activity,
   AlertTriangle,
   ArrowDown,
   Loader2,
   ShieldCheck,
+  TerminalSquare,
   Users,
   Wrench,
 } from 'lucide-react'
 import { useCanonicalTeam, type CanonicalTeamMember } from '../../hooks/useCanonical'
+import { useOpenClawRuntime } from '../../hooks/useSystem'
 
 // ── helpers ──────────────────────────────────────────────────────────
 
@@ -32,6 +35,7 @@ function groupByParent(members: CanonicalTeamMember[]) {
 
 export const Team: FC = () => {
   const { data: canonicalTeam, isLoading } = useCanonicalTeam()
+  const { data: runtimeStatus, isLoading: runtimeLoading } = useOpenClawRuntime()
 
   const structure = useMemo(() => {
     const roster = canonicalTeam ?? []
@@ -77,6 +81,65 @@ export const Team: FC = () => {
         <span className="border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-emerald-300">
           {roster.length} crew members
         </span>
+      </div>
+
+
+      {/* ── runtime visibility ── */}
+      <div className="rounded-3xl border border-cyan-400/15 bg-cyan-400/[0.04] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+              <Activity className="h-4 w-4 text-cyan-300" />
+              OpenClaw runtime snapshot
+            </h2>
+            <p className="mt-1 text-sm text-mission-muted">
+              Live CLI truth for recent sessions, subagent task records, and gateway presence. This does not invent workload.
+            </p>
+          </div>
+          <span className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${runtimeStatus?.ok ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300' : 'border-amber-400/20 bg-amber-400/10 text-amber-300'}`}>
+            {runtimeLoading ? 'Checking runtime' : runtimeStatus?.ok ? 'Runtime connected' : 'Partial runtime'}
+          </span>
+        </div>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <RuntimeMetric label="Active sessions" value={runtimeStatus?.counts.activeSessions ?? '—'} />
+          <RuntimeMetric label="Subagent task records" value={runtimeStatus?.counts.subagentTasks ?? '—'} />
+          <RuntimeMetric label="Presence entries" value={runtimeStatus?.counts.presence ?? '—'} />
+        </div>
+
+        {runtimeStatus?.warnings.length ? (
+          <div className="mt-4 rounded-2xl border border-amber-400/15 bg-amber-400/[0.06] p-3 text-xs text-amber-100/80">
+            {runtimeStatus.warnings.slice(0, 2).map((warning) => <p key={warning}>{warning}</p>)}
+          </div>
+        ) : null}
+
+        {runtimeStatus?.activeSessions.length ? (
+          <div className="mt-5 space-y-2">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-mission-muted">Recent sessions</p>
+            {runtimeStatus.activeSessions.slice(0, 4).map((session) => (
+              <div key={session.key} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/8 bg-[#07111f]/65 px-4 py-3 text-sm">
+                <span className="min-w-0 truncate text-white">{session.key}</span>
+                <span className="rounded-full border border-cyan-400/15 bg-cyan-400/10 px-2 py-0.5 text-[10px] text-cyan-300">
+                  {session.agentId ?? 'unknown'} · {session.model ?? 'model n/a'}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {runtimeStatus?.subagentTasks.length ? (
+          <div className="mt-5 space-y-2">
+            <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-mission-muted">
+              <TerminalSquare className="h-3.5 w-3.5" /> Subagent records
+            </p>
+            {runtimeStatus.subagentTasks.slice(0, 3).map((task) => (
+              <div key={task.taskId} className="rounded-2xl border border-white/8 bg-[#07111f]/65 px-4 py-3 text-sm">
+                <p className="truncate font-medium text-white">{task.label}</p>
+                <p className="mt-1 text-xs text-mission-muted">{task.status ?? 'status n/a'} · {task.agentId ?? 'agent n/a'}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {/* ── org chart ── */}
@@ -261,6 +324,14 @@ export const Team: FC = () => {
     </div>
   )
 }
+
+
+const RuntimeMetric: FC<{ label: string; value: string | number }> = ({ label, value }) => (
+  <div className="rounded-2xl border border-white/8 bg-[#07111f]/65 p-4">
+    <p className="text-[11px] uppercase tracking-[0.18em] text-mission-muted">{label}</p>
+    <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
+  </div>
+)
 
 // ── sub-component: agent node ─────────────────────────────────────────
 

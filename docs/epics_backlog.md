@@ -56,7 +56,7 @@ This document tracks the Mission Control V3 control-room reset inside the existi
   - `[x]` Office presence events wired (user:online, user:offline, presence:update → immediate query invalidation).
   - `[x]` Activity feed listens for `activity:new` event.
   - `[ ]` Remaining: Dashboard and Team are still poll-only and should adopt the same socket-invalidation pattern.
-- `[ ]` **Runtime Truth Adapters:** Add API adapters for OpenClaw runtime truth, especially agent/session state, subagent activity, and cron status so Dashboard and Office can reflect live operational reality.
+- `[~]` **Runtime Truth Adapters:** OpenClaw cron status and Team runtime snapshot now use CLI-backed truth. `/api/system/openclaw-runtime` summarises recent sessions, subagent task records, and gateway presence without inventing workload. Remaining: decide whether Dashboard needs this same adapter or if Control Room + Team coverage is enough for V3 merge.
 - `[ ]` **Plugin Architecture:** (If applicable) Expose a plugin structure enabling other agents or tools to securely connect to Mission Control.
 - `[ ]` **Legacy Migration:** Sunset and fully replace the V1.4 Data Bridge tools.
 

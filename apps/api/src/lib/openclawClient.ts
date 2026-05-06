@@ -28,6 +28,49 @@ export type CronJobsResult =
   | { ok: true; jobs: CronJob[]; fetchedAt: string; source: string }
   | { ok: false; jobs: []; fetchedAt: string; source: string; error: string; httpStatus?: number }
 
+export interface OpenClawSessionSummary {
+  key: string
+  agentId: string | null
+  kind: string | null
+  model: string | null
+  updatedAt: string | null
+  ageMs: number | null
+  totalTokens: number | null
+}
+
+export interface OpenClawSubagentTaskSummary {
+  taskId: string
+  label: string
+  status: string | null
+  agentId: string | null
+  childSessionKey: string | null
+  updatedAt: string | null
+}
+
+export interface OpenClawPresenceSummary {
+  host: string
+  mode: string | null
+  reason: string | null
+  text: string | null
+  ts: string | null
+}
+
+export interface OpenClawRuntimeResult {
+  ok: boolean
+  fetchedAt: string
+  source: string
+  activeSessions: OpenClawSessionSummary[]
+  subagentTasks: OpenClawSubagentTaskSummary[]
+  presence: OpenClawPresenceSummary[]
+  counts: {
+    activeSessions: number
+    subagentTasks: number
+    presence: number
+  }
+  warnings: string[]
+  error?: string
+}
+
 const OPENCLAW_BINARY_CANDIDATES = [
   '/home/baro/.npm-global/bin/openclaw',
   '/usr/local/bin/openclaw',
@@ -66,11 +109,62 @@ interface ExecFailure {
   stderr?: string | Buffer
 }
 
+interface RawSession {
+  key?: unknown
+  agentId?: unknown
+  kind?: unknown
+  model?: unknown
+  updatedAt?: unknown
+  ageMs?: unknown
+  totalTokens?: unknown
+}
+
+interface RawSubagentTask {
+  taskId?: unknown
+  label?: unknown
+  task?: unknown
+  status?: unknown
+  agentId?: unknown
+  childSessionKey?: unknown
+  updatedAt?: unknown
+  updatedAtMs?: unknown
+  createdAt?: unknown
+}
+
+interface RawPresenceEntry {
+  host?: unknown
+  mode?: unknown
+  reason?: unknown
+  text?: unknown
+  ts?: unknown
+}
+
 function findOpenClawBinary(): string | null {
   for (const candidate of OPENCLAW_BINARY_CANDIDATES) {
     if (fs.existsSync(candidate)) return candidate
   }
   return null
+}
+
+function runOpenClawJson<T>(binary: string, args: string[], timeout = 30000): T {
+  const stdout = execFileSync(binary, args, {
+    encoding: 'utf8',
+    timeout,
+    maxBuffer: 5 * 1024 * 1024,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+
+  return JSON.parse(stdout) as T
+}
+
+function dateFromUnknown(value: unknown): string | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return new Date(value).toISOString()
+  if (typeof value === 'string' && value.trim()) return value
+  return null
+}
+
+function numberFromUnknown(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
 function normaliseJob(raw: RawCronJob): CronJob {
@@ -191,5 +285,126 @@ export async function fetchCronJobs(): Promise<CronJobsResult> {
       source: `CLI: ${wsUrl}`,
       error: message,
     }
+  }
+}
+
+
+function normaliseSession(raw: RawSession): OpenClawSessionSummary {
+  return {
+    key: String(raw.key || 'unknown-session'),
+    agentId: raw.agentId ? String(raw.agentId) : null,
+    kind: raw.kind ? String(raw.kind) : null,
+    model: raw.model ? String(raw.model) : null,
+    updatedAt: dateFromUnknown(raw.updatedAt),
+    ageMs: numberFromUnknown(raw.ageMs),
+    totalTokens: numberFromUnknown(raw.totalTokens),
+  }
+}
+
+function normaliseSubagentTask(raw: RawSubagentTask): OpenClawSubagentTaskSummary {
+  return {
+    taskId: String(raw.taskId || 'unknown-task'),
+    label: String(raw.label || raw.task || 'Unnamed subagent task'),
+    status: raw.status ? String(raw.status) : null,
+    agentId: raw.agentId ? String(raw.agentId) : null,
+    childSessionKey: raw.childSessionKey ? String(raw.childSessionKey) : null,
+    updatedAt: dateFromUnknown(raw.updatedAt ?? raw.updatedAtMs ?? raw.createdAt),
+  }
+}
+
+function normalisePresence(raw: RawPresenceEntry): OpenClawPresenceSummary {
+  return {
+    host: String(raw.host || 'unknown-host'),
+    mode: raw.mode ? String(raw.mode) : null,
+    reason: raw.reason ? String(raw.reason) : null,
+    text: raw.text ? String(raw.text) : null,
+    ts: dateFromUnknown(raw.ts),
+  }
+}
+
+function errorMessage(error: unknown): string {
+  const failure = error as ExecFailure
+  const stderr = typeof failure.stderr === 'string' ? failure.stderr.trim() : ''
+  return stderr || failure.message || 'unknown error'
+}
+
+export async function fetchOpenClawRuntime(): Promise<OpenClawRuntimeResult> {
+  const fetchedAt = new Date().toISOString()
+  const binary = findOpenClawBinary()
+
+  if (!binary) {
+    return {
+      ok: false,
+      fetchedAt,
+      source: 'CLI',
+      activeSessions: [],
+      subagentTasks: [],
+      presence: [],
+      counts: { activeSessions: 0, subagentTasks: 0, presence: 0 },
+      warnings: [],
+      error: 'OpenClaw CLI binary not found at candidate paths. Runtime visibility requires the CLI to be installed on the host.',
+    }
+  }
+
+  const warnings: string[] = []
+  let activeSessions: OpenClawSessionSummary[] = []
+  let subagentTasks: OpenClawSubagentTaskSummary[] = []
+  let presence: OpenClawPresenceSummary[] = []
+
+  try {
+    const sessionsPayload = runOpenClawJson<{ sessions?: RawSession[] }>(binary, [
+      'sessions',
+      '--all-agents',
+      '--active',
+      '360',
+      '--json',
+    ])
+    activeSessions = Array.isArray(sessionsPayload.sessions) ? sessionsPayload.sessions.map(normaliseSession) : []
+  } catch (error) {
+    warnings.push(`sessions unavailable: ${errorMessage(error)}`)
+  }
+
+  try {
+    const tasksPayload = runOpenClawJson<{ tasks?: RawSubagentTask[] }>(binary, [
+      'tasks',
+      'list',
+      '--runtime',
+      'subagent',
+      '--json',
+    ])
+    subagentTasks = Array.isArray(tasksPayload.tasks) ? tasksPayload.tasks.slice(0, 20).map(normaliseSubagentTask) : []
+  } catch (error) {
+    warnings.push(`subagent tasks unavailable: ${errorMessage(error)}`)
+  }
+
+  try {
+    const presencePayload = runOpenClawJson<RawPresenceEntry[]>(binary, [
+      'system',
+      'presence',
+      '--json',
+      '--timeout',
+      '5000',
+    ], 10000)
+    presence = Array.isArray(presencePayload) ? presencePayload.slice(0, 20).map(normalisePresence) : []
+  } catch (error) {
+    warnings.push(`presence unavailable: ${errorMessage(error)}`)
+  }
+
+  const counts = {
+    activeSessions: activeSessions.length,
+    subagentTasks: subagentTasks.length,
+    presence: presence.length,
+  }
+
+  return {
+    ok: warnings.length < 3,
+    fetchedAt,
+    source: `CLI: ${binary}`,
+    activeSessions,
+    subagentTasks,
+    presence,
+    counts,
+    warnings,
+    ...(warnings.length >= 3 ? { error: 'OpenClaw runtime commands were unavailable.' } : {}),
   }
 }
