@@ -33,7 +33,7 @@ This document tracks the Mission Control V3 control-room reset inside the existi
 - `[x]` Ensure `turbo run build` caching is configured and completing successfully.
 - `[x]` **Release Hand-off Tuning:** Fix the `latest-ui-release-one-pass.sh` generation logic and operator brief assertions so the full UI one-pass sequence succeeds clean end-to-end.
 
-## 🟡 Epic 4: V3 Control-Room Surfaces (Current Focus)
+## 🟢 Epic 4: V3 Control-Room Surfaces (Completed — V3 merge-ready)
 
 **Goal:** Finish the V3 surface reset so each module has one clear operational job and avoids fake state.
 
@@ -45,18 +45,18 @@ This document tracks the Mission Control V3 control-room reset inside the existi
   - `[x]` New Tailwind keyframes: `slide-in-left`, `scale-in`, `glow-pulse` added to `tailwind.config.js`.
   - `[x]` Subagent workspaces dimension: canonical subagents mapped to parent runtime lanes with explicit no-runtime / no-active-task states.
 - `[x]` **Collaboration / Coordination Watch:** Read-only routing and awareness surface. Shows communication routing rules, active project owner lanes, runtime presence telemetry, canonical crew groups, and recent activity. It is explicitly not an in-app chat clone or second source of truth.
-- `[~]` **Analytics Expansion:** Canonical "Project Registry Health" section added — live status distribution, priority split, and recently-updated list from `_registry/projects.json`. DB task/productivity panels remain in place for runtime data.
+- `[x]` **Analytics Expansion:** Canonical "Project Registry Health" section added — live status distribution, priority split, and recently-updated list from `_registry/projects.json`. DB task/productivity panels remain in place for runtime data.
 - `[x]` **Cron Health Surface:** `openclawClient.ts` bridged to live data via the OpenClaw CLI (`openclaw cron list --json`). This pattern is more robust than HTTP polling as it leverages the official WebSocket protocol and auth logic. Dashboard "Cron Health" panel now shows live job cards.
 
-## 🔴 Epic 5: Advanced Real-time Integrations (Future)
+## 🟡 Epic 5: Advanced Real-time Integrations (Future / Non-blocking after V3 merge-ready gate)
 
 **Goal:** Finalize the transformation of MC-V2 into a living "nervous system."
 
-- `[~]` **Live WebSockets:** Replace polling with fully reliable Socket.io push events for real-time notification of status shifts (e.g., when an agent finishes a task or goes OFFLINE).
+- `[x]` **Live WebSockets:** Socket.io invalidation now covers the active V3 surfaces that need runtime freshness.
   - `[x]` Office presence events wired (user:online, user:offline, presence:update → immediate query invalidation).
   - `[x]` Activity feed listens for `activity:new` event.
-  - `[ ]` Remaining: Dashboard and Team are still poll-only and should adopt the same socket-invalidation pattern.
-- `[~]` **Runtime Truth Adapters:** OpenClaw cron status and Team runtime snapshot now use CLI-backed truth. `/api/system/openclaw-runtime` summarises recent sessions, subagent task records, and gateway presence without inventing workload. Remaining: decide whether Dashboard needs this same adapter or if Control Room + Team coverage is enough for V3 merge.
+  - `[x]` Dashboard and Team now subscribe to shared real-time invalidation for task, activity, presence, and runtime snapshot updates.
+- `[x]` **Runtime Truth Adapters:** OpenClaw cron status and Team runtime snapshot now use CLI-backed truth. `/api/system/openclaw-runtime` summarises recent sessions, subagent task records, and gateway presence without inventing workload. Decision: Team + Control Room runtime coverage is enough for V3 merge; Dashboard stays registry/cron/truth-rule focused and receives socket invalidation.
 - `[ ]` **Plugin Architecture:** (If applicable) Expose a plugin structure enabling other agents or tools to securely connect to Mission Control.
 - `[ ]` **Legacy Migration:** Sunset and fully replace the V1.4 Data Bridge tools.
 
@@ -64,21 +64,21 @@ This document tracks the Mission Control V3 control-room reset inside the existi
 
 ### Weekly Focus Plan (Integrated 2026-04-12)
 
-#### Must Do
-1. **Runtime visibility expansion**
-   - expose agent/session/subagent live status more clearly in Dashboard and Team without inventing unavailable state
-2. **Team/Office model drift checks**
-   - keep canonical roster models aligned with actual runtime assignments and blocked-model rules
-3. **Final V3 verification**
-   - run lint/type-check/build and route/shell review before merge to `main`
+#### Must Do — Completed for V3 merge-ready gate
+1. **Runtime visibility expansion** ✅
+   - Team exposes OpenClaw session/subagent/gateway snapshot without inventing unavailable state; Dashboard remains registry/cron/truth-rule focused.
+2. **Team/Office model drift checks** ✅
+   - canonical roster, runtime-only badges, and restricted-model watch are in place.
+3. **Final V3 verification** ✅
+   - route/shell audit passed; `npm run lint`, `npm run type-check`, `npm run build`, and `npm run predeploy:check` pass on a clean tree.
 
-#### Should Do
-5. **Memories Browser refinement**
-   - improve canonical memory browsing usefulness without adding fake summaries
-6. **Dashboard + Team real-time pass**
-   - extend the socket invalidation pattern beyond Office
-7. **Signals refinement**
-   - keep pattern detection useful while preserving explicit source labels
+#### Should Do — V3 disposition
+5. **Memories Browser refinement** ✅
+   - canonical Shared Memory files are the default tab; Runtime DB remains explicitly labeled.
+6. **Dashboard + Team real-time pass** ✅
+   - shared socket invalidation now extends beyond Office to Dashboard and Team.
+7. **Signals refinement** ✅
+   - Signals keeps explicit source labels and canonical/runtime/fallback posture.
 
 #### Product Guardrails
 - Premium/login work should be stabilised before broad new feature branching.
@@ -88,3 +88,21 @@ This document tracks the Mission Control V3 control-room reset inside the existi
 #### Delegation Guidance
 - **Jen-first:** bounded implementation slices like cron status cards, dashboard UI cleanup, analytics data plumbing, and page-level audits.
 - **Noona-only:** truth-model decisions, runtime adapter architecture, cron/status integration design, release-sensitive changes, and final sign-off.
+---
+
+## ✅ V3 Merge-Ready Status — 2026-05-07
+
+Mission Control V3 is complete and merge-ready on branch `v3-control-room-reset`.
+
+Final accepted commits after the completion sprint:
+- `cf43b51` — Dashboard Truth Rules
+- `d8f8a83` — OpenClaw runtime snapshot
+- `81be645` — Dashboard + Team real-time invalidation pass
+
+Final gate passed on a clean working tree:
+- `npm run lint` ✅
+- `npm run type-check` ✅
+- `npm run build` ✅
+- `npm run predeploy:check` ✅
+
+Merge posture: ready to merge `v3-control-room-reset` into `main` when Raz/Baro want the release promoted.
