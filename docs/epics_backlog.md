@@ -23,7 +23,7 @@ This document tracks the Mission Control V3 control-room reset inside the existi
 - `[x]` **Projects Truth:** Migrate the project list from the in-repo bootstrap file (`docs/projects.registry.bootstrap.json`) to the final external true registry at `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json`.
 - `[x]` **V3 Surface Truth Audit:** Control Room, Tasks, Calendar, Projects, Memory Vault, Team, Office, Collaboration, and Signals now each declare a clear canonical/runtime/fallback truth posture in the shell and UI copy.
 - `[x]` **Projects Registry Completion:** Updated `/mnt/d/Warung Kerja 1.0/03_Active_Projects/_registry/projects.json` to version 3 with Mission Control V3, Handover, Handover Research Feedback UI, Framer workstreams, and maintained Mission Control substreams.
-- `[ ]` **Dashboard Truth Rules:** Define and implement strict display rules for what counts as active, recent, stale, and missing across agents, projects, and operational status.
+- `[x]` **Dashboard Truth Rules:** Dashboard now exposes strict registry-backed rules for active, recent, stale, and missing project state, with explicit copy that excludes demo activity, guessed progress, and stale DB records.
 
 ## 🟢 Epic 3: Deployment Pipeline & CI (Completed)
 

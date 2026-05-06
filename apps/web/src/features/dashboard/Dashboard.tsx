@@ -21,6 +21,34 @@ export const Dashboard: FC = () => {
   const canonicalTrackedProjectCount = canonicalTrackedProjects.length
   const canonicalDashboardProjects = canonicalTrackedProjects.slice(0, 4)
   const canonicalTeamMemberCount = canonicalTeam?.length ?? 0
+  const nowMs = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+
+  const dashboardTruthRules = canonicalTrackedProjects.reduce(
+    (rules, project) => {
+      const status = project.status.toLowerCase()
+      const updatedMs = new Date(project.updatedAt).getTime()
+      const hasReadableTimestamp = Number.isFinite(updatedMs)
+      const ageDays = hasReadableTimestamp ? (nowMs - updatedMs) / dayMs : null
+
+      const countsAsActive = status === 'active' || status === 'in-progress'
+      const countsAsRecent = ageDays !== null && ageDays >= 0 && ageDays <= 7
+      const countsAsStale = ageDays === null || ageDays > 14
+      const countsAsMissing =
+        !project.owner?.trim() ||
+        !project.status?.trim() ||
+        !project.updatedAt?.trim() ||
+        (!project.currentPhase?.trim() && !project.nextStep?.trim())
+
+      if (countsAsActive) rules.active += 1
+      if (countsAsRecent) rules.recent += 1
+      if (countsAsStale) rules.stale += 1
+      if (countsAsMissing) rules.missing += 1
+
+      return rules
+    },
+    { active: 0, recent: 0, stale: 0, missing: 0 },
+  )
 
   const statItems = [
     { 
@@ -131,6 +159,33 @@ export const Dashboard: FC = () => {
     if (source.status === 'invalid') return 'Unreadable'
     return 'Missing'
   }
+
+  const truthRuleItems = [
+    {
+      label: 'Active',
+      value: dashboardTruthRules.active,
+      detail: 'status is active or in-progress; archived is excluded',
+      badge: 'bg-green-500/10 text-green-400',
+    },
+    {
+      label: 'Recent',
+      value: dashboardTruthRules.recent,
+      detail: 'registry updated within the last 7 days',
+      badge: 'bg-blue-500/10 text-blue-400',
+    },
+    {
+      label: 'Stale',
+      value: dashboardTruthRules.stale,
+      detail: 'timestamp missing/invalid or older than 14 days',
+      badge: 'bg-yellow-500/10 text-yellow-400',
+    },
+    {
+      label: 'Missing',
+      value: dashboardTruthRules.missing,
+      detail: 'owner, status, timestamp, or movement note absent',
+      badge: 'bg-red-500/10 text-red-400',
+    },
+  ]
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -292,6 +347,37 @@ export const Dashboard: FC = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="bg-mission-card border border-mission-border rounded-xl p-4 lg:p-5">
+        <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+          <div>
+            <h3 className="font-semibold text-mission-text">Dashboard Truth Rules</h3>
+            <p className="text-sm text-mission-muted mt-1">
+              Project status is calculated from the canonical registry only. No demo activity, guessed progress, or stale DB records are counted here.
+            </p>
+          </div>
+          <span className="px-2.5 py-1 rounded-full text-xs bg-primary-600/10 text-primary-300">
+            Source: projects.json
+          </span>
+        </div>
+        {canonicalProjectsLoading ? (
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="w-6 h-6 animate-spin text-mission-muted" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            {truthRuleItems.map((item) => (
+              <div key={item.label} className="rounded-lg border border-mission-border bg-mission-bg p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-mission-text">{item.label}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${item.badge}`}>{item.value}</span>
+                </div>
+                <p className="mt-2 text-xs text-mission-muted leading-relaxed">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Activity & Quick Actions - Responsive: 1 col mobile, 2 cols desktop */}

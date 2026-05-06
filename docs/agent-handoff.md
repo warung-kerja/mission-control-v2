@@ -20,7 +20,7 @@ This is the shared dynamic handoff document for Noona, Jen, Cursor, Antigravity,
 **V3 control-room reset — truth-first surface rebuild and consistency pass**
 
 ## Overall Progress
-**V3 reset ~85%** `████████░`
+**V3 reset ~88%** `████████▊`
 
 ## What Is Working
 - Standalone V2 repo has been created, cleaned up, and pushed to GitHub.
@@ -70,6 +70,7 @@ Primary source:
 3. **Runtime truth expansion** — surface agent/session/subagent live state more clearly across Dashboard, Team, and Office.
 4. **Team/Office model drift checks** — keep canonical roster models aligned with actual runtime assignments and blocked-model rules.
 5. **Final V3 verification** — run route/shell review plus lint/type-check/build before merge.
+6. **Predeploy cleanup** — local DB/screenshot/tmp artifacts must stay out of the tree before `npm run predeploy:check`.
 
 ## Release Context
 Most useful files for release state:
@@ -167,6 +168,12 @@ Important note:
 - Validation: `npm run lint`, `npm run type-check`, and `npm run build` passed for the Office and Team slices. Commits pushed: `13f39c9`, `a8f21a9`.
 - Blocker: No hard blocker. Avoid unrelated pre-existing dirty files in Dashboard/Analytics/Memories/hooks/services unless intentionally taking ownership of that slice.
 - Next recommended step: final V3 route/shell verification, then decide whether to clean the pre-existing dirty files or leave them for their original owner.
+
+### 2026-05-07 - Noona
+- What changed: Implemented Dashboard Truth Rules on the Dashboard surface: active/recent/stale/missing project counts now derive from the canonical project registry with explicit source copy and no guessed/demo progress.
+- Validation: `npm run lint` passed after the dashboard slice.
+- Blocker: None. Remaining merge-readiness risk is final route/shell audit and clean predeploy gate.
+- Next recommended step: run/accept route-shell verification, clean local artifacts, then run full lint/type-check/build/predeploy gate.
 
 ## Update Template
 Use this when leaving a new handoff note:
