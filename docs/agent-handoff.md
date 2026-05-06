@@ -17,10 +17,10 @@ This is the shared dynamic handoff document for Noona, Jen, Cursor, Antigravity,
 - **Current deployment posture:** local-first for now; merge to `main` only after the V3 reset is validated
 
 ## Current Phase
-**V3 control-room reset complete — branch is merge-ready**
+**V3 control-room reset complete — merged to main**
 
 ## Overall Progress
-**V3 reset 100% — merge-ready** `██████████`
+**V3 reset 100% — merged to main** `██████████`
 
 ## What Is Working
 - Standalone V2 repo has been created, cleaned up, and pushed to GitHub.
@@ -64,8 +64,8 @@ Primary source:
 - **Collaboration is read-only coordination awareness:** agent-to-agent and human-to-agent communication stays in external channels. The Collaboration page should show routing, live presence, active lanes, and recent coordination signals — not become an in-app chat clone.
 
 ## Current Best Next Tasks
-1. Merge `v3-control-room-reset` into `main` when Raz/Baro are ready to promote V3.
-2. After merge, keep future/non-blocking work separate from the V3 completion branch: plugin architecture and legacy V1.4 bridge sunset.
+1. Keep future/non-blocking work separate from the completed V3 merge: plugin architecture and legacy V1.4 bridge sunset.
+2. Start the next product slice only after deciding whether it belongs to Mission Control or a separate project stream.
 
 ## Release Context
 Most useful files for release state:
@@ -79,7 +79,7 @@ Important note:
 - Remaining release issues are now in the generated handoff/verification chain, not host readiness.
 
 ## Latest Meaningful Progress
-- **2026-05-07 — V3 merge-ready:** Final Dashboard + Team real-time invalidation pass committed as `81be645`; final route/shell/runtime audit accepted; `npm run lint`, `npm run type-check`, `npm run build`, and `npm run predeploy:check` all pass on a clean tree. V3 is ready to merge.
+- **2026-05-07 — V3 merged to main:** Final Dashboard + Team real-time invalidation pass committed as `81be645`; final route/shell/runtime audit accepted; `npm run lint`, `npm run type-check`, `npm run build`, and `npm run predeploy:check` all pass on a clean tree. V3 was merged into `main` after Raz approval.
 - Created and pushed standalone V2 repo as canonical active Mission Control codebase.
 - Clarified README and repo purpose.
 - Fixed standalone build/dev setup.
@@ -182,7 +182,7 @@ Important note:
 - What changed: Completed the final Dashboard + Team real-time invalidation pass, accepted Jen's final route/shell/runtime snapshot audit, and closed the V3 status docs as merge-ready. Dashboard and Team now mount the shared socket invalidation hook for task, activity, presence, and runtime snapshot updates; Team/Office drift checks and restricted-model watch are complete.
 - Validation: `npm run lint`, `npm run type-check`, `npm run build`, and `npm run predeploy:check` passed on a clean working tree after commit `81be645`. Predeploy route reachability passed 9/9.
 - Blocker: None.
-- Next recommended step: Merge `v3-control-room-reset` into `main` when Raz/Baro want V3 promoted. Keep plugin architecture and V1.4 bridge sunset as separate future work, not V3 merge blockers.
+- Next recommended step: Keep plugin architecture and V1.4 bridge sunset as separate future work, not V3 merge blockers.
 
 ## Update Template
 Use this when leaving a new handoff note:

@@ -92,7 +92,7 @@ This document tracks the Mission Control V3 control-room reset inside the existi
 
 ## ✅ V3 Merge-Ready Status — 2026-05-07
 
-Mission Control V3 is complete and merge-ready on branch `v3-control-room-reset`.
+Mission Control V3 has been merged into `main` from branch `v3-control-room-reset`.
 
 Final accepted commits after the completion sprint:
 - `cf43b51` — Dashboard Truth Rules
@@ -105,4 +105,4 @@ Final gate passed on a clean working tree:
 - `npm run build` ✅
 - `npm run predeploy:check` ✅
 
-Merge posture: ready to merge `v3-control-room-reset` into `main` when Raz/Baro want the release promoted.
+Merge posture: promoted to `main` on 2026-05-07 after Raz approval.
