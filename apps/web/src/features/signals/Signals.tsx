@@ -16,7 +16,7 @@ import {
 import { useCanonicalProjects, useCanonicalStatus, useCanonicalTeam } from '../../hooks/useCanonical'
 import { useCanonicalMemories } from '../../hooks/useCanonicalMemories'
 import { useTeamActivityFeed } from '../../hooks/useDashboard'
-import { useAutomationStatus, useCronJobs } from '../../hooks/useSystem'
+import { useAutomationStatus, useCronJobs, useWorkspaceSignals } from '../../hooks/useSystem'
 
 function formatRelative(value: string | null | undefined) {
   if (!value) return '—'
@@ -43,6 +43,7 @@ export const Signals: FC = () => {
   const { data: activity, isLoading: activityLoading } = useTeamActivityFeed(8)
   const { data: automationStatus, isLoading: automationLoading } = useAutomationStatus()
   const { data: cronJobs, isLoading: cronLoading } = useCronJobs()
+  const { data: workspaceSignals, isLoading: workspaceLoading } = useWorkspaceSignals()
 
   const projects = canonicalProjects?.data ?? []
   const team = canonicalTeam ?? []
@@ -109,7 +110,7 @@ export const Signals: FC = () => {
     return items
   }, [canonicalStatus, cronJobs, cronSignal.failed.length, projectSignal.missingNext.length, projectSignal.stale.length])
 
-  const isLoading = canonicalLoading || projectsLoading || teamLoading || memoriesLoading || automationLoading || cronLoading
+  const isLoading = canonicalLoading || projectsLoading || teamLoading || memoriesLoading || automationLoading || cronLoading || workspaceLoading
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -132,7 +133,7 @@ export const Signals: FC = () => {
             <Metric icon={<Database className="h-4 w-4" />} label="Truth" value={canonicalStatus?.overallStatus ?? '—'} tone="text-fuchsia-300" />
             <Metric icon={<FolderKanban className="h-4 w-4" />} label="Active projects" value={projectSignal.active.length} tone="text-cyan-300" />
             <Metric icon={<Zap className="h-4 w-4" />} label="Cron jobs" value={cronSignal.total} tone="text-emerald-300" />
-            <Metric icon={<Users className="h-4 w-4" />} label="Crew" value={team.length} tone="text-amber-300" />
+            <Metric icon={<Activity className="h-4 w-4" />} label="Commits 7d" value={workspaceSignals?.cadence.commits7d ?? 0} tone="text-amber-300" />
           </div>
         </div>
       </section>
@@ -176,6 +177,34 @@ export const Signals: FC = () => {
             </section>
 
             <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+              <SectionTitle icon={<Activity className="h-4 w-4 text-emerald-300" />} title="Git movement" subtitle="Recent commits and file churn from the Mission Control repo, not guessed progress." />
+              <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_300px]">
+                <div className="space-y-2">
+                  {workspaceSignals?.recentCommits.slice(0, 5).map((commit) => (
+                    <div key={commit.hash} className="rounded-2xl border border-white/8 bg-[#07111f]/80 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-white">{commit.subject}</p>
+                        <span className="font-mono text-[11px] text-cyan-300">{commit.hash}</span>
+                      </div>
+                      <p className="mt-1 text-xs text-mission-muted">{commit.author} · {formatRelative(commit.timestamp)}</p>
+                    </div>
+                  )) ?? <div className="rounded-2xl border border-dashed border-white/10 bg-[#07111f]/60 p-4 text-sm text-mission-muted">No commit signal available.</div>}
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-[#07111f]/80 p-4">
+                  <p className="text-sm font-semibold text-white">Most-touched files · 7d</p>
+                  <div className="mt-3 space-y-2">
+                    {workspaceSignals?.fileChurn7d.slice(0, 6).map((file) => (
+                      <div key={file.path} className="flex items-center justify-between gap-3 text-xs">
+                        <span className="min-w-0 truncate text-mission-text">{file.path}</span>
+                        <span className="shrink-0 font-mono text-amber-300">{file.touches}</span>
+                      </div>
+                    )) ?? <p className="text-xs text-mission-muted">No file churn visible.</p>}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
               <SectionTitle icon={<Activity className="h-4 w-4 text-emerald-300" />} title="Recent coordination signals" subtitle="Latest runtime activity events, kept read-only." />
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {activityLoading ? (
@@ -199,9 +228,22 @@ export const Signals: FC = () => {
 
           <aside className="space-y-5">
             <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
-              <SectionTitle icon={<Database className="h-4 w-4 text-fuchsia-300" />} title="Truth sources" subtitle="File-backed canonical inputs." compact />
+              <SectionTitle icon={<Database className="h-4 w-4 text-fuchsia-300" />} title="Truth file freshness" subtitle="Canonical files, handoff notes, and daily memory timestamps." compact />
               <div className="mt-4 space-y-3">
-                {[canonicalStatus?.teamRoster, canonicalStatus?.projectRegistry].filter(Boolean).map((source) => (
+                {workspaceSignals?.warnings.map((warning) => (
+                  <div key={warning} className="rounded-2xl border border-amber-400/15 bg-amber-400/[0.06] p-3 text-xs leading-5 text-amber-200">{warning}</div>
+                ))}
+                {workspaceSignals?.truthFiles.map((source) => (
+                  <div key={source.path} className="rounded-2xl border border-white/8 bg-[#07111f]/80 p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium text-white">{source.label}</p>
+                      <StatusPill ok={source.exists} label={source.exists ? 'present' : 'missing'} />
+                    </div>
+                    <p className="mt-2 text-xs text-mission-muted">
+                      {source.exists ? `updated ${formatRelative(source.modifiedAt)} · ${source.ageHours ?? '—'}h old` : 'File not found'}
+                    </p>
+                  </div>
+                )) ?? [canonicalStatus?.teamRoster, canonicalStatus?.projectRegistry].filter(Boolean).map((source) => (
                   <div key={source!.key} className="rounded-2xl border border-white/8 bg-[#07111f]/80 p-4">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium text-white">{source!.label}</p>

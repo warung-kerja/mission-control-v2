@@ -14,6 +14,7 @@ import {
 import { useCanonicalProjects, useCanonicalTeam, type CanonicalTeamMember } from '../../hooks/useCanonical'
 import { useTeamActivityFeed } from '../../hooks/useDashboard'
 import { usePresence } from '../../hooks/usePresence'
+import { useWorkspaceSignals } from '../../hooks/useSystem'
 
 const formatRelative = (value: string) => {
   const diffMs = Date.now() - new Date(value).getTime()
@@ -51,6 +52,7 @@ export const Collaboration: FC = () => {
   const { data: canonicalProjects, isLoading: projectsLoading } = useCanonicalProjects()
   const { data: activity, isLoading: activityLoading } = useTeamActivityFeed(10)
   const { onlineCount, userStatuses } = usePresence()
+  const { data: workspaceSignals, isLoading: workspaceLoading } = useWorkspaceSignals()
 
   const projects = canonicalProjects?.data ?? []
   const team = canonicalTeam ?? []
@@ -102,7 +104,7 @@ export const Collaboration: FC = () => {
             <Metric icon={<Users className="h-4 w-4" />} label="Crew" value={team.length} tone="text-cyan-300" />
             <Metric icon={<Wifi className="h-4 w-4" />} label="Presence" value={onlineCount} tone="text-emerald-300" />
             <Metric icon={<FolderKanban className="h-4 w-4" />} label="Lanes" value={activeProjects.length} tone="text-fuchsia-300" />
-            <Metric icon={<Activity className="h-4 w-4" />} label="Events" value={activity?.length ?? 0} tone="text-amber-300" />
+            <Metric icon={<Activity className="h-4 w-4" />} label="Commits 24h" value={workspaceSignals?.cadence.commits24h ?? 0} tone="text-amber-300" />
           </div>
         </div>
       </section>
@@ -161,6 +163,35 @@ export const Collaboration: FC = () => {
           </section>
 
           <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+            <SectionTitle icon={<Activity className="h-4 w-4 text-emerald-300" />} title="Delivery evidence" subtitle="Git cadence and repo hygiene for the current Mission Control stream." />
+            {workspaceLoading ? (
+              <LoadingBox label="Loading delivery evidence..." />
+            ) : workspaceSignals ? (
+              <div className="mt-4 grid gap-3 lg:grid-cols-[280px_minmax(0,1fr)]">
+                <article className="rounded-2xl border border-white/8 bg-[#07111f]/80 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-mission-muted/70">Repo state</p>
+                  <p className="mt-2 text-lg font-semibold text-white">{workspaceSignals.repo.branch ?? 'unknown'} · {workspaceSignals.repo.head ?? '—'}</p>
+                  <p className="mt-1 text-sm text-mission-muted">Working tree: {workspaceSignals.repo.workingTree}</p>
+                  <p className="mt-3 text-xs leading-5 text-mission-muted">{workspaceSignals.cadence.commits7d} commits in 7 days · latest {formatRelative(workspaceSignals.cadence.latestCommitAt ?? workspaceSignals.fetchedAt)}</p>
+                </article>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {workspaceSignals.recentCommits.slice(0, 4).map((commit) => (
+                    <article key={commit.hash} className="rounded-2xl border border-white/8 bg-[#07111f]/80 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="min-w-0 truncate text-sm font-medium text-white">{commit.subject}</p>
+                        <span className="font-mono text-[11px] text-cyan-300">{commit.hash}</span>
+                      </div>
+                      <p className="mt-1 text-xs text-mission-muted">{commit.author} · {formatRelative(commit.timestamp)}</p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <EmptyBox label="No delivery evidence available." />
+            )}
+          </section>
+
+          <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
             <SectionTitle icon={<Activity className="h-4 w-4 text-amber-300" />} title="Recent coordination signals" subtitle="Runtime activity feed, shown as evidence rather than chat replacement." />
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {activityLoading ? (
@@ -207,6 +238,21 @@ export const Collaboration: FC = () => {
                 <CrewMiniGroup title="Ecosystem" members={crewGroups.ecosystem} tone="purple" />
               </div>
             )}
+          </section>
+
+          <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+            <SectionTitle icon={<ExternalLink className="h-4 w-4 text-amber-300" />} title="Handoff freshness" subtitle="File-system evidence for coordination docs." compact />
+            <div className="mt-4 space-y-2">
+              {workspaceSignals?.truthFiles.slice(0, 4).map((file) => (
+                <div key={file.path} className="rounded-xl border border-white/8 bg-[#07111f]/80 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-white">{file.label}</p>
+                    <span className={file.exists ? 'text-xs text-emerald-300' : 'text-xs text-rose-300'}>{file.exists ? 'present' : 'missing'}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-mission-muted">{file.exists ? `updated ${formatRelative(file.modifiedAt ?? workspaceSignals.fetchedAt)}` : 'No timestamp available'}</p>
+                </div>
+              )) ?? <p className="rounded-xl border border-white/8 bg-[#07111f]/80 p-3 text-sm text-mission-muted">No handoff freshness visible.</p>}
+            </div>
           </section>
 
           <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">

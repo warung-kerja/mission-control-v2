@@ -3,6 +3,7 @@ import { authMiddleware } from '../middleware/auth.js'
 import { canonicalSourceStatus } from '../lib/canonicalSources.js'
 import { getAutomationStatus } from '../lib/automationStatus.js'
 import { fetchCronJobs, fetchOpenClawRuntime } from '../lib/openclawClient.js'
+import { fetchWorkspaceSignals } from '../lib/workspaceSignals.js'
 
 const router = Router()
 
@@ -55,6 +56,18 @@ router.get('/openclaw-runtime', async (_req, res) => {
   } catch (error) {
     console.error('OpenClaw runtime fetch error:', error)
     res.status(500).json({ error: 'Failed to fetch OpenClaw runtime status' })
+  }
+})
+
+// GET /api/system/workspace-signals
+// Truthful git/file-system signals for post-merge coordination and movement awareness.
+router.get('/workspace-signals', async (_req, res) => {
+  try {
+    const result = await fetchWorkspaceSignals()
+    res.json({ success: true, data: result })
+  } catch (error) {
+    console.error('Workspace signals fetch error:', error)
+    res.status(500).json({ error: 'Failed to fetch workspace signals' })
   }
 })
 

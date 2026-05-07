@@ -75,6 +75,40 @@ export interface OpenClawRuntimeResult {
   error?: string
 }
 
+export interface WorkspaceSignalsResult {
+  ok: boolean
+  fetchedAt: string
+  source: string
+  repo: {
+    branch: string | null
+    head: string | null
+    workingTree: 'clean' | 'dirty' | 'unknown'
+  }
+  cadence: {
+    commits7d: number
+    commits24h: number
+    latestCommitAt: string | null
+  }
+  recentCommits: Array<{
+    hash: string
+    subject: string
+    author: string
+    timestamp: string
+  }>
+  fileChurn7d: Array<{
+    path: string
+    touches: number
+  }>
+  truthFiles: Array<{
+    label: string
+    path: string
+    exists: boolean
+    modifiedAt: string | null
+    ageHours: number | null
+  }>
+  warnings: string[]
+}
+
 export function useAutomationStatus() {
   return useQuery({
     queryKey: ['system', 'automation-status'],
@@ -108,5 +142,17 @@ export function useOpenClawRuntime() {
     },
     staleTime: 30 * 1000,
     refetchInterval: 60 * 1000,
+  })
+}
+
+export function useWorkspaceSignals() {
+  return useQuery({
+    queryKey: ['system', 'workspace-signals'],
+    queryFn: async () => {
+      const response = await systemApi.workspaceSignals()
+      return response.data.data as WorkspaceSignalsResult
+    },
+    staleTime: 60 * 1000,
+    refetchInterval: 120 * 1000,
   })
 }

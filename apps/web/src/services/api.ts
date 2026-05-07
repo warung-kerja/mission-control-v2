@@ -153,6 +153,7 @@ export const systemApi = {
   automationStatus: () => apiClient.get('/system/automation-status'),
   cronJobs: () => apiClient.get('/system/cron-jobs'),
   openClawRuntime: () => apiClient.get('/system/openclaw-runtime'),
+  workspaceSignals: () => apiClient.get('/system/workspace-signals'),
 }
 
 export const notificationsApi = {
