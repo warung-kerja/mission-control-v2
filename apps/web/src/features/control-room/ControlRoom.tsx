@@ -119,8 +119,8 @@ export const ControlRoom: FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] reveal-stagger">
+        <div className="control-panel p-6">
           <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em]">
             <span className="border border-fuchsia-400/20 bg-fuchsia-400/10 px-2.5 py-1 text-fuchsia-300">canonical truth</span>
             <span className="border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-cyan-300">runtime truth</span>
@@ -129,7 +129,7 @@ export const ControlRoom: FC = () => {
 
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="text-3xl font-semibold text-white">Control Room</h2>
+              <h2 className="text-4xl font-semibold tracking-[-0.055em] text-white text-balance lg:text-5xl">Control Room</h2>
               <p className="mt-2 max-w-2xl text-sm text-mission-muted">
                 Welcome back{user?.name ? `, ${user.name}` : ''}. This is the V3 surface for what is live, what needs attention, and what should move next.
               </p>
@@ -142,7 +142,7 @@ export const ControlRoom: FC = () => {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/8 bg-[#07111f]/80 px-4 py-3 text-right">
+            <div className="rounded-2xl border border-cyan-300/15 bg-[#07111f]/82 px-4 py-3 text-right shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
               <p className="text-[11px] uppercase tracking-[0.2em] text-mission-muted/70">Attention now</p>
               <p className="mt-1 text-3xl font-semibold text-white">{attentionItems.length}</p>
               <p className="text-xs text-mission-muted">real issues worth looking at first</p>
@@ -150,7 +150,7 @@ export const ControlRoom: FC = () => {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+        <div className="control-panel p-5">
           <div className="flex items-center gap-2 text-white">
             <Sparkles className="h-4 w-4 text-cyan-300" />
             <h3 className="text-lg font-semibold">Truth pulse</h3>
@@ -175,8 +175,8 @@ export const ControlRoom: FC = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+      <div className="grid gap-4 lg:grid-cols-3 reveal-stagger">
+        <section className="control-panel p-5">
           <div className="flex items-center gap-2 text-white">
             <Database className="h-4 w-4 text-fuchsia-300" />
             <h3 className="text-lg font-semibold">What is live</h3>
@@ -218,7 +218,7 @@ export const ControlRoom: FC = () => {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+        <section className="control-panel p-5">
           <div className="flex items-center gap-2 text-white">
             <AlertTriangle className="h-4 w-4 text-amber-300" />
             <h3 className="text-lg font-semibold">Needs attention</h3>
@@ -263,7 +263,7 @@ export const ControlRoom: FC = () => {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+        <section className="control-panel p-5">
           <div className="flex items-center gap-2 text-white">
             <ArrowRight className="h-4 w-4 text-cyan-300" />
             <h3 className="text-lg font-semibold">What moves next</h3>
@@ -300,7 +300,7 @@ export const ControlRoom: FC = () => {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+        <section className="control-panel p-5">
           <div className="flex items-center gap-2 text-white">
             <Zap className="h-4 w-4 text-cyan-300" />
             <h3 className="text-lg font-semibold">Runtime watch</h3>
@@ -338,7 +338,7 @@ export const ControlRoom: FC = () => {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+        <section className="control-panel p-5">
           <div className="flex items-center gap-2 text-white">
             <Users className="h-4 w-4 text-fuchsia-300" />
             <h3 className="text-lg font-semibold">Recent activity</h3>

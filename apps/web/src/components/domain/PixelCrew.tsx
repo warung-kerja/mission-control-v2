@@ -282,14 +282,16 @@ const CrewTile: FC<{
 
   return (
     <div
-      className={`group relative rounded-2xl border ${colors.accent} bg-[#07111f]/80 p-4 transition-all hover:border-white/15 hover:bg-[#0a1628]`}
+      className={`group relative overflow-hidden rounded-2xl border ${colors.accent} bg-[#07111f]/80 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#0a1628] hover:shadow-[0_18px_48px_rgba(2,8,23,0.32)]`}
       style={{
         animationDelay: `${index * 80}ms`,
         animation: 'fadeInUp 0.4s ease-out both',
       }}
     >
+      <div className="pointer-events-none absolute inset-x-4 top-3 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
       {/* Pixel sprite */}
-      <div className="flex justify-center mb-3">
+      <div className="mb-3 flex justify-center transition-transform duration-300 group-hover:scale-110">
         <PixelSprite grid={grid} colors={colors} scale={3} />
       </div>
 
@@ -316,7 +318,7 @@ const CrewTile: FC<{
       </div>
 
       {/* Initials overlay on hover */}
-      <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-[#020617]/72 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
         <span
           className="text-3xl font-black tracking-tight"
           style={{ color: colors.lit }}
@@ -350,7 +352,7 @@ export const PixelCrew: FC = () => {
   }
 
   return (
-    <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+    <section className="control-panel p-5">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
@@ -366,7 +368,7 @@ export const PixelCrew: FC = () => {
         </span>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 reveal-stagger">
         {sorted.map((member, idx) => (
           <CrewTile key={member.name} member={member} index={idx} total={sorted.length} />
         ))}

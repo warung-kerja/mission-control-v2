@@ -37,8 +37,8 @@ function NavSection({
           className={({ isActive }) =>
             `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
               isActive
-                ? 'bg-gradient-to-r from-cyan-400/15 via-fuchsia-500/10 to-transparent text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]'
-                : 'text-mission-muted hover:bg-white/5 hover:text-mission-text'
+                ? 'translate-x-1 bg-gradient-to-r from-cyan-400/16 via-fuchsia-500/10 to-transparent text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_10px_28px_rgba(8,145,178,0.08)]'
+                : 'text-mission-muted hover:translate-x-1 hover:bg-white/5 hover:text-mission-text'
             }`
           }
         >
@@ -60,7 +60,7 @@ export const Sidebar: FC<SidebarProps> = ({ mobile, onClose }) => {
   const { user } = useAuthStore()
 
   return (
-    <aside className={`${mobile ? 'w-80' : 'w-72'} flex h-full flex-col border-r border-white/8 bg-[#07111f]/95 text-mission-text backdrop-blur-xl`}>
+    <aside className={`${mobile ? 'w-80' : 'w-72'} flex h-full flex-col border-r border-white/10 bg-[#07111f]/88 text-mission-text shadow-[18px_0_80px_rgba(2,8,23,0.26)] backdrop-blur-2xl`}>
       <div className="border-b border-white/8 p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -91,7 +91,7 @@ export const Sidebar: FC<SidebarProps> = ({ mobile, onClose }) => {
       </nav>
 
       <div className="space-y-4 border-t border-white/8 p-4">
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+        <div className="control-panel rounded-2xl p-4">
           <p className="text-[11px] uppercase tracking-[0.22em] text-mission-muted/80">Truth Legend</p>
           <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-medium">
             {(['canonical', 'runtime', 'fallback'] as const).map((tone) => (
@@ -105,7 +105,7 @@ export const Sidebar: FC<SidebarProps> = ({ mobile, onClose }) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+        <div className="control-panel flex items-center gap-3 rounded-2xl px-4 py-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-400/15 text-sm font-semibold text-cyan-300">
             N
           </div>
@@ -113,7 +113,7 @@ export const Sidebar: FC<SidebarProps> = ({ mobile, onClose }) => {
             <p className="truncate text-sm font-medium text-white">{user?.name || 'Noona'}</p>
             <p className="text-xs text-mission-muted">{user?.role || 'Operator session'}</p>
           </div>
-          <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(74,222,128,0.75)]" />
+          <div className="status-orbit h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(74,222,128,0.85)]" />
         </div>
       </div>
     </aside>

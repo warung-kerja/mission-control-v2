@@ -53,7 +53,23 @@
 
   body {
     @apply bg-mission-bg text-mission-text antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1, "tnum" 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  body::before {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    opacity: 0.055;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.9) 0 1px, transparent 1px),
+      radial-gradient(circle at 80% 30%, rgba(255,255,255,0.55) 0 1px, transparent 1px),
+      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 36px 36px, 53px 53px, 100% 4px;
+    mix-blend-mode: soft-light;
   }
 
   /* Focus visible for accessibility */
@@ -77,6 +93,76 @@
   /* Card component */
   .mission-card {
     @apply bg-mission-card border border-mission-border rounded-xl;
+  }
+
+  .control-panel {
+    @apply relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-[0_24px_90px_rgba(2,8,23,0.34)] transition-all duration-300;
+  }
+
+  .control-panel::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.12), transparent 32%),
+      radial-gradient(circle at var(--spotlight-x, 18%) var(--spotlight-y, 0%), rgba(56,189,248,0.12), transparent 34%);
+    opacity: 0.72;
+  }
+
+  .control-panel::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(15,23,42,0.65);
+  }
+
+  .control-panel > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .control-panel:hover {
+    transform: translateY(-2px);
+    border-color: rgba(125, 211, 252, 0.22);
+    box-shadow: 0 30px 110px rgba(2,8,23,0.42), 0 0 0 1px rgba(56,189,248,0.04);
+  }
+
+  .ambient-shell {
+    @apply pointer-events-none fixed inset-0;
+    background:
+      radial-gradient(circle at 14% 8%, rgba(56,189,248,0.16), transparent 26%),
+      radial-gradient(circle at 82% 14%, rgba(217,70,239,0.09), transparent 24%),
+      radial-gradient(circle at 56% 92%, rgba(16,185,129,0.07), transparent 28%),
+      linear-gradient(180deg,#050b14 0%,#09111d 55%,#060c16 100%);
+  }
+
+  .ambient-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.28;
+    background-image: linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(circle at 50% 40%, black, transparent 72%);
+  }
+
+  .status-orbit {
+    @apply relative;
+  }
+
+  .status-orbit::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 999px;
+    border: 1px solid rgba(34,211,238,0.22);
+    opacity: 0;
+    transform: scale(0.72);
+    animation: orbitPing 2.8s ease-out infinite;
   }
 
   /* Button base */
@@ -127,6 +213,26 @@
       transform: translateY(0);
     }
   }
+
+  @keyframes orbitPing {
+    0% {
+      opacity: 0.65;
+      transform: scale(0.72);
+    }
+    70%, 100% {
+      opacity: 0;
+      transform: scale(1.38);
+    }
+  }
+
+  .reveal-stagger > * {
+    animation: fadeIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .reveal-stagger > *:nth-child(2) { animation-delay: 70ms; }
+  .reveal-stagger > *:nth-child(3) { animation-delay: 140ms; }
+  .reveal-stagger > *:nth-child(4) { animation-delay: 210ms; }
+  .reveal-stagger > *:nth-child(5) { animation-delay: 280ms; }
 
   /* Scrollbar styling */
   .custom-scrollbar::-webkit-scrollbar {

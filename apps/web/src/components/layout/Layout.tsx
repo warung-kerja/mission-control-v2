@@ -12,7 +12,8 @@ export const Layout: FC = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#050b14] text-mission-text">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.08),transparent_24%),linear-gradient(180deg,#050b14_0%,#09111d_55%,#060c16_100%)]" />
+      <div className="ambient-shell" />
+      <div className="pointer-events-none fixed inset-x-8 top-6 z-0 h-px bg-gradient-to-r from-transparent via-cyan-300/25 to-transparent" />
 
       {/* Desktop Sidebar */}
       <div className="relative z-10 hidden lg:block">
@@ -35,7 +36,7 @@ export const Layout: FC = () => {
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="custom-scrollbar flex-1 overflow-auto px-4 pb-6 pt-4 lg:px-6 lg:pb-8 lg:pt-5">
+        <main className="custom-scrollbar flex-1 overflow-auto px-4 pb-7 pt-5 lg:px-7 lg:pb-10 lg:pt-6">
           <div className="mx-auto w-full max-w-[1600px]">
             <Outlet />
           </div>

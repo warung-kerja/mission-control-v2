@@ -27,7 +27,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
   }
 
   return (
-    <header className="border-b border-white/8 bg-[#091423]/90 px-4 py-4 backdrop-blur-xl lg:px-6">
+    <header className="border-b border-white/10 bg-[#07111f]/82 px-4 py-4 shadow-[0_18px_60px_rgba(2,8,23,0.22)] backdrop-blur-2xl lg:px-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="flex min-w-0 flex-1 gap-3">
           <button
@@ -53,7 +53,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
             </div>
             <div className="mt-2 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
-                <h2 className="truncate text-2xl font-semibold tracking-tight text-white">{pageMeta.title}</h2>
+                <h2 className="truncate text-2xl font-semibold tracking-[-0.035em] text-white text-balance">{pageMeta.title}</h2>
                 <p className="mt-1 max-w-3xl text-sm text-mission-muted">{pageMeta.question}</p>
               </div>
               <div className="flex flex-wrap gap-2 text-[11px] font-medium">
@@ -73,13 +73,13 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
             <input
               type="text"
               placeholder="Search screens, memories, docs..."
-              className="w-full rounded-xl border border-white/8 bg-white/[0.03] py-2.5 pl-10 pr-4 text-sm text-mission-text placeholder:text-mission-muted focus:border-cyan-400/40 focus:outline-none"
+              className="w-full rounded-2xl border border-white/10 bg-white/[0.045] py-2.5 pl-10 pr-4 text-sm text-mission-text shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] placeholder:text-mission-muted transition-all duration-200 hover:border-white/15 focus:border-cyan-400/45 focus:bg-white/[0.06] focus:outline-none"
             />
           </div>
 
           <div className="flex items-center justify-end gap-2 lg:gap-3">
             <NotificationBell />
-            <button className="rounded-xl p-2 text-mission-muted transition-colors hover:bg-white/5 hover:text-mission-text">
+            <button className="rounded-xl p-2 text-mission-muted transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/5 hover:text-mission-text active:translate-y-0">
               <Settings className="h-5 w-5" />
             </button>
 
@@ -88,7 +88,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
                 <span className="text-sm font-medium leading-tight text-mission-text">{user?.name || 'Authorized'}</span>
                 <span className="text-[10px] uppercase tracking-wider leading-tight text-mission-muted">{user?.role || 'Guest'}</span>
               </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/8 bg-white/[0.03] text-primary-400">
+              <div className="status-orbit flex h-9 w-9 items-center justify-center rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.055] text-primary-400 shadow-[0_0_22px_rgba(56,189,248,0.12)]">
                 {user?.avatar ? (
                   <img src={user.avatar} alt={user.name} className="h-full w-full rounded-full object-cover" />
                 ) : (
@@ -98,7 +98,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
               <button
                 onClick={handleLogout}
                 title="Log Out Session"
-                className="rounded-xl p-2 text-mission-muted transition-colors hover:bg-error/10 hover:text-error"
+                className="rounded-xl p-2 text-mission-muted transition-all duration-200 hover:-translate-y-0.5 hover:bg-error/10 hover:text-error active:translate-y-0"
               >
                 <LogOut className="h-5 w-5" />
               </button>
