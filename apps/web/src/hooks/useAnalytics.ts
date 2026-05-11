@@ -39,6 +39,29 @@ export interface TeamMemberWithWorkload {
   }
 }
 
+export interface TokenUsageTotal {
+  agent: string
+  totalTokens: number
+  input: number
+  output: number
+  cacheRead: number
+  cacheWrite: number
+  turns: number
+  averageTokensPerTurn: number
+  color: string
+}
+
+export interface TokenUsageData {
+  days: number
+  timezone: string
+  dates: string[]
+  agents: string[]
+  series: Array<Record<string, string | number>>
+  totals: TokenUsageTotal[]
+  sourceAvailable: boolean
+  sourcePath: string
+}
+
 export interface ProjectBreakdown {
   id: string
   name: string
@@ -92,5 +115,18 @@ export function useProjectBreakdown() {
       const response = await teamAnalyticsApi.projectBreakdown()
       return response.data.data as ProjectBreakdown[]
     },
+  })
+}
+
+
+// Fetch daily OpenClaw token usage grouped by agent
+export function useTeamTokenUsage(days = 7) {
+  return useQuery({
+    queryKey: ['team', 'token-usage', days],
+    queryFn: async () => {
+      const response = await teamAnalyticsApi.tokenUsage({ days })
+      return response.data.data as TokenUsageData
+    },
+    staleTime: 60_000,
   })
 }

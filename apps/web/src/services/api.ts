@@ -169,6 +169,7 @@ export const teamAnalyticsApi = {
     apiClient.get('/team/analytics', { params }),
   members: () => apiClient.get('/team/members'),
   productivity: (params?: { days?: number }) => apiClient.get('/team/productivity', { params }),
+  tokenUsage: (params?: { days?: number }) => apiClient.get('/team/token-usage', { params }),
   activityFeed: (limit?: number) => getActivityFeedRequest(limit),
   projectBreakdown: () => apiClient.get('/team/analytics/projects'),
 }

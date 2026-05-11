@@ -17,6 +17,8 @@ import { useCanonicalProjects, useCanonicalStatus, useCanonicalTeam } from '../.
 import { useCanonicalMemories } from '../../hooks/useCanonicalMemories'
 import { useTeamActivityFeed } from '../../hooks/useDashboard'
 import { useAutomationStatus, useCronJobs, useWorkspaceSignals } from '../../hooks/useSystem'
+import { useTeamTokenUsage } from '../../hooks/useAnalytics'
+import { AgentTokenUsagePanel } from '../analytics/AgentTokenUsagePanel'
 
 function formatRelative(value: string | null | undefined) {
   if (!value) return '—'
@@ -44,6 +46,7 @@ export const Signals: FC = () => {
   const { data: automationStatus, isLoading: automationLoading } = useAutomationStatus()
   const { data: cronJobs, isLoading: cronLoading } = useCronJobs()
   const { data: workspaceSignals, isLoading: workspaceLoading } = useWorkspaceSignals()
+  const { data: tokenUsage, isLoading: tokenUsageLoading } = useTeamTokenUsage(7)
 
   const projects = canonicalProjects?.data ?? []
   const team = canonicalTeam ?? []
@@ -145,6 +148,8 @@ export const Signals: FC = () => {
       ) : (
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <main className="space-y-6">
+            <AgentTokenUsagePanel data={tokenUsage} isLoading={tokenUsageLoading} period="7" />
+
             <section className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
               <SectionTitle icon={<Sparkles className="h-4 w-4 text-amber-300" />} title="Attention stack" subtitle="Only the signals worth interrupting Raz for." />
               <div className="mt-4 grid gap-3 md:grid-cols-2">

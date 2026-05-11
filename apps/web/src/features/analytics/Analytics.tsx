@@ -5,9 +5,11 @@ import {
   useTeamProductivity,
   useTeamMembersWithWorkload,
   useProjectBreakdown,
+  useTeamTokenUsage,
   type ProjectBreakdown,
 } from '../../hooks/useAnalytics'
 import { useCanonicalProjects, type CanonicalProject } from '../../hooks'
+import { AgentTokenUsagePanel } from './AgentTokenUsagePanel'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -262,6 +264,7 @@ export const Analytics: FC = () => {
   const { data: projects, isLoading: projectsLoading } = useProjectBreakdown()
   const { data: analytics, isLoading: analyticsLoading } = useTeamAnalytics(projectId || undefined)
   const { data: productivity, isLoading: productivityLoading } = useTeamProductivity(parseInt(period))
+  const { data: tokenUsage, isLoading: tokenUsageLoading } = useTeamTokenUsage(parseInt(period))
   const { data: members, isLoading: membersLoading } = useTeamMembersWithWorkload()
   const { data: canonicalProjectsResult, isLoading: canonicalLoading } = useCanonicalProjects()
   const canonicalProjects = canonicalProjectsResult?.data ?? []
@@ -361,6 +364,9 @@ export const Analytics: FC = () => {
       ) : canonicalProjects.length > 0 ? (
         <CanonicalProjectHealth projects={canonicalProjects} />
       ) : null}
+
+      {/* ── Agent Token Usage ─────────────────────────────────── */}
+      <AgentTokenUsagePanel data={tokenUsage} isLoading={tokenUsageLoading} period={period} />
 
       {/* ── DB Task Metrics ────────────────────────────────────── */}
       <div className="flex items-center gap-2 pt-2">
